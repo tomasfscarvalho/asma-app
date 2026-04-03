@@ -1,7 +1,6 @@
 import type {
   Paciente, Fase1Dados, Fase3Dados, Fase4Dados,
-  Fase5Dados, Fase6Dados, Fase8Dados,
-  ResultadoFase3, ResultadoFase4, ResultadoFase6, ResultadoFase8
+  Fase5Dados, Fase6Dados, Fase8Dados
 } from './types'
 import { calcularFase3 } from './fase3-provas'
 import { calcularFase4 } from './fase4-controlo'
