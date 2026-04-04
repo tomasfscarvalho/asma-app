@@ -20,7 +20,7 @@ export default function Fase3Page() {
       setStep(step + 1)
     } else {
       setResultadoFase3(resultado)
-      navegarPara(3)
+      navegarPara(9)
     }
   }
 

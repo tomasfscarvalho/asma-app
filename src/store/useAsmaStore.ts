@@ -1,3 +1,5 @@
+
+import type { TipoConsulta, DecisaoDiagnostica } from '../domain/types'
 import { create } from 'zustand'
 import type {
   Paciente,
@@ -21,12 +23,15 @@ const pacienteInicial: Paciente = {
 
 const fase1Inicial: Fase1Dados = {
   sibilancia: false, dispneia: false, tosse: false, opressaoToracica: false,
-  maisDe1Sintoma: false, sintomasVariaveis: false, agravamComExposicao: false,
+  maisDe1Sintoma: false, sintomasVariaveis: false,
+  agravamComExercicio: false, agravamComFrio: false,
+  agravamComAlergenios: false, agravamComInfecoes: false,
   sintomasMaisde1xSemana: false, sintomasNoturnosOuManha: false,
-  tosseIsolada: false, tosseProdutivaCronica: false, dorToracica: false,
+  tosseIsolada: false, tosseProdutivaCronica: false,
+  dispneiaTonturasParestesias: false, dorToracica: false,
   dispneiaPorExercicioComInspiracao: false,
-  inicioNaInfancia: false, riniteOuEczema: false, familiarAsmaAtopia: false,
-  sensibilizacaoAlergenica: false,
+  inicioNaInfancia: false, riniteOuEczema: false,
+  familiarAsmaAtopia: false, sensibilizacaoAlergenica: false,
   sibilosNaExpiracao: false, exameFisicoNormal: false, silencioRespiratorio: false,
 }
 
@@ -68,6 +73,14 @@ interface AsmaState {
   // Navegação
   faseAtual: number
   substepAtual: number
+
+  tipoConsulta: TipoConsulta | null
+  decisaoDiagnostica: DecisaoDiagnostica
+  fase8Ativa: boolean
+
+  setTipoConsulta: (t: TipoConsulta) => void
+  setDecisaoDiagnostica: (d: DecisaoDiagnostica) => void
+  ativarFase8: () => void
 
   // Ações — funções para atualizar o estado
   setPaciente: (dados: Partial<Paciente>) => void
@@ -133,6 +146,10 @@ export const useAsmaStore = create<AsmaState>((set) => ({
   faseAtual: -1,
   substepAtual: 0,
 
+  tipoConsulta: null,
+  decisaoDiagnostica: null,
+  fase8Ativa: false,
+
   // Partial<X> significa "só os campos que quero mudar"
   setPaciente: (dados) => set((s) => ({ paciente: { ...s.paciente, ...dados } })),
   setFase1: (dados) => set((s) => ({ fase1: { ...s.fase1, ...dados } })),
@@ -151,6 +168,9 @@ export const useAsmaStore = create<AsmaState>((set) => ({
   setResultadoFase8: (r) => set({ resultadoFase8: r }),
 
   navegarPara: (fase, substep = 0) => set({ faseAtual: fase, substepAtual: substep }),
+  setTipoConsulta: (t) => set({ tipoConsulta: t }),
+  setDecisaoDiagnostica: (d) => set({ decisaoDiagnostica: d }),
+  ativarFase8: () => set({ fase8Ativa: true, faseAtual: 7 }),
 
   // Apaga tudo — usado quando o médico termina a consulta
   resetarSessao: () => set({
@@ -161,6 +181,8 @@ export const useAsmaStore = create<AsmaState>((set) => ({
     fase4: fase4Inicial,
     resultadoFase3: null, resultadoFase4: null,
     resultadoFase6: null, resultadoFase7: null, resultadoFase8: null,
-    faseAtual: -1, substepAtual: 0,
+    faseAtual: -1, substepAtual: 0,tipoConsulta: null,
+    decisaoDiagnostica: null,
+    fase8Ativa: false,
   }),
 }))

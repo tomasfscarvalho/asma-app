@@ -14,7 +14,7 @@ export interface Paciente {
 // FASE 1 — Avaliação clínica inicial
 // ============================================
 export interface Fase1Dados {
-  // Sintomas típicos
+  // Sintomas respiratórios típicos
   sibilancia: boolean
   dispneia: boolean
   tosse: boolean
@@ -23,17 +23,21 @@ export interface Fase1Dados {
   // Fatores que aumentam probabilidade
   maisDe1Sintoma: boolean
   sintomasVariaveis: boolean
-  agravamComExposicao: boolean
+  agravamComExercicio: boolean
+  agravamComFrio: boolean
+  agravamComAlergenios: boolean
+  agravamComInfecoes: boolean
   sintomasMaisde1xSemana: boolean
   sintomasNoturnosOuManha: boolean
 
   // Fatores que diminuem probabilidade
   tosseIsolada: boolean
   tosseProdutivaCronica: boolean
+  dispneiaTonturasParestesias: boolean
   dorToracica: boolean
   dispneiaPorExercicioComInspiracao: boolean
 
-  // História clínica
+  // História clínica e familiar
   inicioNaInfancia: boolean
   riniteOuEczema: boolean
   familiarAsmaAtopia: boolean
@@ -204,3 +208,10 @@ export interface ResultadoFase8 {
   nivelCuidados: string
   transferirUci: boolean
 }
+
+
+// ============================================
+// CONTEXTO DA CONSULTA
+// ============================================
+export type TipoConsulta = 'primeira-consulta' | 'seguimento'
+export type DecisaoDiagnostica = 'confirmado' | 'nao-confirmado' | null

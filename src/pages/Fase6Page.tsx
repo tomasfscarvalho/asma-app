@@ -6,9 +6,9 @@ import NavFooter from '../components/NavFooter'
 import ResultBox from '../components/ResultBox'
 
 const medidas: Array<{ label: string; condicao: (fase5: Fase5Dados) => boolean }> = [
-  { label: 'Cessacao tabagica', condicao: (fase5) => fase5.fumoTabaco },
-  { label: 'Promocao de atividade fisica e dieta equilibrada', condicao: (fase5) => fase5.obesidade },
-  { label: 'Evitar exposicao ocupacional', condicao: () => true },
+  { label: 'Cessação tabágica', condicao: (fase5) => fase5.fumoTabaco },
+  { label: 'Promoção de atividade física e dieta equilibrada', condicao: (fase5) => fase5.obesidade },
+  { label: 'Evitar exposição ocupacional', condicao: () => true },
   { label: 'Evitar AINE se agravamento associado', condicao: () => true },
 ]
 
@@ -17,8 +17,8 @@ export default function Fase6Page() {
   const resultado = calcularFase6(fase4, fase6)
 
   const ajusteTextoPorTipo: Record<NonNullable<ResultadoFase6['ajuste']>, string> = {
-    subir: 'Subir degrau terapeutico',
-    manter: 'Manter terapeutica atual',
+    subir: 'Subir degrau terapêutico',
+    manter: 'Manter terapêutica atual',
     descer: 'Considerar descer degrau (controlo >= 3 meses)',
   }
 
@@ -41,8 +41,8 @@ export default function Fase6Page() {
   return (
     <Layout
       faseNumero={6}
-      faseTitulo="Recomendacao terapeutica"
-      badge="Decisao automatica"
+      faseTitulo="Recomendação terapêutica"
+      badge="Decisão automática"
       resumo={[
         { key: 'Degrau', val: `Degrau ${resultado.degrau}` },
         { key: 'Percurso', val: `Percurso ${resultado.percurso}` },
@@ -51,7 +51,7 @@ export default function Fase6Page() {
     >
       <div style={{ padding: 20, minHeight: 280 }}>
         <p style={{ fontSize: 12, color: '#888', marginBottom: 20 }}>
-          Seleciona o percurso terapeutico. O Percurso 1 e o preferencial segundo a GINA 2022.
+          Seleciona o percurso terapêutico. O Percurso 1 é o preferencial segundo a GINA 2022.
         </p>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
@@ -79,18 +79,18 @@ export default function Fase6Page() {
               </div>
               <p style={{ fontSize: 11, color: '#666', margin: 0 }}>
                 {percurso === 1
-                  ? 'ICS-formoterol como alivio em todos os degraus'
-                  : 'ICS + SABA como terapeutica de alivio'}
+                  ? 'ICS-formoterol como alívio em todos os degraus'
+                  : 'ICS + SABA como terapêutica de alívio'}
               </p>
             </div>
           ))}
         </div>
 
         <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-          Recomendacao automatica
+          Recomendação automática
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-          <ResultBox label="Degrau terapeutico sugerido" valor={`Degrau ${resultado.degrau}`} tipo="ok" />
+          <ResultBox label="Degrau terapêutico sugerido" valor={`Degrau ${resultado.degrau}`} tipo="ok" />
           <ResultBox
             label="Ajuste sugerido"
             valor={ajusteTexto}
@@ -98,15 +98,15 @@ export default function Fase6Page() {
           />
           {resultado.criterioReferenciacao && (
             <ResultBox
-              label="Criterio de referenciacao"
-              valor="Ausencia de controlo com degrau >= 3; considerar referenciacao"
+              label="Critério de referenciação"
+              valor="Ausência de controlo com degrau >= 3; considerar referenciação"
               tipo="alerta"
             />
           )}
         </div>
 
         <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-          Medidas nao farmacologicas
+          Medidas não farmacológicas
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {medidasVisiveis.map((medida) => (

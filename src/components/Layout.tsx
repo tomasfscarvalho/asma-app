@@ -10,7 +10,7 @@ interface LayoutProps {
 }
 
 export default function Layout({ children, faseNumero, faseTitulo, badge, resumo = [] }: LayoutProps) {
-  const { paciente } = useAsmaStore()
+  const { paciente, ativarFase8 } = useAsmaStore()
 
   const resumoPadrao = [
     { key: 'Paciente', val: paciente.nome || '—' },
@@ -25,24 +25,26 @@ export default function Layout({ children, faseNumero, faseTitulo, badge, resumo
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 260px', gap: 16 }}>
 
-          {/* Card principal */}
           <div style={{ background: '#1e1e1e', borderRadius: 12, border: '1px solid #333', overflow: 'hidden' }}>
-
-            {/* Header */}
             <div style={{ padding: '14px 20px', borderBottom: '1px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 15, fontWeight: 500, color: '#fff' }}>
-                Fase {faseNumero} — {faseTitulo}
-              </span>
+              <span style={{ fontSize: 15, fontWeight: 500, color: '#fff' }}>Fase {faseNumero} — {faseTitulo}</span>
               <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 20, background: '#0F6E5630', color: '#5DCAA5', border: '1px solid #1D9E7540' }}>
                 {badge}
               </span>
             </div>
-
             {children}
           </div>
 
-          {/* Painel lateral */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+            {/* Botão de emergência */}
+            <button
+              onClick={ativarFase8}
+              style={{ width: '100%', padding: '10px', borderRadius: 8, border: '1px solid #E24B4A50', background: '#E24B4A15', color: '#F09595', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}
+            >
+              ⚠ Avaliar agudização
+            </button>
+
             <div style={{ background: '#1e1e1e', borderRadius: 10, border: '1px solid #333', overflow: 'hidden' }}>
               <div style={{ padding: '10px 14px', borderBottom: '1px solid #333', fontSize: 12, fontWeight: 500, color: '#888' }}>Resumo da sessão</div>
               <div style={{ padding: '10px 14px' }}>
@@ -69,7 +71,6 @@ export default function Layout({ children, faseNumero, faseTitulo, badge, resumo
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
