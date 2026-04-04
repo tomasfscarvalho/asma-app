@@ -4,39 +4,51 @@ import NavFooter from '../components/NavFooter'
 import CheckItem from '../components/CheckItem'
 
 const diferenciais = [
-  { grupo: 'Vias aéreas superiores', items: [
-    'Rinite alérgica',
-    'Sinusite crónica',
-    'Disfunção de cordas vocais',
-    'Traqueomalácia',
-    'Malformações das vias aéreas superiores',
-    'Aspiração de corpo estranho',
-    'Aspiração recorrente',
-  ]},
-  { grupo: 'Vias aéreas inferiores', items: [
-    'Doença pulmonar obstrutiva crónica (DPOC)',
-    'Bronquiectasias',
-    'Hiper-reatividade brônquica pós-infeciosa',
-    'Fibrose quística',
-    'Discinesia ciliar primária',
-    'Tumor brônquico',
-  ]},
-  { grupo: 'Cardiovascular e sistémico', items: [
-    'Insuficiência cardíaca congestiva',
-    'Tromboembolia pulmonar',
-    'Eosinofilia pulmonar',
-    'Pneumonite de hipersensibilidade',
-    'Amiloidose brônquica',
-    'Aspergilose broncopulmonar alérgica',
-  ]},
-  { grupo: 'Outros', items: [
-    'Refluxo gastroesofágico',
-    'Apneia obstrutiva do sono',
-    'Hiperventilação / padrão respiratório disfuncional',
-    'Tosse por IECA',
-    'Obesidade',
-    'Tuberculose',
-  ]},
+  {
+    grupo: 'Vias aéreas superiores',
+    items: [
+      'Rinite alérgica',
+      'Sinusite crónica',
+      'Disfunção de cordas vocais',
+      'Traqueomalácia',
+      'Malformações das vias aéreas superiores',
+      'Aspiração de corpo estranho',
+      'Aspiração recorrente',
+    ],
+  },
+  {
+    grupo: 'Vias aéreas inferiores',
+    items: [
+      'Doença pulmonar obstrutiva crónica (DPOC)',
+      'Bronquiectasias',
+      'Hiper-reatividade brônquica pós-infeciosa',
+      'Fibrose quística',
+      'Discinesia ciliar primária',
+      'Tumor brônquico',
+    ],
+  },
+  {
+    grupo: 'Cardiovascular e sistémico',
+    items: [
+      'Insuficiência cardíaca congestiva',
+      'Tromboembolia pulmonar',
+      'Eosinofilia pulmonar',
+      'Pneumonite de hipersensibilidade',
+      'Amiloidose brônquica',
+      'Aspergilose broncopulmonar alérgica',
+    ],
+  },
+  {
+    grupo: 'Outros',
+    items: [
+      'Refluxo gastroesofágico',
+      'Apneia obstrutiva do sono',
+      'Hiperventilação / padrão respiratório disfuncional',
+      'Tosse por IECA',
+      'Obesidade',
+      'Tuberculose',
+    ],
+  },
 ]
 
 const todosOsDiferenciais = diferenciais.flatMap((g) => g.items)
@@ -57,8 +69,6 @@ export default function Fase2Page() {
     ? Math.floor((Date.now() - new Date(paciente.dataNascimento).getTime()) / 31557600000)
     : null
 
-  // Sugestões automáticas baseadas na Fase 1, aproximadas aos padrões da GINA
-  // e limitadas aos dados que esta app recolhe.
   const sugeridos: string[] = []
   if (fase1.tosseIsolada) sugeridos.push('Refluxo gastroesofágico', 'Tosse por IECA', 'Sinusite crónica')
   if (fase1.tosseProdutivaCronica) {
@@ -70,6 +80,8 @@ export default function Fase2Page() {
   if (fase1.dispneiaPorExercicioComInspiracao) sugeridos.push('Disfunção de cordas vocais', 'Traqueomalácia')
 
   const sugeridosUnicos = [...new Set(sugeridos)]
+  const todosSelecionados = fase2.diferenciaisExcluidos.length === todosOsDiferenciais.length
+  const nenhumSelecionado = fase2.diferenciaisExcluidos.length === 0
 
   return (
     <Layout
@@ -85,6 +97,41 @@ export default function Fase2Page() {
         <p style={{ fontSize: 12, color: '#888', marginBottom: 16, lineHeight: 1.6 }}>
           Nesta fase, o objetivo é excluir diagnósticos diferenciais que possam explicar os sintomas em vez de asma. Assinale apenas os diagnósticos que já foram avaliados e excluídos clinicamente. A ferramenta não exclui nenhum diagnóstico de forma automática.
         </p>
+
+        <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => setFase2({ diferenciaisExcluidos: todosOsDiferenciais })}
+            disabled={todosSelecionados}
+            style={{
+              padding: '8px 12px',
+              borderRadius: 6,
+              border: todosSelecionados ? '1px solid #333' : '1px solid #1D9E75',
+              background: todosSelecionados ? '#181818' : '#0F6E5620',
+              color: todosSelecionados ? '#666' : '#5DCAA5',
+              cursor: todosSelecionados ? 'default' : 'pointer',
+              fontSize: 12,
+            }}
+          >
+            Selecionar todos
+          </button>
+          <button
+            type="button"
+            onClick={() => setFase2({ diferenciaisExcluidos: [] })}
+            disabled={nenhumSelecionado}
+            style={{
+              padding: '8px 12px',
+              borderRadius: 6,
+              border: nenhumSelecionado ? '1px solid #333' : '1px solid #444',
+              background: '#181818',
+              color: nenhumSelecionado ? '#666' : '#ccc',
+              cursor: nenhumSelecionado ? 'default' : 'pointer',
+              fontSize: 12,
+            }}
+          >
+            Limpar seleção
+          </button>
+        </div>
 
         {sugeridosUnicos.length > 0 && (
           <div style={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: 8, padding: '12px 14px', marginBottom: 20 }}>
