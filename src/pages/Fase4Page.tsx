@@ -129,7 +129,7 @@ export default function Fase4Page() {
             <div style={{ marginTop: 8 }}>
               <ResultBox
                 label="Score ACT"
-                valor={resultado.scoreAct ? `${resultado.scoreAct} / 25` : 'Incompleto — preenche todas as perguntas'}
+                valor={resultado.scoreAct ? `${resultado.scoreAct} / 25` : 'Incompleto — preencha todas as perguntas.'}
                 tipo={resultado.scoreAct ? (resultado.scoreAct >= 20 ? 'ok' : resultado.scoreAct >= 16 ? 'neutro' : 'alerta') : 'neutro'}
               />
             </div>

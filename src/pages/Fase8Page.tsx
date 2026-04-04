@@ -53,7 +53,7 @@ export default function Fase8Page() {
         {step === 0 && (
           <>
             <p style={{ fontSize: 12, color: '#888', marginBottom: 16 }}>
-              Se existirem parâmetros compatíveis com agudização, preenche os valores abaixo.
+              Se existirem parâmetros compatíveis com agudização, preencha os valores abaixo.
             </p>
 
             <div style={{ marginBottom: 16 }}>
