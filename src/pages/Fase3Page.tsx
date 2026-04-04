@@ -10,7 +10,7 @@ import ResultBox from '../components/ResultBox'
 const steps = ['Contexto', 'Espirometria', 'Reversibilidade', 'PEF + Output']
 
 export default function Fase3Page() {
-  const { fase3, setFase3, setResultadoFase3, navegarPara } = useAsmaStore()
+  const { fase3, setFase3, setResultadoFase3, navegarPara, paciente } = useAsmaStore()
   const [step, setStep] = useState(0)
 
   const resultado = calcularFase3(fase3)
@@ -49,6 +49,21 @@ export default function Fase3Page() {
             <p style={{ fontSize: 12, color: '#888', marginBottom: 16, lineHeight: 1.6 }}>
               A espirometria é o método de diagnóstico recomendado. A confirmação da variabilidade ao fluxo expiratório é um componente essencial no diagnóstico da asma. O diagnóstico deve ser realizado, sempre que possível, antes de o tratamento ser iniciado.
             </p>
+
+            {paciente.jaEmICS && (
+              <div style={{ background: '#FAEEDA20', border: '1px solid #FAC77550', borderRadius: 8, padding: '12px 14px', marginBottom: 16 }}>
+                <p style={{ color: '#FAC775', fontSize: 13, fontWeight: 500, margin: '0 0 6px' }}>⚠ Doente jÃ¡ em tratamento com ICS</p>
+                <p style={{ color: '#FAC775', fontSize: 12, margin: '0 0 8px' }}>
+                  A espirometria pode estar falsamente normal â€” o ICS pode ter melhorado a funÃ§Ã£o pulmonar antes da confirmaÃ§Ã£o diagnÃ³stica.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11, color: '#BA7517' }}>
+                  <span>• PerÃ­odos de suspensÃ£o recomendados antes da espirometria:</span>
+                  <span style={{ paddingLeft: 12 }}>SABA: ≥ 4 horas | LABA: 24 horas | Formoterol/Salmeterol: 24 horas</span>
+                  <span>• A ausÃªncia de obstruÃ§Ã£o nÃ£o exclui o diagnÃ³stico de asma</span>
+                  <span>• Considerar variabilidade entre visitas como critÃ©rio adicional</span>
+                </div>
+              </div>
+            )}
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
               Contexto do paciente

@@ -2,7 +2,7 @@ import { useAsmaStore } from '../store/useAsmaStore'
 import Layout from '../components/Layout'
 
 export default function DecisaoDiagnosticaPage() {
-  const { setDecisaoDiagnostica, navegarPara, resultadoFase3 } = useAsmaStore()
+  const { setDecisaoDiagnostica, navegarPara, resultadoFase3, paciente } = useAsmaStore()
 
   function confirmar() {
     setDecisaoDiagnostica('confirmado')
@@ -27,6 +27,21 @@ export default function DecisaoDiagnosticaPage() {
         <p style={{ fontSize: 13, color: '#aaa', marginBottom: 24, lineHeight: 1.7 }}>
           Com base nos sintomas registados, na história clínica e nos resultados das provas funcionais, o médico deve agora tomar a decisão diagnóstica. A ferramenta não emite esta conclusão automaticamente — é da exclusiva responsabilidade clínica do médico.
         </p>
+
+        {paciente.jaEmICS && (
+          <div style={{ background: '#FAEEDA20', border: '1px solid #FAC77550', borderRadius: 8, padding: '12px 14px', marginBottom: 20 }}>
+            <p style={{ color: '#FAC775', fontSize: 13, fontWeight: 500, margin: '0 0 6px' }}>⚠ Contexto clÃ­nico â€” doente jÃ¡ em ICS</p>
+            <p style={{ color: '#FAC775', fontSize: 12, margin: '0 0 6px' }}>
+              Este doente jÃ¡ estava em tratamento com ICS antes da confirmaÃ§Ã£o diagnÃ³stica formal. A GINA recomenda que:
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11, color: '#BA7517' }}>
+              <span>• A normalidade das provas funcionais nÃ£o exclui o diagnÃ³stico de asma</span>
+              <span>• Sintomas tÃ­picos com variabilidade + resposta ao ICS suportam o diagnÃ³stico</span>
+              <span>• Se as provas sÃ£o negativas, considerar repetir apÃ³s suspensÃ£o do ICS</span>
+              <span>• Em caso de dÃºvida, referenciar para especialidade</span>
+            </div>
+          </div>
+        )}
 
         {resultadoFase3 && (
           <div style={{ background: '#1a1a1a', borderRadius: 8, padding: 16, marginBottom: 24, border: '1px solid #333' }}>

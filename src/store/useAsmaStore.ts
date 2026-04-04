@@ -19,6 +19,7 @@ const pacienteInicial: Paciente = {
   numeroUtente: '',
   cartaoCidadao: '',
   contacto: '',
+  jaEmICS: false,
 }
 
 const fase1Inicial: Fase1Dados = {

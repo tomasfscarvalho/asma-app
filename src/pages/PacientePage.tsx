@@ -98,6 +98,36 @@ export default function PacientePage() {
             </div>
           </div>
 
+          {/* Doente jÃ¡ em ICS */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <div
+              onClick={() => setPaciente({ jaEmICS: !paciente.jaEmICS })}
+              style={{
+                display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 14px',
+                borderRadius: 8, cursor: 'pointer',
+                border: paciente.jaEmICS ? '1px solid #FAC775' : '1px solid #333',
+                background: paciente.jaEmICS ? '#FAEEDA20' : '#111',
+              }}
+            >
+              <div style={{
+                width: 16, height: 16, borderRadius: 3, flexShrink: 0, marginTop: 1,
+                border: `1px solid ${paciente.jaEmICS ? '#FAC775' : '#555'}`,
+                background: paciente.jaEmICS ? '#BA7517' : 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {paciente.jaEmICS && <span style={{ color: 'white', fontSize: 10 }}>{'\u2713'}</span>}
+              </div>
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 500, color: paciente.jaEmICS ? '#FAC775' : '#ccc', margin: '0 0 4px' }}>
+                  Doente jÃ¡ em tratamento com ICS
+                </p>
+                <p style={{ fontSize: 11, color: '#555', margin: 0 }}>
+                  O mÃ©dico anterior iniciou corticosteroide inalado sem confirmaÃ§Ã£o formal por espirometria
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div style={{ background: '#0F6E5615', border: '1px solid #1D9E7530', borderRadius: 6, padding: '10px 12px', marginBottom: '1.5rem' }}>
             <p style={{ color: '#5DCAA5', fontSize: 12, margin: 0 }}>
               Os dados existem apenas na memória do browser desta sessão e são apagados automaticamente ao fechar o separador.

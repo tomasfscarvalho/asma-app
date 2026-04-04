@@ -8,6 +8,7 @@ export interface Paciente {
   numeroUtente: string
   cartaoCidadao: string
   contacto: string
+  jaEmICS: boolean
 }
 
 // ============================================
