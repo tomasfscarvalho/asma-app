@@ -50,6 +50,11 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
     'nao-controlada': 'Não Controlada',
   }[r4.nivelControlo]
 
+  const agravamComExposicao = (
+    f1.agravamComExercicio || f1.agravamComFrio ||
+    f1.agravamComAlergenios || f1.agravamComInfecoes
+  )
+
   const relatorio = `
 ========================================
 RELATÓRIO CLÍNICO — ASMA
@@ -75,7 +80,7 @@ Sintomas respiratórios presentes:
 Fatores que aumentam probabilidade de asma:
   • Mais do que 1 tipo de sintoma: ${sim(f1.maisDe1Sintoma)}
   • Sintomas variáveis ao longo do tempo: ${sim(f1.sintomasVariaveis)}
-  • Agravam com exposição: ${sim(f1.agravamComExposicao)}
+  • Agravam com exposição: ${sim(agravamComExposicao)}
   • Sintomas > 1x por semana: ${sim(f1.sintomasMaisde1xSemana)}
   • Sintomas noturnos ou matinais: ${sim(f1.sintomasNoturnosOuManha)}
 
