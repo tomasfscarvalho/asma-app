@@ -8,7 +8,7 @@ import CheckItem from '../components/CheckItem'
 const steps = ['Sintomas', 'Fatores', 'História', 'Exame físico']
 
 export default function Fase1Page() {
-  const { fase1, setFase1, navegarPara, paciente } = useAsmaStore()
+  const { fase1, setFase1, navegarPara } = useAsmaStore()
   const [step, setStep] = useState(0)
 
   const sintomasCount = [fase1.sibilancia, fase1.dispneia, fase1.tosse, fase1.opressaoToracica].filter(Boolean).length
