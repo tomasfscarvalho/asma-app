@@ -24,7 +24,7 @@ export default function PacientePage() {
     <div style={{ minHeight: '100vh', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
       <div style={{ width: '100%', maxWidth: 640 }}>
         <div style={{ background: '#0F6E56', borderRadius: 8, padding: '10px 16px', marginBottom: 16, display: 'flex', alignItems: 'center' }}>
-          <span style={{ color: '#9FE1CB', fontSize: 13, fontWeight: 500 }}>{'Sistema ASMA \u2014 GRESP/GINA 2022'}</span>
+          <span style={{ color: '#9FE1CB', fontSize: 13, fontWeight: 500 }}>{'ASTHMA GUIDE - Ferramenta de Apoio à Interpretação da Asma'}</span>
         </div>
 
         <div style={{ background: '#1e1e1e', borderRadius: 12, border: '1px solid #333', padding: '2rem' }}>
@@ -107,7 +107,7 @@ export default function PacientePage() {
                 {
                   val: 'primeira-consulta',
                   titulo: 'Suspeita diagn\u00f3stica',
-                  desc: 'Diagn\u00f3stico ainda n\u00e3o confirmado \u2014 avalia\u00e7\u00e3o cl\u00ednica completa segundo GRESP/GINA 2022',
+                  desc: 'Diagn\u00f3stico ainda n\u00e3o confirmado \u2014 avalia\u00e7\u00e3o cl\u00ednica completa',
                 },
                 {
                   val: 'seguimento',
@@ -172,12 +172,6 @@ export default function PacientePage() {
                 </p>
               </div>
             </div>
-          </div>
-
-          <div style={{ background: '#0F6E5615', border: '1px solid #1D9E7530', borderRadius: 6, padding: '10px 12px', marginBottom: '1.5rem' }}>
-            <p style={{ color: '#5DCAA5', fontSize: 12, margin: 0 }}>
-              {'Os dados existem apenas na mem\u00f3ria do browser desta sess\u00e3o e s\u00e3o apagados automaticamente ao fechar o separador.'}
-            </p>
           </div>
 
           <button

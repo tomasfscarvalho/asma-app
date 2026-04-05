@@ -15,8 +15,10 @@ export default function ProgressBar() {
   const { faseAtual, navegarPara } = useAsmaStore()
 
   return (
-    <div style={{ background: '#0F6E56', borderRadius: 8, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-      <span style={{ color: '#9FE1CB', fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap', marginRight: 8 }}>Sistema ASMA</span>
+    <div style={{ background: '#0F6E56', borderRadius: 8, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+      <span style={{ color: '#9FE1CB', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', marginRight: 12, minWidth: 100 }}>
+        AsthmaGuide
+      </span>
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 1, overflowX: 'auto' }}>
         {fases.map((fase, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
