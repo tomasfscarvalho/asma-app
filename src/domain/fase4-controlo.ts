@@ -36,9 +36,34 @@ export function calcularACT(dados: Fase4Dados): number | null {
   return soma
 }
 
+export function calcularCARATScore(dados: Fase4Dados): number | null {
+  const campos = [
+    dados.caratNasalCongestion,
+    dados.caratSneezing,
+    dados.caratRunnyNose,
+    dados.caratNasalItching,
+    dados.caratSleepDisturbance,
+    dados.caratBreathlessness,
+    dados.caratWheeze,
+    dados.caratChestTightness,
+    dados.caratActivityLimitation,
+    dados.caratMedicationIncrease,
+  ]
+
+  if (campos.some(c => c === null)) return null
+
+  let soma = 0
+  for (const val of campos) {
+    soma += val as number
+  }
+  return soma
+}
+
 export function calcularFase4(dados: Fase4Dados): ResultadoFase4 {
   return {
     nivelControlo: calcularControlo(dados),
     scoreAct: calcularACT(dados),
+    scoreCarat: calcularCARATScore(dados),
+    fev1Atual: dados.fev1Atual,
   }
 }

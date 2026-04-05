@@ -30,11 +30,39 @@ function sim(valor: boolean): string {
   return valor ? 'Sim' : 'Não'
 }
 
+function calcularCaratRinite(fase4: Fase4Dados): number | null {
+  const campos = [
+    fase4.caratNasalCongestion,
+    fase4.caratSneezing,
+    fase4.caratNasalItching,
+    fase4.caratRunnyNose,
+  ]
+
+  if (campos.some(c => c === null)) return null
+  return (campos as number[]).reduce((acc, val) => acc + val, 0)
+}
+
+function calcularCaratAsma(fase4: Fase4Dados): number | null {
+  const campos = [
+    fase4.caratBreathlessness,
+    fase4.caratWheeze,
+    fase4.caratChestTightness,
+    fase4.caratActivityLimitation,
+    fase4.caratSleepDisturbance,
+    fase4.caratMedicationIncrease,
+  ]
+
+  if (campos.some(c => c === null)) return null
+  return (campos as number[]).reduce((acc, val) => acc + val, 0)
+}
+
 export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
   const r3 = calcularFase3(dados.fase3)
   const r4 = calcularFase4(dados.fase4)
   const r6 = calcularFase6(dados.fase4, dados.fase6)
   const r8 = calcularFase8(dados.fase8)
+  const caratRinite = calcularCaratRinite(dados.fase4)
+  const caratAsma = calcularCaratAsma(dados.fase4)
 
   const { paciente: p, fase1: f1, fase5: f5 } = dados
 
@@ -54,6 +82,14 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
     f1.agravamComExercicio || f1.agravamComFrio ||
     f1.agravamComAlergenios || f1.agravamComInfecoes
   )
+
+  const linhaQuestionario = dados.fase4.questionarioUsado === 'carat'
+    ? `  • Score CARAT: ${r4.scoreCarat ?? 'Não preenchido'}/30 (rinite: ${caratRinite ?? '—'}/12; asma: ${caratAsma ?? '—'}/18)`
+    : `  • Score ACT: ${r4.scoreAct ?? 'Não preenchido'}/25`
+
+  const linhaFev1Atual = r4.fev1Atual !== null
+    ? `  • FEV1 atual: ${r4.fev1Atual}% do previsto`
+    : ''
 
   const relatorio = `
 ========================================
@@ -109,11 +145,12 @@ Provas Funcionais Respiratórias:
   • Critérios objetivos positivos: ${r3.criteriosPositivos}/3
 
 Controlo dos sintomas (últimas 4 semanas):
-  • Sintomas diurnos > 2x/semana: ${sim(dados.fase4.sintomasDiurnos)}
-  • Sintomas noturnos: ${sim(dados.fase4.sintomasNoturnos)}
-  • Limitação de atividades: ${sim(dados.fase4.limitacaoAtividades)}
+  • Sintomas diurnos > 2x/semana (sibilância, tosse por exercício, opressão torácica ou tosse após alergénios/poluentes): ${sim(dados.fase4.sintomasDiurnos)}
+  • Sintomas noturnos e/ou ao despertar, com perturbação do sono incluindo tosse: ${sim(dados.fase4.sintomasNoturnos)}
+  • Limitação das atividades diárias: ${sim(dados.fase4.limitacaoAtividades)}
   • Necessidade de alívio > 2x/semana: ${sim(dados.fase4.necessidadeAlivio)}
-  • Score ACT: ${r4.scoreAct ?? 'Não preenchido'}/25
+${linhaQuestionario}
+${linhaFev1Atual}
 
 ----------------------------------------
 A — AVALIAÇÃO

@@ -93,6 +93,21 @@ export interface Fase4Dados {
   actSintomasNoturnos: number | null
   actUsoAlivio: number | null
   actAutoavaliacao: number | null
+
+  questionarioUsado: 'act' | 'carat' | null
+  fev1Atual: number | null
+
+  // CARAT
+  caratNasalCongestion: number | null
+  caratSneezing: number | null
+  caratRunnyNose: number | null
+  caratNasalItching: number | null
+  caratSleepDisturbance: number | null
+  caratBreathlessness: number | null
+  caratWheeze: number | null
+  caratChestTightness: number | null
+  caratActivityLimitation: number | null
+  caratMedicationIncrease: number | null
 }
 
 // ============================================
@@ -190,6 +205,8 @@ export interface ResultadoFase3 {
 export interface ResultadoFase4 {
   nivelControlo: NivelControlo
   scoreAct: number | null
+  scoreCarat: number | null
+  fev1Atual: number | null
 }
 
 export interface ResultadoFase6 {

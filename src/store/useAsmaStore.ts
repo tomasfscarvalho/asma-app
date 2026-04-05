@@ -47,6 +47,18 @@ const fase4Inicial: Fase4Dados = {
   limitacaoAtividades: false, necessidadeAlivio: false,
   actLimitacaoAtividades: null, actFaltaAr: null,
   actSintomasNoturnos: null, actUsoAlivio: null, actAutoavaliacao: null,
+  questionarioUsado: null,
+  fev1Atual: null,
+  caratNasalCongestion: null,
+  caratSneezing: null,
+  caratRunnyNose: null,
+  caratNasalItching: null,
+  caratSleepDisturbance: null,
+  caratBreathlessness: null,
+  caratWheeze: null,
+  caratChestTightness: null,
+  caratActivityLimitation: null,
+  caratMedicationIncrease: null,
 }
 
 // ============================================

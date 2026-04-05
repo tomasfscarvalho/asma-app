@@ -26,6 +26,11 @@ export default function Fase5Page() {
       <SubstepNav steps={steps} atual={step} onChange={setStep} />
 
       <div style={{ padding: 20, minHeight: 280 }}>
+        <div style={{ marginBottom: 16, background: '#0F6E5620', border: '1px solid #1D9E7530', borderRadius: 6, padding: '10px 12px' }}>
+          <p style={{ color: '#9FE1CB', fontSize: 12, margin: 0 }}>
+            A avaliação do risco futuro complementa a avaliação do controlo da asma feita na Fase 4 e deve ser interpretada em conjunto.
+          </p>
+        </div>
 
         {step === 0 && (
           <>
