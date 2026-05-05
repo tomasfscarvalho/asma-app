@@ -4,7 +4,7 @@ import type {
 } from './types'
 import { calcularFase3 } from './fase3-provas'
 import { calcularFase4 } from './fase4-controlo'
-import { calcularFase6 } from './fase6-terapeutica'
+import { calcularFase6, obterDescricaoDegrau } from './fase6-terapeutica'
 import { calcularFase8 } from './fase8-agudizacao'
 
 // ============================================
@@ -59,7 +59,7 @@ function calcularCaratAsma(fase4: Fase4Dados): number | null {
 export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
   const r3 = calcularFase3(dados.fase3)
   const r4 = calcularFase4(dados.fase4)
-  const r6 = calcularFase6(dados.fase4, dados.fase6)
+  const r6 = calcularFase6(dados.fase4, dados.fase6, dados.fase5.fev1Baixo)
   const r8 = calcularFase8(dados.fase8)
   const caratRinite = calcularCaratRinite(dados.fase4)
   const caratAsma = calcularCaratAsma(dados.fase4)
@@ -90,6 +90,8 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
   const linhaFev1Atual = r4.fev1Atual !== null
     ? `  • FEV1 atual: ${r4.fev1Atual}% do previsto`
     : ''
+
+  const degrauTerapiaTexto = obterDescricaoDegrau(r6)
 
   const relatorio = `
 ========================================
@@ -157,7 +159,7 @@ A — AVALIAÇÃO
 ----------------------------------------
   • Diagnóstico: Asma
   • Nível de controlo: ${controloTexto}
-  • Degrau terapêutico atual: Degrau ${r6.degrau} (Percurso ${r6.percurso})
+  • Degrau terapêutico atual: ${degrauTerapiaTexto} (Percurso ${r6.percurso})
 ${r6.criterioReferenciacao ? '  ⚠ CRITÉRIO DE REFERENCIAÇÃO PRESENTE' : ''}
 ${f5.intubacaoOuUciPrevia ? '  ⚠ FATOR DE RISCO MAJOR: Internamento prévio em UCI' : ''}
 ${f5.agudizacaoGraveUltimoAno ? '  ⚠ FATOR DE RISCO MAJOR: Agudização grave no último ano' : ''}
@@ -165,6 +167,8 @@ ${f5.agudizacaoGraveUltimoAno ? '  ⚠ FATOR DE RISCO MAJOR: Agudização grave 
 ----------------------------------------
 P — PLANO
 ----------------------------------------
+  • Terapêutica sugerida: ${degrauTerapiaTexto} — ${r6.medicacaoPreferencial}
+  • Alternativa terapêutica: ${r6.medicacaoAlternativa}
   • Ajuste terapêutico sugerido: ${r6.ajuste === 'subir' ? 'Subir degrau' : r6.ajuste === 'descer' ? 'Considerar descer degrau (controlo ≥ 3 meses)' : 'Manter terapêutica atual'}
   • Percurso preferencial GINA 2022: Percurso 1 (ICS-formoterol)
   • Vacinação antigripal: Recomendar anualmente

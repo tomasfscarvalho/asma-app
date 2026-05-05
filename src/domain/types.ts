@@ -86,6 +86,8 @@ export interface Fase4Dados {
   sintomasNoturnos: boolean
   limitacaoAtividades: boolean
   necessidadeAlivio: boolean
+  frequenciaSintomas: FrequenciaSintomas
+  despertarSemanal: boolean
 
   // ACT
   actLimitacaoAtividades: number | null
@@ -194,6 +196,7 @@ export interface Fase8Dados {
 export type NivelControlo = 'controlada' | 'parcialmente-controlada' | 'nao-controlada'
 export type GravidadeAgudizacao = 'ligeira-moderada' | 'grave' | 'critica'
 export type DegrauTerapeutico = 1 | 2 | 3 | 4 | 5
+export type FrequenciaSintomas = 'menos-2x-mes' | 'mais-2x-mes' | 'maioria-dias'
 
 export interface ResultadoFase3 {
   obstrutivo: boolean
@@ -214,6 +217,10 @@ export interface ResultadoFase6 {
   percurso: 1 | 2
   ajuste: 'subir' | 'manter' | 'descer' | null
   criterioReferenciacao: boolean
+  referenciarEspecialidade: boolean
+  ajustarVerificarPrimeiro: boolean
+  medicacaoPreferencial: string
+  medicacaoAlternativa: string
 }
 
 export interface ResultadoFase7 {

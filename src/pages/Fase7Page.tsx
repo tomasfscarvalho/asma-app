@@ -6,9 +6,9 @@ import CheckItem from '../components/CheckItem'
 import ResultBox from '../components/ResultBox'
 
 export default function Fase7Page() {
-  const { fase4, fase6, fase7, setFase7, setResultadoFase7, navegarPara } = useAsmaStore()
+  const { fase4, fase5, fase6, fase7, setFase7, setResultadoFase7, navegarPara } = useAsmaStore()
 
-  const resultado = calcularFase7(fase4, fase6, fase7)
+  const resultado = calcularFase7(fase4, fase6, fase7, fase5.fev1Baixo)
 
   function handleProximo() {
     setResultadoFase7(resultado)

@@ -10,10 +10,11 @@ import { calcularFase6 } from './fase6-terapeutica'
 export function calcularFase7(
   fase4: Fase4Dados,
   fase6Dados: { percursoSelecionado: 1 | 2 },
-  fase7: Fase7Dados
+  fase7: Fase7Dados,
+  fev1Baixo: boolean
 ): ResultadoFase7 {
 
-  const r6 = calcularFase6(fase4, fase6Dados)
+  const r6 = calcularFase6(fase4, fase6Dados, fev1Baixo)
   const controlo = calcularControlo(fase4)
   const criteriosPresentes: string[] = []
 

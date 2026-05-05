@@ -45,6 +45,8 @@ const fase3Inicial: Fase3Dados = {
 const fase4Inicial: Fase4Dados = {
   sintomasDiurnos: false, sintomasNoturnos: false,
   limitacaoAtividades: false, necessidadeAlivio: false,
+  frequenciaSintomas: 'menos-2x-mes',
+  despertarSemanal: false,
   actLimitacaoAtividades: null, actFaltaAr: null,
   actSintomasNoturnos: null, actUsoAlivio: null, actAutoavaliacao: null,
   questionarioUsado: null,

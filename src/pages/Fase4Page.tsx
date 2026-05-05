@@ -57,6 +57,12 @@ const caratOpcoesMedicacao = [
   { label: '7 ou mais dias', value: 0 },
 ]
 
+const frequenciaSintomasOpcoes: Array<{ label: string; value: Fase4Dados['frequenciaSintomas'] }> = [
+  { label: '< 2x/mes', value: 'menos-2x-mes' },
+  { label: '>= 2x/mes, nao na maioria dos dias', value: 'mais-2x-mes' },
+  { label: 'Maioria dos dias', value: 'maioria-dias' },
+]
+
 function calcularCaratRinite(fase4: Fase4Dados): number | null {
   const campos = [
     fase4.caratNasalCongestion,
@@ -142,7 +148,7 @@ export default function Fase4Page() {
               <CheckItem
                 label="Sintomas noturnos e/ou ao despertar — perturbação do sono por asma, incluindo tosse"
                 checked={fase4.sintomasNoturnos}
-                onChange={v => setFase4({ sintomasNoturnos: v })}
+                onChange={v => setFase4({ sintomasNoturnos: v, despertarSemanal: v ? fase4.despertarSemanal : false })}
               />
               <CheckItem
                 label="Limitação das atividades diárias devido a sintomas de asma"
@@ -153,6 +159,39 @@ export default function Fase4Page() {
                 label="Necessidade de medicação de alívio > 2x/semana"
                 checked={fase4.necessidadeAlivio}
                 onChange={v => setFase4({ necessidadeAlivio: v })}
+              />
+            </div>
+
+            <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
+              Frequencia para selecao terapeutica
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8, marginBottom: 12 }}>
+              {frequenciaSintomasOpcoes.map(opcao => (
+                <button
+                  key={opcao.value}
+                  onClick={() => setFase4({ frequenciaSintomas: opcao.value })}
+                  style={{
+                    minHeight: 48,
+                    padding: '8px 10px',
+                    borderRadius: 6,
+                    fontSize: 12,
+                    cursor: 'pointer',
+                    border: fase4.frequenciaSintomas === opcao.value ? '1px solid #5DCAA5' : '1px solid #444',
+                    background: fase4.frequenciaSintomas === opcao.value ? '#0F6E56' : '#111',
+                    color: fase4.frequenciaSintomas === opcao.value ? 'white' : '#bbb',
+                    fontWeight: fase4.frequenciaSintomas === opcao.value ? 500 : 400,
+                  }}
+                >
+                  {opcao.label}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ marginBottom: 20 }}>
+              <CheckItem
+                label="Despertar devido a asma >= 1x/semana"
+                checked={fase4.despertarSemanal}
+                onChange={v => setFase4({ despertarSemanal: v, sintomasNoturnos: v || fase4.sintomasNoturnos })}
               />
             </div>
 

@@ -7,6 +7,7 @@ describe('Fase 4 — Controlo dos Sintomas', () => {
     const resultado = calcularControlo({
       sintomasDiurnos: false, sintomasNoturnos: false,
       limitacaoAtividades: false, necessidadeAlivio: false,
+      frequenciaSintomas: 'menos-2x-mes', despertarSemanal: false,
       actLimitacaoAtividades: null, actFaltaAr: null,
       actSintomasNoturnos: null, actUsoAlivio: null, actAutoavaliacao: null,
     })
@@ -17,6 +18,7 @@ describe('Fase 4 — Controlo dos Sintomas', () => {
     const resultado = calcularControlo({
       sintomasDiurnos: true, sintomasNoturnos: true,
       limitacaoAtividades: false, necessidadeAlivio: false,
+      frequenciaSintomas: 'mais-2x-mes', despertarSemanal: true,
       actLimitacaoAtividades: null, actFaltaAr: null,
       actSintomasNoturnos: null, actUsoAlivio: null, actAutoavaliacao: null,
     })
@@ -27,6 +29,7 @@ describe('Fase 4 — Controlo dos Sintomas', () => {
     const resultado = calcularControlo({
       sintomasDiurnos: true, sintomasNoturnos: true,
       limitacaoAtividades: true, necessidadeAlivio: true,
+      frequenciaSintomas: 'maioria-dias', despertarSemanal: true,
       actLimitacaoAtividades: null, actFaltaAr: null,
       actSintomasNoturnos: null, actUsoAlivio: null, actAutoavaliacao: null,
     })
@@ -37,6 +40,7 @@ describe('Fase 4 — Controlo dos Sintomas', () => {
     const score = calcularACT({
       sintomasDiurnos: false, sintomasNoturnos: false,
       limitacaoAtividades: false, necessidadeAlivio: false,
+      frequenciaSintomas: 'menos-2x-mes', despertarSemanal: false,
       actLimitacaoAtividades: 4, actFaltaAr: 3,
       actSintomasNoturnos: 5, actUsoAlivio: 4, actAutoavaliacao: 3,
     })
@@ -47,6 +51,7 @@ describe('Fase 4 — Controlo dos Sintomas', () => {
     const score = calcularACT({
       sintomasDiurnos: false, sintomasNoturnos: false,
       limitacaoAtividades: false, necessidadeAlivio: false,
+      frequenciaSintomas: 'menos-2x-mes', despertarSemanal: false,
       actLimitacaoAtividades: 4, actFaltaAr: null,
       actSintomasNoturnos: 5, actUsoAlivio: 4, actAutoavaliacao: 3,
     })
