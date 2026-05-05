@@ -2,53 +2,53 @@ import type { Fase4Dados, Fase6Dados, ResultadoFase6, DegrauTerapeutico } from '
 import { calcularControlo } from './fase4-controlo'
 
 // ============================================
-// FASE 6 - Recomendacao Terapeutica
+// FASE 6 - Recomendação Terapêutica
 // GRESP 2022 / GINA 2022
 // ============================================
 
 const medicacaoPercurso1: Record<DegrauTerapeutico, { preferencial: string; alternativa: string }> = {
   1: {
-    preferencial: 'Dose baixa ICS-formoterol conforme necessario',
+    preferencial: 'Dose baixa ICS-formoterol conforme necessário',
     alternativa: 'ICS sempre que SABA for administrado',
   },
   2: {
-    preferencial: 'Dose baixa ICS-formoterol conforme necessario',
-    alternativa: 'Dose baixa ICS de manutencao',
+    preferencial: 'Dose baixa ICS-formoterol conforme necessário',
+    alternativa: 'Dose baixa ICS de manutenção',
   },
   3: {
-    preferencial: 'Dose baixa ICS-formoterol de manutencao + alivio',
-    alternativa: 'Dose baixa ICS-LABA de manutencao',
+    preferencial: 'Dose baixa ICS-formoterol de manutenção + alívio',
+    alternativa: 'Dose baixa ICS-LABA de manutenção',
   },
   4: {
-    preferencial: 'Dose media ICS-formoterol de manutencao + alivio. Adicionar LAMA se insuficiente',
-    alternativa: 'Dose media/alta ICS-LABA de manutencao',
+    preferencial: 'Dose média ICS-formoterol de manutenção + alívio. Adicionar LAMA se insuficiente',
+    alternativa: 'Dose média/alta ICS-LABA de manutenção',
   },
   5: {
-    preferencial: 'Referenciar para avaliacao fenotipica',
-    alternativa: 'Considerar LAMA e terapeutica biologica apos avaliacao especializada',
+    preferencial: 'Referenciar para avaliação fenotípica',
+    alternativa: 'Considerar LAMA e terapêutica biológica após avaliação especializada',
   },
 }
 
 const medicacaoPercurso2: Record<DegrauTerapeutico, { preferencial: string; alternativa: string }> = {
   1: {
     preferencial: 'ICS sempre que SABA for administrado',
-    alternativa: 'Considerar ICS diario em dose baixa',
+    alternativa: 'Considerar ICS diário em dose baixa',
   },
   2: {
-    preferencial: 'Dose baixa ICS de manutencao',
-    alternativa: 'Antagonista do recetor de leucotrieno diario',
+    preferencial: 'Dose baixa ICS de manutenção',
+    alternativa: 'Antagonista do recetor de leucotrieno diário',
   },
   3: {
-    preferencial: 'Dose baixa ICS-LABA de manutencao',
+    preferencial: 'Dose baixa ICS-LABA de manutenção',
     alternativa: 'Dose baixa de ICS-LABA',
   },
   4: {
-    preferencial: 'Dose media/alta ICS-LABA de manutencao',
-    alternativa: 'Adicionar tiotropio ou LTRA',
+    preferencial: 'Dose média/alta ICS-LABA de manutenção',
+    alternativa: 'Adicionar tiotrópio ou LTRA',
   },
   5: {
-    preferencial: 'Referenciar para avaliacao fenotipica',
-    alternativa: 'Adicionar anti-IL5 ou dose diaria baixa de corticoide oral se necessario',
+    preferencial: 'Referenciar para avaliação fenotípica',
+    alternativa: 'Adicionar anti-IL5 ou dose diária baixa de corticoide oral se necessário',
   },
 }
 
@@ -70,7 +70,7 @@ function selecionarDegrauPercurso1(fase4: Fase4Dados, fev1Baixo: boolean): Degra
   if (sintomasRelevantes && fev1Baixo) return 4
   if (sintomasRelevantes) return 3
 
-  // No GRESP, o Percurso 1 agrupa o inicio em Degraus 1-2.
+  // No GRESP, o Percurso 1 agrupa o início em Degraus 1-2.
   return 2
 }
 

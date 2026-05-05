@@ -10,26 +10,26 @@ import ResultBox from '../components/ResultBox'
 const steps = ['Percurso e degrau', 'Detalhe do degrau']
 
 const medidasNaoFarmacologicas = [
-  'Cessacao tabagica - fumadores e exposicao passiva',
-  'Promocao de atividade fisica e dieta equilibrada',
-  'Evitar exposicao ocupacional - questionar em asma de inicio na vida adulta',
+  'Cessação tabágica - fumadores e exposição passiva',
+  'Promoção de atividade física e dieta equilibrada',
+  'Evitar exposição ocupacional - questionar em asma de início na vida adulta',
   'Evitar AINE se agravamento associado - questionar sempre',
-  'Prevencao do broncospasmo por exercicio - aquecimento antes do treino',
+  'Prevenção do broncospasmo por exercício - aquecimento antes do treino',
 ]
 
 const tabelaAdultos = {
   1: [
-    { degrau: 'Degrau 1-2', preferencial: 'Dose baixa ICS-formoterol conforme necessario' },
-    { degrau: 'Degrau 3', preferencial: 'Dose baixa ICS-formoterol de manutencao + alivio' },
-    { degrau: 'Degrau 4', preferencial: 'Dose media ICS-formoterol de manutencao + alivio. Adicionar LAMA se insuficiente' },
-    { degrau: 'Degrau 5', preferencial: 'Referenciar para avaliacao fenotipica' },
+    { degrau: 'Degrau 1-2', preferencial: 'Dose baixa ICS-formoterol conforme necessário' },
+    { degrau: 'Degrau 3', preferencial: 'Dose baixa ICS-formoterol de manutenção + alívio' },
+    { degrau: 'Degrau 4', preferencial: 'Dose média ICS-formoterol de manutenção + alívio. Adicionar LAMA se insuficiente' },
+    { degrau: 'Degrau 5', preferencial: 'Referenciar para avaliação fenotípica' },
   ],
   2: [
     { degrau: 'Degrau 1', preferencial: 'ICS sempre que SABA for administrado' },
-    { degrau: 'Degrau 2', preferencial: 'Dose baixa ICS de manutencao' },
-    { degrau: 'Degrau 3', preferencial: 'Dose baixa ICS-LABA de manutencao' },
-    { degrau: 'Degrau 4', preferencial: 'Dose media/alta ICS-LABA de manutencao' },
-    { degrau: 'Degrau 5', preferencial: 'Referenciar para avaliacao fenotipica' },
+    { degrau: 'Degrau 2', preferencial: 'Dose baixa ICS de manutenção' },
+    { degrau: 'Degrau 3', preferencial: 'Dose baixa ICS-LABA de manutenção' },
+    { degrau: 'Degrau 4', preferencial: 'Dose média/alta ICS-LABA de manutenção' },
+    { degrau: 'Degrau 5', preferencial: 'Referenciar para avaliação fenotípica' },
   ],
 }
 
@@ -40,9 +40,9 @@ export default function Fase6Page() {
   const degrauTexto = obterDescricaoDegrau(resultado)
 
   const ajusteTextoPorTipo: Record<NonNullable<ResultadoFase6['ajuste']>, string> = {
-    subir: 'Subir degrau terapeutico',
-    manter: 'Manter terapeutica atual',
-    descer: 'Considerar descer degrau (controlo >= 3 meses)',
+    subir: 'Subir degrau terapêutico',
+    manter: 'Manter terapêutica atual',
+    descer: 'Considerar descer degrau (controlo ≥ 3 meses)',
   }
 
   const ajusteTexto = resultado.ajuste === null ? '-' : ajusteTextoPorTipo[resultado.ajuste]
@@ -68,8 +68,8 @@ export default function Fase6Page() {
   return (
     <Layout
       faseNumero={6}
-      faseTitulo="Recomendacao terapeutica"
-      badge="Decisao automatica"
+      faseTitulo="Recomendação terapêutica"
+      badge="Decisão automática"
       resumo={[
         { key: 'Degrau', val: degrauTexto },
         { key: 'Percurso', val: `Percurso ${resultado.percurso}` },
@@ -82,7 +82,7 @@ export default function Fase6Page() {
         {step === 0 && (
           <>
             <p style={{ fontSize: 12, color: '#888', marginBottom: 20 }}>
-              Seleciona o percurso terapeutico. O Percurso 1 e o preferencial segundo a GINA/GRESP.
+              Seleciona o percurso terapêutico. O Percurso 1 é o preferencial segundo a GINA/GRESP.
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
@@ -110,18 +110,18 @@ export default function Fase6Page() {
                   </div>
                   <p style={{ fontSize: 11, color: '#666', margin: 0 }}>
                     {percurso === 1
-                      ? 'ICS-formoterol como medicacao de alivio em todos os degraus'
-                      : 'ICS com/sem LABA para base, associado ou nao a SABA'}
+                      ? 'ICS-formoterol como medicação de alívio em todos os degraus'
+                      : 'ICS com/sem LABA para base, associado ou não a SABA'}
                   </p>
                 </div>
               ))}
             </div>
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-              Recomendacao automatica
+              Recomendação automática
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <ResultBox label="Degrau terapeutico sugerido" valor={degrauTexto} tipo="ok" />
+              <ResultBox label="Degrau terapêutico sugerido" valor={degrauTexto} tipo="ok" />
               <ResultBox
                 label="Ajuste sugerido"
                 valor={ajusteTexto}
@@ -129,8 +129,8 @@ export default function Fase6Page() {
               />
               {resultado.referenciarEspecialidade && (
                 <ResultBox
-                  label="Criterio de referenciacao"
-                  valor="Sem controlo com degrau >= 3; considerar referenciacao"
+                  label="Critério de referenciação"
+                  valor="Sem controlo com degrau ≥ 3; considerar referenciação"
                   tipo="alerta"
                 />
               )}
@@ -144,11 +144,11 @@ export default function Fase6Page() {
               Detalhe do degrau selecionado
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-              <ResultBox label={`${degrauTexto} - medicacao preferencial`} valor={resultado.medicacaoPreferencial} tipo="ok" />
-              <ResultBox label="Alternativa disponivel" valor={resultado.medicacaoAlternativa} tipo="neutro" />
+              <ResultBox label={`${degrauTexto} - medicação preferencial`} valor={resultado.medicacaoPreferencial} tipo="ok" />
+              <ResultBox label="Alternativa disponível" valor={resultado.medicacaoAlternativa} tipo="neutro" />
               <ResultBox
                 label="Nota GRESP"
-                valor="O uso de SABA isolado em adultos e adolescentes nao e recomendado por questoes de seguranca."
+                valor="O uso de SABA isolado em adultos e adolescentes não é recomendado por questões de segurança."
                 tipo="alerta"
               />
             </div>
@@ -159,9 +159,9 @@ export default function Fase6Page() {
                   Antes de subir degrau, verificar:
                 </p>
                 {[
-                  'Tecnica inalatoria (presente em 80% dos doentes com fraco controlo)',
-                  'Adesao a terapeutica (presente em 75% dos doentes)',
-                  'Presenca de fatores de risco modificaveis',
+                  'Técnica inalatória (presente em 80% dos doentes com fraco controlo)',
+                  'Adesão à terapêutica (presente em 75% dos doentes)',
+                  'Presença de fatores de risco modificáveis',
                 ].map((item) => (
                   <div key={item} style={{ display: 'flex', gap: 8, color: '#F7C1C1', fontSize: 12, marginTop: 4 }}>
                     <span>{'!'}</span>
@@ -195,7 +195,7 @@ export default function Fase6Page() {
             </div>
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-              Medidas nao farmacologicas
+              Medidas não farmacológicas
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {medidasNaoFarmacologicas.map((medida) => (
@@ -214,7 +214,7 @@ export default function Fase6Page() {
         totalSteps={steps.length}
         onAnterior={() => step > 0 ? setStep(step - 1) : navegarPara(4)}
         onProximo={handleProximo}
-        labelProximo={step === steps.length - 1 ? 'Fase 7 ->' : 'Proximo ->'}
+        labelProximo={step === steps.length - 1 ? 'Fase 7 →' : 'Próximo →'}
       />
     </Layout>
   )

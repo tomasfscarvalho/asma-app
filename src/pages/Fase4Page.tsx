@@ -58,8 +58,8 @@ const caratOpcoesMedicacao = [
 ]
 
 const frequenciaSintomasOpcoes: Array<{ label: string; value: Fase4Dados['frequenciaSintomas'] }> = [
-  { label: '< 2x/mes', value: 'menos-2x-mes' },
-  { label: '>= 2x/mes, nao na maioria dos dias', value: 'mais-2x-mes' },
+  { label: '< 2x/mês', value: 'menos-2x-mes' },
+  { label: '≥ 2x/mês, não na maioria dos dias', value: 'mais-2x-mes' },
   { label: 'Maioria dos dias', value: 'maioria-dias' },
 ]
 
@@ -163,7 +163,7 @@ export default function Fase4Page() {
             </div>
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-              Frequencia para selecao terapeutica
+              Frequência para seleção terapêutica
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8, marginBottom: 12 }}>
               {frequenciaSintomasOpcoes.map(opcao => (
@@ -189,7 +189,7 @@ export default function Fase4Page() {
 
             <div style={{ marginBottom: 20 }}>
               <CheckItem
-                label="Despertar devido a asma >= 1x/semana"
+                label="Despertar devido à asma ≥ 1x/semana"
                 checked={fase4.despertarSemanal}
                 onChange={v => setFase4({ despertarSemanal: v, sintomasNoturnos: v || fase4.sintomasNoturnos })}
               />
