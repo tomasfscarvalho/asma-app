@@ -1,25 +1,22 @@
 import type {
-  Paciente, Fase1Dados, Fase3Dados, Fase4Dados,
-  Fase5Dados, Fase6Dados, Fase8Dados
+  Paciente, Fase1Dados, Fase2Dados, Fase3Dados, Fase4Dados,
+  Fase5Dados, Fase6Dados, Fase8Dados, DecisaoDiagnostica,
 } from './types'
 import { calcularFase3 } from './fase3-provas'
 import { calcularFase4 } from './fase4-controlo'
 import { calcularFase6, obterDescricaoDegrau } from './fase6-terapeutica'
 import { calcularFase8 } from './fase8-agudizacao'
 
-// ============================================
-// GERADOR DE RELATÓRIO SOAP
-// Capítulo 5, Tabela 11 — GRESP 2022
-// ============================================
-
 interface DadosRelatorio {
   paciente: Paciente
   fase1: Fase1Dados
+  fase2: Fase2Dados
   fase3: Fase3Dados
   fase4: Fase4Dados
   fase5: Fase5Dados
   fase6: Fase6Dados
   fase8: Fase8Dados
+  decisaoDiagnostica: DecisaoDiagnostica
 }
 
 function formatarData(): string {
@@ -56,6 +53,10 @@ function calcularCaratAsma(fase4: Fase4Dados): number | null {
   return (campos as number[]).reduce((acc, val) => acc + val, 0)
 }
 
+function formatarFatorMaior(bool: boolean, texto: string): string {
+  return bool ? `  ⚠ ${texto}` : ''
+}
+
 export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
   const r3 = calcularFase3(dados.fase3)
   const r4 = calcularFase4(dados.fase4)
@@ -64,18 +65,16 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
   const caratRinite = calcularCaratRinite(dados.fase4)
   const caratAsma = calcularCaratAsma(dados.fase4)
 
-  const { paciente: p, fase1: f1, fase5: f5 } = dados
+  const { paciente: p, fase1: f1, fase2: f2, fase5: f5 } = dados
 
-  // Calcular idade
   const idade = p.dataNascimento
     ? Math.floor((Date.now() - new Date(p.dataNascimento).getTime()) / 31557600000)
     : '—'
 
-  // Nível de controlo em texto legível
   const controloTexto = {
     'controlada': 'Controlada',
-    'parcialmente-controlada': 'Parcialmente Controlada',
-    'nao-controlada': 'Não Controlada',
+    'parcialmente-controlada': 'Parcialmente controlada',
+    'nao-controlada': 'Não controlada',
   }[r4.nivelControlo]
 
   const agravamComExposicao = (
@@ -92,8 +91,84 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
     : ''
 
   const degrauTerapiaTexto = obterDescricaoDegrau(r6)
+  const diagnosticosDiferenciais = f2.diferenciaisExcluidos.length > 0
+    ? f2.diferenciaisExcluidos.map(dd => `  • ${dd}`).join('\n')
+    : '  • Não foram registados diagnósticos diferenciais excluídos.'
 
-  const relatorio = `
+  if (dados.decisaoDiagnostica === 'nao-confirmado') {
+    return `
+========================================
+RELATÓRIO CLÍNICO — EXCLUSÃO DE ASMA
+Data: ${formatarData()}
+========================================
+
+DADOS DO PACIENTE
+Nome: ${p.nome || '—'}
+Data de Nascimento: ${p.dataNascimento || '—'} (${idade} anos)
+Sexo: ${p.sexo}
+Nº Utente SNS: ${p.numeroUtente || '—'}
+Cartão de Cidadão: ${p.cartaoCidadao || '—'}
+
+----------------------------------------
+S — SUBJETIVO
+----------------------------------------
+Sintomas respiratórios presentes:
+  • Sibilância: ${sim(f1.sibilancia)}
+  • Dispneia: ${sim(f1.dispneia)}
+  • Tosse: ${sim(f1.tosse)}
+  • Opressão torácica: ${sim(f1.opressaoToracica)}
+
+Fatores que aumentam probabilidade de asma:
+  • Mais do que 1 tipo de sintoma: ${sim(f1.maisDe1Sintoma)}
+  • Sintomas variáveis ao longo do tempo: ${sim(f1.sintomasVariaveis)}
+  • Agravam com exposição: ${sim(agravamComExposicao)}
+  • Sintomas > 1x por semana: ${sim(f1.sintomasMaisde1xSemana)}
+  • Sintomas noturnos ou matinais: ${sim(f1.sintomasNoturnosOuManha)}
+
+Fatores que diminuem probabilidade de asma:
+  • Tosse isolada: ${sim(f1.tosseIsolada)}
+  • Tosse produtiva crónica: ${sim(f1.tosseProdutivaCronica)}
+  • Dor torácica: ${sim(f1.dorToracica)}
+
+----------------------------------------
+O — OBJETIVO
+----------------------------------------
+Provas Funcionais Respiratórias:
+  • FEV1: ${dados.fase3.fev1Percentagem ?? '—'}% do previsto
+  • FVC: ${dados.fase3.fvcPercentagem ?? '—'}% do previsto
+  • FEV1/FVC: ${dados.fase3.fev1FvcRacio?.toFixed(2) ?? (dados.fase3.fev1Percentagem && dados.fase3.fvcPercentagem ? (dados.fase3.fev1Percentagem / dados.fase3.fvcPercentagem).toFixed(2) : '—')}
+  • Padrão obstrutivo: ${sim(r3.obstrutivo)}
+  • Reversibilidade: ${sim(r3.reversibilidade)}
+  • Variabilidade PEF: ${dados.fase3.variabilidadePef ?? '—'}% ${r3.pefPositivo ? '(positivo)' : ''}
+  • Critérios objetivos positivos: ${r3.criteriosPositivos}/3
+
+Diagnósticos diferenciais excluídos:
+${diagnosticosDiferenciais}
+
+----------------------------------------
+A — AVALIAÇÃO
+----------------------------------------
+  • Diagnóstico de asma: Não confirmado
+  • A avaliação clínica e funcional realizada não permitiu confirmar o diagnóstico de asma.
+  • Devem permanecer em consideração os diagnósticos diferenciais não excluídos.
+
+----------------------------------------
+P — PLANO
+----------------------------------------
+  • Reavaliar a hipótese diagnóstica de acordo com a evolução clínica.
+  • Considerar investigação complementar ou repetição de provas funcionais, se clinicamente indicado.
+  • Prosseguir a avaliação dos diagnósticos diferenciais não excluídos.
+
+========================================
+Gerado pelo Sistema de Apoio à Decisão
+Clínica ASMA — GRESP/GINA 2022
+Este relatório é de apoio à decisão.
+A responsabilidade clínica é do médico.
+========================================
+`.trim()
+  }
+
+  return `
 ========================================
 RELATÓRIO CLÍNICO — ASMA
 Data: ${formatarData()}
@@ -157,12 +232,12 @@ ${linhaFev1Atual}
 ----------------------------------------
 A — AVALIAÇÃO
 ----------------------------------------
-  • Diagnóstico: Asma
+  • Diagnóstico: Asma confirmada
   • Nível de controlo: ${controloTexto}
   • Degrau terapêutico atual: ${degrauTerapiaTexto} (Percurso ${r6.percurso})
 ${r6.criterioReferenciacao ? '  ⚠ CRITÉRIO DE REFERENCIAÇÃO PRESENTE' : ''}
-${f5.intubacaoOuUciPrevia ? '  ⚠ FATOR DE RISCO MAJOR: Internamento prévio em UCI' : ''}
-${f5.agudizacaoGraveUltimoAno ? '  ⚠ FATOR DE RISCO MAJOR: Agudização grave no último ano' : ''}
+${formatarFatorMaior(f5.intubacaoOuUciPrevia, 'FATOR DE RISCO MAJOR: Internamento prévio em UCI')}
+${formatarFatorMaior(f5.agudizacaoGraveUltimoAno, 'FATOR DE RISCO MAJOR: Agudização grave no último ano')}
 
 ----------------------------------------
 P — PLANO
@@ -186,6 +261,4 @@ Este relatório é de apoio à decisão.
 A responsabilidade clínica é do médico.
 ========================================
 `.trim()
-
-  return relatorio
 }

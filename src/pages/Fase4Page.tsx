@@ -221,7 +221,7 @@ export default function Fase4Page() {
         {step === 1 && (
           <>
             <p style={{ fontSize: 12, color: '#888', marginBottom: 10 }}>
-              Selecione o questionário de avaliação a utilizar nas últimas 4 semanas.
+              Selecione o questionário a aplicar na avaliação do controlo dos sintomas nas últimas 4 semanas.
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>

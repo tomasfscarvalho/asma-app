@@ -52,7 +52,7 @@ export default function Fase1Page() {
         {step === 0 && (
           <>
             <p style={{ fontSize: 12, color: '#888', marginBottom: 16, lineHeight: 1.6 }}>
-              O diagnóstico da asma é essencialmente clínico. Regista os sintomas respiratórios típicos presentes. A ferramenta organiza e apresenta — a decisão diagnóstica é do médico.
+              O diagnóstico da asma é essencialmente clínico. Devem ser registados os sintomas respiratórios típicos presentes. A ferramenta organiza e apresenta a informação; a decisão diagnóstica compete ao médico.
             </p>
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
               Sintomas respiratórios típicos
@@ -79,7 +79,7 @@ export default function Fase1Page() {
         {step === 1 && (
           <>
             <p style={{ fontSize: 12, color: '#888', marginBottom: 16, lineHeight: 1.6 }}>
-              Regista os fatores que modificam a probabilidade diagnóstica segundo o GRESP/GINA 2022.
+              Devem ser registados os fatores clínicos que aumentam ou reduzem a probabilidade de asma.
             </p>
 
             <p style={{ fontSize: 11, color: '#5DCAA5', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>

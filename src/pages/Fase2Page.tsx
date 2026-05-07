@@ -2,7 +2,7 @@ import { useAsmaStore } from '../store/useAsmaStore'
 import Layout from '../components/Layout'
 import NavFooter from '../components/NavFooter'
 
-// Box 1-3 GINA 2022 — DD por faixa etária com sinais clínicos
+// Box 1-3 GINA 2025 — DD por faixa etária com sinais clínicos
 const diferencialsPorFaixa = {
   crianca: [
     {
@@ -171,7 +171,7 @@ export default function Fase2Page() {
       <div style={{ padding: 20, minHeight: 320 }}>
 
         <p style={{ fontSize: 12, color: '#888', marginBottom: 16, lineHeight: 1.6 }}>
-          Diagnósticos diferenciais filtrados para <strong style={{ color: '#ccc' }}>{faixaLabel}</strong> segundo a GINA 2022 (Box 1-3). Assinala os que foram avaliados e excluídos clinicamente. A ferramenta não exclui nenhum automaticamente.
+          Diagnósticos diferenciais filtrados para <strong style={{ color: '#ccc' }}>{faixaLabel}</strong> segundo a GINA 2025 (Box 1-3). Devem ser assinalados os que foram avaliados e excluídos clinicamente. A ferramenta não exclui diagnósticos automaticamente.
         </p>
 
         {/* Botões selecionar/limpar */}

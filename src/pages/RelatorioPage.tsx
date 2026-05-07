@@ -7,11 +7,13 @@ export default function RelatorioPage() {
   const relatorio = gerarRelatorioSOAP({
     paciente: store.paciente,
     fase1: store.fase1,
+    fase2: store.fase2,
     fase3: store.fase3,
     fase4: store.fase4,
     fase5: store.fase5,
     fase6: store.fase6,
     fase8: store.fase8,
+    decisaoDiagnostica: store.decisaoDiagnostica,
   })
 
   function copiar() {
@@ -30,7 +32,7 @@ export default function RelatorioPage() {
           <span style={{ color: '#9FE1CB', fontSize: 13, fontWeight: 500 }}>AsthmaGuide</span>
         </div>
 
-        {(store.fase5.intubacaoOuUciPrevia || store.fase5.agudizacaoGraveUltimoAno || store.fase1.silencioRespiratorio) && (
+        {(store.decisaoDiagnostica !== 'nao-confirmado' && (store.fase5.intubacaoOuUciPrevia || store.fase5.agudizacaoGraveUltimoAno || store.fase1.silencioRespiratorio)) && (
           <div style={{ background: '#E24B4A15', border: '1px solid #E24B4A50', borderRadius: 8, padding: '12px 16px', marginBottom: 16 }}>
             <p style={{ color: '#F09595', fontSize: 13, fontWeight: 500, marginBottom: 6 }}>{'\u26a0 Alertas clínicos'}</p>
             {store.fase1.silencioRespiratorio && (
