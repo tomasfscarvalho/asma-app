@@ -8,10 +8,10 @@ import type { Fase3Dados, ResultadoFase3 } from './types'
 export function calcularFase3(dados: Fase3Dados): ResultadoFase3 {
 
   // --- 1. OBSTRUÇÃO (FEV1/FVC) ---
-  // Calcula o rácio se não foi calculado já
+  // Usar apenas o rácio FEV1/FVC medido; não derivar de percentagens previstas.
   const racio = dados.fev1FvcRacio ??
-    (dados.fev1Percentagem && dados.fvcPercentagem
-      ? dados.fev1Percentagem / dados.fvcPercentagem
+    (dados.fev1Litros !== null && dados.fvcLitros !== null && dados.fvcLitros > 0
+      ? dados.fev1Litros / dados.fvcLitros
       : null)
 
   const limiteObstrucao = dados.pacientePediatrico ? 0.90 : 0.75

@@ -136,7 +136,7 @@ O — OBJETIVO
 Provas Funcionais Respiratórias:
   • FEV1: ${dados.fase3.fev1Percentagem ?? '—'}% do previsto
   • FVC: ${dados.fase3.fvcPercentagem ?? '—'}% do previsto
-  • FEV1/FVC: ${dados.fase3.fev1FvcRacio?.toFixed(2) ?? (dados.fase3.fev1Percentagem && dados.fase3.fvcPercentagem ? (dados.fase3.fev1Percentagem / dados.fase3.fvcPercentagem).toFixed(2) : '—')}
+  • FEV1/FVC: ${dados.fase3.fev1FvcRacio?.toFixed(2) ?? '—'}
   • Padrão obstrutivo: ${sim(r3.obstrutivo)}
   • Reversibilidade: ${sim(r3.reversibilidade)}
   • Variabilidade PEF: ${dados.fase3.variabilidadePef ?? '—'}% ${r3.pefPositivo ? '(positivo)' : ''}
@@ -215,7 +215,7 @@ O — OBJETIVO
 Provas Funcionais Respiratórias:
   • FEV1: ${dados.fase3.fev1Percentagem ?? '—'}% do previsto
   • FVC: ${dados.fase3.fvcPercentagem ?? '—'}% do previsto
-  • FEV1/FVC: ${dados.fase3.fev1FvcRacio?.toFixed(2) ?? (dados.fase3.fev1Percentagem && dados.fase3.fvcPercentagem ? (dados.fase3.fev1Percentagem / dados.fase3.fvcPercentagem).toFixed(2) : '—')}
+  • FEV1/FVC: ${dados.fase3.fev1FvcRacio?.toFixed(2) ?? '—'}
   • Padrão obstrutivo: ${sim(r3.obstrutivo)}
   • Reversibilidade: ${sim(r3.reversibilidade)}
   • Variabilidade PEF: ${dados.fase3.variabilidadePef ?? '—'}% ${r3.pefPositivo ? '(positivo)' : ''}
@@ -244,7 +244,7 @@ P — PLANO
 ----------------------------------------
   • Terapêutica sugerida: ${degrauTerapiaTexto} — ${r6.medicacaoPreferencial}
   • Alternativa terapêutica: ${r6.medicacaoAlternativa}
-  • Ajuste terapêutico sugerido: ${r6.ajuste === 'subir' ? 'Subir degrau' : r6.ajuste === 'descer' ? 'Considerar descer degrau (controlo ≥ 3 meses)' : 'Manter terapêutica atual'}
+  • Ajuste terapêutico sugerido: ${r6.ajuste === 'subir' ? 'Verificar técnica/adesão/fatores modificáveis e considerar subir degrau' : r6.ajuste === 'descer' ? 'Considerar descer degrau apenas se controlo ≥ 3 meses' : 'Manter terapêutica atual'}
   • Percurso preferencial GINA 2022: Percurso 1 (ICS-formoterol)
   • Vacinação antigripal: Recomendar anualmente
   • Técnica inalatória: Rever na consulta

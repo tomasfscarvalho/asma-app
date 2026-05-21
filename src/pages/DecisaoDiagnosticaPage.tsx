@@ -79,7 +79,7 @@ export default function DecisaoDiagnosticaPage() {
         )}
 
         <p style={{ fontSize: 12, color: '#666', marginBottom: 16 }}>
-          {'Com base em toda a informa\u00e7\u00e3o recolhida, confirma o diagn\u00f3stico de asma?'}
+          {'Com base em toda a informação recolhida, o diagnóstico de asma é confirmado?'}
         </p>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -98,7 +98,7 @@ export default function DecisaoDiagnosticaPage() {
         </div>
 
         <p style={{ fontSize: 11, color: '#444', marginTop: 16, textAlign: 'center' }}>
-          {'Se n\u00e3o confirmado, \u00e9 gerado um relat\u00f3rio de exclus\u00e3o com os diagn\u00f3sticos diferenciais considerados.'}
+          {'Se o diagnóstico não for confirmado, será gerado um relatório de exclusão com os diagnósticos diferenciais considerados.'}
         </p>
       </div>
     </Layout>

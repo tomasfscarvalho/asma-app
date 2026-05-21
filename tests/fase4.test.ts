@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calcularFase4, calcularControlo, calcularACT } from '../src/domain/fase4-controlo'
+import { calcularControlo, calcularACT } from '../src/domain/fase4-controlo'
 
 describe('Fase 4 — Controlo dos Sintomas', () => {
 

@@ -67,7 +67,7 @@ function temRiscoAgudizacoes(fev1Baixo: boolean): boolean {
 function selecionarDegrauPercurso1(fase4: Fase4Dados, fev1Baixo: boolean): DegrauTerapeutico {
   const sintomasRelevantes = temSintomasNaMaioriaDosDias(fase4) || temDespertarSemanal(fase4)
 
-  if (sintomasRelevantes && fev1Baixo) return 4
+  if (fev1Baixo) return 4
   if (sintomasRelevantes) return 3
 
   // No GRESP, o Percurso 1 agrupa o início em Degraus 1-2.
@@ -77,7 +77,7 @@ function selecionarDegrauPercurso1(fase4: Fase4Dados, fev1Baixo: boolean): Degra
 function selecionarDegrauPercurso2(fase4: Fase4Dados, fev1Baixo: boolean): DegrauTerapeutico {
   const sintomasRelevantes = temSintomasNaMaioriaDosDias(fase4) || temDespertarSemanal(fase4)
 
-  if (sintomasRelevantes && fev1Baixo) return 4
+  if (fev1Baixo) return 4
   if (sintomasRelevantes) return 3
 
   if (fase4.frequenciaSintomas === 'mais-2x-mes') return 2

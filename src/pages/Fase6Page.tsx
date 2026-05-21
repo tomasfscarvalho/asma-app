@@ -40,7 +40,7 @@ export default function Fase6Page() {
   const degrauTexto = obterDescricaoDegrau(resultado)
 
   const ajusteTextoPorTipo: Record<NonNullable<ResultadoFase6['ajuste']>, string> = {
-    subir: 'Subir degrau terapêutico',
+    subir: 'Verificar fatores modificáveis e considerar subir degrau',
     manter: 'Manter terapêutica atual',
     descer: 'Considerar descer degrau (controlo ≥ 3 meses)',
   }
@@ -82,7 +82,7 @@ export default function Fase6Page() {
         {step === 0 && (
           <>
             <p style={{ fontSize: 12, color: '#888', marginBottom: 20 }}>
-              Seleciona o percurso terapêutico. O Percurso 1 é o preferencial segundo a GINA/GRESP.
+              Selecione o percurso terapêutico. O Percurso 1 é o preferencial segundo a GINA/GRESP.
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
@@ -110,15 +110,15 @@ export default function Fase6Page() {
                   </div>
                   <p style={{ fontSize: 11, color: '#666', margin: 0 }}>
                     {percurso === 1
-                      ? 'ICS-formoterol como medicação de alívio em todos os degraus'
-                      : 'ICS com/sem LABA para base, associado ou não a SABA'}
+                      ? 'ICS-formoterol como medicação de alívio em todos os degraus.'
+                      : 'ICS com/sem LABA para tratamento de base, associado ou não a SABA.'}
                   </p>
                 </div>
               ))}
             </div>
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-              Recomendação automática
+              Sugestão automática
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <ResultBox label="Degrau terapêutico sugerido" valor={degrauTexto} tipo="ok" />
@@ -130,7 +130,7 @@ export default function Fase6Page() {
               {resultado.referenciarEspecialidade && (
                 <ResultBox
                   label="Critério de referenciação"
-                  valor="Sem controlo com degrau ≥ 3; considerar referenciação"
+                  valor="Se persistir sem controlo 3-6 meses com degrau ≥ 3, técnica correta e boa adesão, referenciar"
                   tipo="alerta"
                 />
               )}
@@ -156,7 +156,7 @@ export default function Fase6Page() {
             {resultado.ajustarVerificarPrimeiro && (
               <div style={{ border: '1px solid #E24B4A', background: '#E24B4A15', borderRadius: 8, padding: '12px 14px', marginBottom: 20 }}>
                 <p style={{ color: '#F09595', fontSize: 12, fontWeight: 600, margin: '0 0 8px' }}>
-                  Antes de subir degrau, verificar:
+                  Antes de intensificar o tratamento, verificar:
                 </p>
                 {[
                   'Técnica inalatória (presente em 80% dos doentes com fraco controlo)',

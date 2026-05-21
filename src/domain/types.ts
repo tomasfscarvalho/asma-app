@@ -62,6 +62,8 @@ export interface Fase2Dados {
 // ============================================
 export interface Fase3Dados {
   // Espirometria
+  fev1Litros: number | null
+  fvcLitros: number | null
   fev1Percentagem: number | null
   fvcPercentagem: number | null
   fev1FvcRacio: number | null
@@ -179,6 +181,7 @@ export interface Fase8Dados {
   pefPercentagem: number | null
   pacientePediatrico: boolean
   idadeMenorCinco: boolean
+  sonolenciaConfusaoToraxSilencioso: boolean
 
   // Fatores de mau prognóstico
   ventilaçãoMecanicaPrevia: boolean

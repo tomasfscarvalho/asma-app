@@ -12,7 +12,7 @@ const steps = ['Critérios GRESP/GINA', 'Questionário']
 
 const controloTexto = {
   'controlada': 'Controlada',
-  'parcialmente-controlada': 'Parcialmente Controlada',
+  'parcialmente-controlada': 'Parcialmente controlada',
   'nao-controlada': 'Não Controlada',
 }
 
@@ -34,11 +34,11 @@ const caratPerguntas: { key: keyof Fase4Dados, texto: string }[] = [
   { key: 'caratNasalCongestion', texto: 'Nariz entupido?' },
   { key: 'caratSneezing', texto: 'Espirros?' },
   { key: 'caratNasalItching', texto: 'Comichão no nariz?' },
-  { key: 'caratRunnyNose', texto: 'Corrimento/pingo do nariz?' },
+  { key: 'caratRunnyNose', texto: 'Corrimento nasal?' },
   { key: 'caratBreathlessness', texto: 'Falta de ar/dispneia?' },
   { key: 'caratWheeze', texto: 'Chiadeira no peito/pieira?' },
   { key: 'caratChestTightness', texto: 'Aperto no peito com esforço físico?' },
-  { key: 'caratActivityLimitation', texto: 'Cansaço/dificuldade nas atividades do dia-a-dia?' },
+  { key: 'caratActivityLimitation', texto: 'Cansaço ou dificuldade nas atividades do dia-a-dia?' },
   { key: 'caratSleepDisturbance', texto: 'Acordou durante a noite por causa das doenças alérgicas?' },
   { key: 'caratMedicationIncrease', texto: 'Aumentar a utilização dos seus medicamentos?' },
 ]
@@ -59,7 +59,7 @@ const caratOpcoesMedicacao = [
 
 const frequenciaSintomasOpcoes: Array<{ label: string; value: Fase4Dados['frequenciaSintomas'] }> = [
   { label: '< 2x/mês', value: 'menos-2x-mes' },
-  { label: '≥ 2x/mês, não na maioria dos dias', value: 'mais-2x-mes' },
+  { label: '≥ 2x/mês, mas não na maioria dos dias', value: 'mais-2x-mes' },
   { label: 'Maioria dos dias', value: 'maioria-dias' },
 ]
 
@@ -299,7 +299,7 @@ export default function Fase4Page() {
             {fase4.questionarioUsado === 'carat' && (
               <>
                 <p style={{ fontSize: 11, color: '#555', marginBottom: 16 }}>
-                  CARAT — perguntas 1-9 usam a frequência das últimas 4 semanas; a pergunta 10 avalia aumento de medicação. Perguntas 1-4 avaliam rinite; 5-10 avaliam asma.
+                  CARAT — as perguntas 1-9 avaliam a frequência nas últimas 4 semanas; a pergunta 10 avalia o aumento da medicação. As perguntas 1-4 avaliam rinite; as perguntas 5-10 avaliam asma.
                 </p>
 
                 {caratPerguntas.map((p, i) => (

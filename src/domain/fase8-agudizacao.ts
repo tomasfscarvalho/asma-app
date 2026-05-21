@@ -9,8 +9,7 @@ export function calcularFase8(dados: Fase8Dados): ResultadoFase8 {
 
   // --- TRANSFERÊNCIA IMEDIATA PARA UCI ---
   // Sonolência, confusão mental ou tórax silencioso
-  const transferirUci =
-    dados.exprimePorFrases === false // exprime por palavras isoladas ou menos
+  const transferirUci = dados.sonolenciaConfusaoToraxSilencioso
 
   // --- CLASSIFICAÇÃO DE GRAVIDADE ---
   let gravidade: GravidadeAgudizacao = 'ligeira-moderada'
@@ -19,7 +18,9 @@ export function calcularFase8(dados: Fase8Dados): ResultadoFase8 {
     ? (dados.freqRespiratoria ?? 0) > 40
     : (dados.freqRespiratoria ?? 0) > 30
 
-  const freqCardGrave = (dados.freqCardiaca ?? 0) > 120
+  const freqCardGrave = dados.idadeMenorCinco
+    ? (dados.freqCardiaca ?? 0) > 150
+    : (dados.freqCardiaca ?? 0) > 120
 
   const spo2Grave = dados.pacientePediatrico
     ? (dados.spo2 ?? 100) < 92
@@ -39,7 +40,7 @@ export function calcularFase8(dados: Fase8Dados): ResultadoFase8 {
 
   if (transferirUci) {
     gravidade = 'critica'
-  } else if (criteriosGrave >= 2) {
+  } else if (criteriosGrave > 0) {
     gravidade = 'grave'
   }
 

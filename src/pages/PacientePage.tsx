@@ -6,13 +6,15 @@ export default function PacientePage() {
 
   function handleSubmit() {
     if (!paciente.nome || !paciente.dataNascimento || !paciente.numeroUtente) {
-      alert('Por favor preencha o nome, a data de nascimento e o n\u00ba de utente.')
+      alert('Por favor, preencha o nome, a data de nascimento e o número de utente.')
       return
     }
+
     if (!tipoConsulta) {
-      alert('Por favor seleciona o tipo de consulta.')
+      alert('Por favor, selecione o tipo de consulta.')
       return
     }
+
     if (tipoConsulta === 'seguimento') {
       navegarPara(3)
     } else {
@@ -28,8 +30,8 @@ export default function PacientePage() {
         </div>
 
         <div style={{ background: '#1e1e1e', borderRadius: 12, border: '1px solid #333', padding: '2rem' }}>
-          <h2 style={{ color: '#fff', fontSize: 16, fontWeight: 500, marginBottom: 4 }}>{'Nova consulta \u2014 dados do paciente'}</h2>
-          <p style={{ color: '#666', fontSize: 12, marginBottom: '1.5rem' }}>{'Campos com * s\u00e3o obrigat\u00f3rios'}</p>
+          <h2 style={{ color: '#fff', fontSize: 16, fontWeight: 500, marginBottom: 4 }}>{'Nova consulta — dados do doente'}</h2>
+          <p style={{ color: '#666', fontSize: 12, marginBottom: '1.5rem' }}>{'Os campos assinalados com * são obrigatórios.'}</p>
 
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>Nome completo *</label>
@@ -37,7 +39,7 @@ export default function PacientePage() {
               type="text"
               value={paciente.nome}
               onChange={e => setPaciente({ nome: e.target.value })}
-              placeholder="Nome do paciente"
+              placeholder="Nome do doente"
               style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff', boxSizing: 'border-box' }}
             />
           </div>
@@ -68,34 +70,34 @@ export default function PacientePage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: '1rem' }}>
             <div>
-              <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>{'N\u00ba Utente SNS *'}</label>
+              <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>Número de utente SNS *</label>
               <input
                 type="text"
                 value={paciente.numeroUtente}
                 onChange={e => setPaciente({ numeroUtente: e.target.value })}
-                placeholder={'9 d\u00edgitos'}
+                placeholder="9 dígitos"
                 style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff', boxSizing: 'border-box' }}
               />
             </div>
             <div>
-              <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>{'Cart\u00e3o de Cidad\u00e3o'}</label>
+              <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>Cartão de Cidadão</label>
               <input
                 type="text"
                 value={paciente.cartaoCidadao}
                 onChange={e => setPaciente({ cartaoCidadao: e.target.value })}
-                placeholder={'8, 9 ou 12 d\u00edgitos'}
+                placeholder="8, 9 ou 12 dígitos"
                 style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff', boxSizing: 'border-box' }}
               />
             </div>
           </div>
 
           <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>{'Contacto telef\u00f3nico'}</label>
+            <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>Contacto telefónico</label>
             <input
               type="tel"
               value={paciente.contacto}
               onChange={e => setPaciente({ contacto: e.target.value })}
-              placeholder={'N\u00famero de telem\u00f3vel'}
+              placeholder="Número de telemóvel"
               style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff', boxSizing: 'border-box' }}
             />
           </div>
@@ -106,13 +108,13 @@ export default function PacientePage() {
               {([
                 {
                   val: 'primeira-consulta',
-                  titulo: 'Suspeita diagn\u00f3stica',
-                  desc: 'Diagn\u00f3stico ainda n\u00e3o confirmado \u2014 avalia\u00e7\u00e3o cl\u00ednica completa',
+                  titulo: 'Suspeita diagnóstica',
+                  desc: 'Diagnóstico ainda não confirmado — avaliação clínica completa.',
                 },
                 {
                   val: 'seguimento',
-                  titulo: 'Diagn\u00f3stico confirmado',
-                  desc: 'Asma j\u00e1 diagnosticada \u2014 avalia\u00e7\u00e3o de controlo e planeamento terap\u00eautico',
+                  titulo: 'Diagnóstico confirmado',
+                  desc: 'Asma já diagnosticada — avaliação de controlo e planeamento terapêutico.',
                 },
               ] as { val: TipoConsulta, titulo: string, desc: string }[]).map(op => (
                 <div
@@ -165,10 +167,10 @@ export default function PacientePage() {
               </div>
               <div>
                 <p style={{ fontSize: 13, fontWeight: 500, color: paciente.jaEmICS ? '#FAC775' : '#ccc', margin: '0 0 4px' }}>
-                  {'Doente j\u00e1 em tratamento com ICS'}
+                  {'Doente já em tratamento com ICS'}
                 </p>
                 <p style={{ fontSize: 11, color: '#555', margin: 0 }}>
-                  {'O m\u00e9dico anterior iniciou corticosteroide inalado sem confirma\u00e7\u00e3o formal por espirometria'}
+                  {'Corticosteroide inalado iniciado antes de confirmação diagnóstica formal por espirometria.'}
                 </p>
               </div>
             </div>
@@ -178,7 +180,7 @@ export default function PacientePage() {
             onClick={handleSubmit}
             style={{ width: '100%', background: '#0F6E56', color: 'white', border: 'none', borderRadius: 8, padding: '12px', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}
           >
-            {'Iniciar avalia\u00e7\u00e3o \u2192'}
+            {'Iniciar avaliação →'}
           </button>
         </div>
       </div>

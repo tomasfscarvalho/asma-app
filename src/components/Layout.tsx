@@ -1,6 +1,8 @@
 import { useAsmaStore } from '../store/useAsmaStore'
 import ProgressBar from './ProgressBar'
 
+const dataReferenciaIdadeMs = Date.now()
+
 interface LayoutProps {
   children: React.ReactNode
   faseNumero: number
@@ -13,11 +15,11 @@ export default function Layout({ children, faseNumero, faseTitulo, badge, resumo
   const { paciente, ativarFase8 } = useAsmaStore()
 
   const idade = paciente.dataNascimento
-    ? Math.floor((Date.now() - new Date(paciente.dataNascimento).getTime()) / 31557600000)
+    ? Math.floor((dataReferenciaIdadeMs - new Date(paciente.dataNascimento).getTime()) / 31557600000)
     : null
 
   const resumoPadrao = [
-    { key: 'Paciente', val: paciente.nome || '\u2014' },
+    { key: 'Doente', val: paciente.nome || '\u2014' },
     { key: 'Idade', val: idade !== null && !Number.isNaN(idade) ? `${idade} anos` : '\u2014' },
     { key: 'Fase atual', val: `${faseNumero} / 8` },
     ...resumo,

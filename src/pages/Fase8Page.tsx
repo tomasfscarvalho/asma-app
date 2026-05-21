@@ -58,9 +58,15 @@ export default function Fase8Page() {
 
             <div style={{ marginBottom: 16 }}>
               <CheckItem
-                label="Paciente pediátrico (≤ 5 anos)"
+                label="Doente pediátrico (≤ 5 anos)"
                 checked={fase8.idadeMenorCinco}
                 onChange={v => setFase8({ idadeMenorCinco: v, pacientePediatrico: v })}
+              />
+              <CheckItem
+                label="Sonolência, confusão mental ou tórax silencioso"
+                checked={fase8.sonolenciaConfusaoToraxSilencioso}
+                onChange={v => setFase8({ sonolenciaConfusaoToraxSilencioso: v })}
+                alerta
               />
             </div>
 
@@ -112,7 +118,7 @@ export default function Fase8Page() {
                   type="number"
                   value={fase8.freqCardiaca ?? ''}
                   onChange={e => setFase8({ freqCardiaca: e.target.value ? Number(e.target.value) : null })}
-                  placeholder="Normal ≤ 120"
+                  placeholder={fase8.idadeMenorCinco ? 'Normal ≤ 150' : 'Normal ≤ 120'}
                   style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
                 />
               </div>

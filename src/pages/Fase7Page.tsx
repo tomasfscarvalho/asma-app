@@ -3,7 +3,6 @@ import { calcularFase7 } from '../domain/fase7-referenciacao'
 import Layout from '../components/Layout'
 import NavFooter from '../components/NavFooter'
 import CheckItem from '../components/CheckItem'
-import ResultBox from '../components/ResultBox'
 
 export default function Fase7Page() {
   const { fase4, fase5, fase6, fase7, setFase7, setResultadoFase7, navegarPara } = useAsmaStore()
@@ -26,15 +25,14 @@ export default function Fase7Page() {
       ]}
     >
       <div style={{ padding: 20, minHeight: 280 }}>
-
         <p style={{ fontSize: 12, color: '#888', marginBottom: 20 }}>
-          A ferramenta sinaliza automaticamente critérios de referenciação para consulta de especialidade segundo o GRESP. O médico decide se referencia.
+          A ferramenta sinaliza automaticamente critérios de referenciação para consulta de especialidade, segundo o GRESP. A decisão de referenciar compete ao médico.
         </p>
 
         <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-          Critérios adicionais — registar pelo médico
+          Critérios adicionais — registo pelo médico
         </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <CheckItem
             label="Dificuldades no diagnóstico"
             checked={fase7.dificuldadesDiagnostico}
@@ -46,7 +44,7 @@ export default function Fase7Page() {
             onChange={v => setFase7({ suspeitaAsmaOcupacional: v })}
           />
           <CheckItem
-            label="≥ 2 hospitalizações ou urgências nos últimos 12 meses"
+            label="≥ 2 hospitalizações ou episódios de urgência nos últimos 12 meses"
             checked={fase7.duasOuMaisHospitalizacoes}
             onChange={v => setFase7({ duasOuMaisHospitalizacoes: v })}
             alerta
@@ -70,27 +68,6 @@ export default function Fase7Page() {
           />
         </div>
 
-        <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-          Output automático
-        </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {resultado.criteriosPresentes.length === 0 ? (
-            <ResultBox
-              label="Critérios de referenciação"
-              valor="Nenhum critério presente"
-              tipo="ok"
-            />
-          ) : (
-            resultado.criteriosPresentes.map(c => (
-              <ResultBox
-                key={c}
-                label="Critério presente"
-                valor={c}
-                tipo="alerta"
-              />
-            ))
-          )}
-        </div>
       </div>
 
       <NavFooter

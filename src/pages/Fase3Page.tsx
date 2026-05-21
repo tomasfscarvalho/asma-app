@@ -4,40 +4,67 @@ import { calcularFase3 } from '../domain/fase3-provas'
 import Layout from '../components/Layout'
 import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
-import CheckItem from '../components/CheckItem'
 import ResultBox from '../components/ResultBox'
 
 const steps = ['Contexto', 'Espirometria', 'Reversibilidade', 'PEF + Output']
+
+function calcularIdade(dataNascimento: string): number | null {
+  if (!dataNascimento) return null
+
+  const nascimento = new Date(dataNascimento)
+  if (Number.isNaN(nascimento.getTime())) return null
+
+  const hoje = new Date()
+  let idade = hoje.getFullYear() - nascimento.getFullYear()
+  const aindaNaoFezAnos =
+    hoje.getMonth() < nascimento.getMonth() ||
+    (hoje.getMonth() === nascimento.getMonth() && hoje.getDate() < nascimento.getDate())
+
+  if (aindaNaoFezAnos) idade -= 1
+  return idade
+}
+
+function obterRacio(fev1Litros: number | null, fvcLitros: number | null): number | null {
+  if (fev1Litros === null || fvcLitros === null || fvcLitros <= 0) return null
+  return fev1Litros / fvcLitros
+}
 
 export default function Fase3Page() {
   const { fase3, setFase3, setResultadoFase3, navegarPara, paciente } = useAsmaStore()
   const [step, setStep] = useState(0)
 
-  const resultado = calcularFase3(fase3)
+  const idade = calcularIdade(paciente.dataNascimento)
+  const pacientePediatrico = idade !== null && idade >= 6 && idade <= 11
+  const idadeInferiorASeis = idade !== null && idade < 6
+  const dadosFase3 = { ...fase3, pacientePediatrico }
+  const resultado = calcularFase3(dadosFase3)
+  const racio = obterRacio(fase3.fev1Litros, fase3.fvcLitros)
 
-  const racio = fase3.fev1FvcRacio ??
-    (fase3.fev1Percentagem && fase3.fvcPercentagem
-      ? fase3.fev1Percentagem / fase3.fvcPercentagem
-      : null)
+  const classificacaoEtaria = pacientePediatrico ? 'pediátrico' : 'adulto/adolescente'
+  const limiarObstrucao = pacientePediatrico ? '0,90' : '0,75'
+  const criterioReversibilidade = pacientePediatrico ? '> 12% do previsto' : '> 12% e > 200 ml'
+  const criterioPef = pacientePediatrico ? '> 13%' : '> 10%'
 
   function handleProximo() {
     if (step < steps.length - 1) {
       setStep(step + 1)
-    } else {
-      setResultadoFase3(resultado)
-      navegarPara(9)
+      return
     }
+
+    setFase3({ pacientePediatrico, fev1FvcRacio: racio })
+    setResultadoFase3(calcularFase3({ ...dadosFase3, fev1FvcRacio: racio }))
+    navegarPara(9)
   }
 
   return (
     <Layout
       faseNumero={3}
-      faseTitulo={'Provas de fun\u00e7\u00e3o respirat\u00f3ria'}
-      badge={'Decis\u00e3o autom\u00e1tica'}
+      faseTitulo="Provas de função respiratória"
+      badge="Decisão automática"
       resumo={[
-        { key: 'Obstru\u00e7\u00e3o', val: fase3.fev1Percentagem ? (resultado.obstrutivo ? '\u2713 Confirmada' : '\u2717 N\u00e3o confirmada') : '\u2014' },
-        { key: 'Reversibilidade', val: fase3.aumentoFev1Percentagem ? (resultado.reversibilidade ? '\u2713 Positiva' : '\u2717 Negativa') : '\u2014' },
-        { key: 'Crit\u00e9rios +', val: `${resultado.criteriosPositivos} / 3` },
+        { key: 'Obstrução', val: racio !== null ? (resultado.obstrutivo ? '✓ Confirmada' : '✗ Não confirmada') : '—' },
+        { key: 'Reversibilidade', val: fase3.aumentoFev1Percentagem ? (resultado.reversibilidade ? '✓ Positiva' : '✗ Negativa') : '—' },
+        { key: 'Critérios +', val: `${resultado.criteriosPositivos} / 3` },
       ]}
     >
       <SubstepNav steps={steps} atual={step} onChange={setStep} />
@@ -46,44 +73,48 @@ export default function Fase3Page() {
         {step === 0 && (
           <>
             <p style={{ fontSize: 12, color: '#888', marginBottom: 16, lineHeight: 1.6 }}>
-              {'A espirometria \u00e9 o m\u00e9todo de diagn\u00f3stico recomendado. A confirma\u00e7\u00e3o da variabilidade ao fluxo expirat\u00f3rio \u00e9 um componente essencial no diagn\u00f3stico da asma. O diagn\u00f3stico deve ser realizado, sempre que poss\u00edvel, antes de o tratamento ser iniciado.'}
+              A espirometria é o método de diagnóstico recomendado. A confirmação da variabilidade ao fluxo expiratório é um componente essencial no diagnóstico da asma. O diagnóstico deve ser realizado, sempre que possível, antes de o tratamento ser iniciado.
             </p>
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-              Contexto do paciente
+              Contexto clínico do doente
             </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-              <CheckItem
-                label={'Paciente pedi\u00e1trico (crian\u00e7a > 5 anos)'}
-                checked={fase3.pacientePediatrico}
-                onChange={v => setFase3({ pacientePediatrico: v })}
-              />
-            </div>
 
             <div style={{ background: '#1a1a1a', borderRadius: 8, padding: 14, border: '1px solid #2a2a2a' }}>
               <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>
-                {'Limiares aplicados \u2014 '}{fase3.pacientePediatrico ? 'pedi\u00e1trico' : 'adulto'}
+                Limiares aplicados — {classificacaoEtaria}
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#666' }}>{'Obstru\u00e7\u00e3o (FEV1/FVC)'}</span>
-                  <span style={{ color: '#ccc' }}>{fase3.pacientePediatrico ? '< 0,90' : '< 0,75'}</span>
+                  <span style={{ color: '#666' }}>Idade calculada</span>
+                  <span style={{ color: '#ccc' }}>{idade !== null ? `${idade} anos` : 'Não disponível'}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#666' }}>Obstrução (FEV1/FVC)</span>
+                  <span style={{ color: '#ccc' }}>{`< ${limiarObstrucao}`}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ color: '#666' }}>Reversibilidade FEV1</span>
-                  <span style={{ color: '#ccc' }}>{fase3.pacientePediatrico ? '> 12% do previsto' : '> 12% E > 200 ml'}</span>
+                  <span style={{ color: '#ccc' }}>{criterioReversibilidade}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ color: '#666' }}>Variabilidade PEF</span>
-                  <span style={{ color: '#ccc' }}>{fase3.pacientePediatrico ? '> 13%' : '> 10%'}</span>
+                  <span style={{ color: '#ccc' }}>{criterioPef}</span>
                 </div>
               </div>
 
-              {fase3.pacientePediatrico && (
+              {idadeInferiorASeis && (
+                <div style={{ marginTop: 10, padding: '8px 10px', background: '#FAEEDA20', borderRadius: 6, border: '1px solid #FAC77550' }}>
+                  <p style={{ color: '#FAC775', fontSize: 11, margin: 0 }}>
+                    Nota clínica: em crianças com menos de 6 anos, a interpretação funcional deve ser feita com particular cautela.
+                  </p>
+                </div>
+              )}
+
+              {pacientePediatrico && (
                 <div style={{ marginTop: 10, padding: '8px 10px', background: '#0F6E5615', borderRadius: 6, border: '1px solid #1D9E7530' }}>
                   <p style={{ color: '#5DCAA5', fontSize: 11, margin: 0 }}>
-                    {'Nota cl\u00ednica: Em crian\u00e7as, o FEV1 pode ser normal mesmo com asma. A rela\u00e7\u00e3o entre sintomas e resultados funcionais \u00e9 complexa nesta faixa et\u00e1ria.'}
+                    Nota clínica: em crianças, o FEV1 pode ser normal mesmo na presença de asma. A relação entre sintomas e resultados funcionais é complexa nesta faixa etária.
                   </p>
                 </div>
               )}
@@ -94,65 +125,88 @@ export default function Fase3Page() {
         {step === 1 && (
           <>
             <p style={{ fontSize: 12, color: '#888', marginBottom: 16, lineHeight: 1.6 }}>
-              {'A espirometria permite avaliar a gravidade da obstru\u00e7\u00e3o atrav\u00e9s do FEV1. Um valor reduzido da rela\u00e7\u00e3o FEV1/FVC indica limita\u00e7\u00e3o ao fluxo expirat\u00f3rio.'}
+              A relação FEV1/FVC é calculada a partir dos valores absolutos medidos na espirometria.
             </p>
 
             {paciente.jaEmICS && (
               <div style={{ background: '#FAEEDA20', border: '1px solid #FAC77550', borderRadius: 8, padding: '12px 14px', marginBottom: 16 }}>
-                <p style={{ color: '#FAC775', fontSize: 13, fontWeight: 500, margin: '0 0 6px' }}>{'\u26a0 Doente j\u00e1 em tratamento com ICS'}</p>
+                <p style={{ color: '#FAC775', fontSize: 13, fontWeight: 500, margin: '0 0 6px' }}>⚠ Doente já em tratamento com ICS</p>
                 <p style={{ color: '#FAC775', fontSize: 12, margin: '0 0 8px' }}>
-                  {'A espirometria pode estar falsamente normal \u2014 o ICS pode ter melhorado a fun\u00e7\u00e3o pulmonar antes da confirma\u00e7\u00e3o diagn\u00f3stica.'}
+                  A espirometria pode estar falsamente normal, porque o ICS pode ter melhorado a função pulmonar antes da confirmação diagnóstica.
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11, color: '#BA7517' }}>
-                  <span>{'\u2022 Per\u00edodos de suspens\u00e3o recomendados antes da espirometria:'}</span>
-                  <span style={{ paddingLeft: 12 }}>{'SABA: \u2265 4 horas | LABA: 24 horas | Formoterol/Salmeterol: 24 horas'}</span>
-                  <span>{'\u2022 A aus\u00eancia de obstru\u00e7\u00e3o n\u00e3o exclui o diagn\u00f3stico de asma'}</span>
-                  <span>{'\u2022 Considerar variabilidade entre visitas como crit\u00e9rio adicional'}</span>
+                  <span>• Períodos de suspensão recomendados antes da espirometria:</span>
+                  <span style={{ paddingLeft: 12 }}>SABA: ≥ 4 horas | LABA: 24 horas | Formoterol/Salmeterol: 24 horas</span>
+                  <span>• A ausência de obstrução não exclui o diagnóstico de asma.</span>
+                  <span>• Considere variabilidade entre visitas como critério adicional.</span>
                 </div>
               </div>
             )}
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-              {'Espirometria pr\u00e9-broncodilatador'}
+              Espirometria pré-broncodilatador
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
               <div>
-                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>FEV1 (% previsto)</label>
+                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>FEV1 medido (L)</label>
                 <input
                   type="number"
-                  value={fase3.fev1Percentagem ?? ''}
-                  onChange={e => setFase3({ fev1Percentagem: e.target.value ? Number(e.target.value) : null, fev1FvcRacio: null })}
-                  placeholder="ex: 72"
+                  step="0.01"
+                  value={fase3.fev1Litros ?? ''}
+                  onChange={e => setFase3({ fev1Litros: e.target.value ? Number(e.target.value) : null, fev1FvcRacio: null })}
+                  placeholder="Ex: 2.10"
                   style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
                 />
               </div>
               <div>
-                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>FVC (% previsto)</label>
+                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>FVC medida (L)</label>
                 <input
                   type="number"
-                  value={fase3.fvcPercentagem ?? ''}
-                  onChange={e => setFase3({ fvcPercentagem: e.target.value ? Number(e.target.value) : null, fev1FvcRacio: null })}
-                  placeholder="ex: 85"
+                  step="0.01"
+                  value={fase3.fvcLitros ?? ''}
+                  onChange={e => setFase3({ fvcLitros: e.target.value ? Number(e.target.value) : null, fev1FvcRacio: null })}
+                  placeholder="Ex: 3.00"
                   style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
                 />
               </div>
             </div>
 
-            {racio && (
-              <div style={{ marginBottom: 16 }}>
-                <ResultBox
-                  label={`FEV1/FVC calculado \u2014 limiar ${fase3.pacientePediatrico ? '0,90' : '0,75'} (${fase3.pacientePediatrico ? 'pedi\u00e1trico' : 'adulto'})`}
-                  valor={`${racio.toFixed(2)} \u2192 ${resultado.obstrutivo ? 'Obstru\u00e7\u00e3o confirmada' : 'Sem obstru\u00e7\u00e3o confirmada'}`}
-                  tipo={resultado.obstrutivo ? 'ok' : 'neutro'}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+              <div>
+                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>FEV1 (% do previsto)</label>
+                <input
+                  type="number"
+                  value={fase3.fev1Percentagem ?? ''}
+                  onChange={e => setFase3({ fev1Percentagem: e.target.value ? Number(e.target.value) : null })}
+                  placeholder="Ex: 72"
+                  style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
                 />
               </div>
-            )}
+              <div>
+                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>FVC (% do previsto)</label>
+                <input
+                  type="number"
+                  value={fase3.fvcPercentagem ?? ''}
+                  onChange={e => setFase3({ fvcPercentagem: e.target.value ? Number(e.target.value) : null })}
+                  placeholder="Ex: 85"
+                  style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
+                />
+              </div>
+            </div>
 
-            {fase3.fev1Percentagem && fase3.fev1Percentagem < 60 && (
+            <div style={{ marginBottom: 16 }}>
+              <ResultBox
+                label={`FEV1/FVC calculado — limiar ${limiarObstrucao} (${classificacaoEtaria})`}
+                valor={racio !== null ? `${racio.toFixed(2)} → ${resultado.obstrutivo ? 'Obstrução confirmada' : 'Sem obstrução confirmada'}` : 'Introduza FEV1 e FVC medidos em litros.'}
+                tipo={racio !== null ? (resultado.obstrutivo ? 'ok' : 'neutro') : 'neutro'}
+              />
+            </div>
+
+            {fase3.fev1Percentagem !== null && fase3.fev1Percentagem < 60 && (
               <div style={{ background: '#E24B4A15', border: '1px solid #E24B4A50', borderRadius: 6, padding: '10px 12px' }}>
                 <p style={{ color: '#F09595', fontSize: 12, margin: 0 }}>
-                  {'\u26a0 FEV1 < 60% do previsto \u2014 fator de risco para agudiza\u00e7\u00f5es (ser\u00e1 registado na Fase 5).'}
+                  ⚠ FEV1 &lt; 60% do previsto — fator de risco para agudizações.
                 </p>
               </div>
             )}
@@ -162,14 +216,14 @@ export default function Fase3Page() {
         {step === 2 && (
           <>
             <p style={{ fontSize: 12, color: '#888', marginBottom: 16, lineHeight: 1.6 }}>
-              {'O teste de reversibilidade \u00e9 realizado 10 a 15 minutos ap\u00f3s administra\u00e7\u00e3o de broncodilatador (200-400 \u00b5g salbutamol ou equivalente). A reversibilidade br\u00f4nquica favorece o diagn\u00f3stico de asma quando enquadrada no contexto cl\u00ednico.'}
+              O teste de reversibilidade é realizado 10 a 15 minutos após administração de broncodilatador (200-400 µg de salbutamol ou equivalente). A reversibilidade brônquica favorece o diagnóstico de asma quando enquadrada no contexto clínico.
             </p>
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-              {'P\u00f3s-broncodilatador \u2014 10 a 15 min ap\u00f3s 200-400 \u00b5g salbutamol'}
+              Pós-broncodilatador — 10 a 15 min após 200-400 µg de salbutamol
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: fase3.pacientePediatrico ? '1fr' : '1fr 1fr', gap: 12, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: pacientePediatrico ? '1fr' : '1fr 1fr', gap: 12, marginBottom: 16 }}>
               <div>
                 <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>
                   Aumento do FEV1 (%)
@@ -178,11 +232,11 @@ export default function Fase3Page() {
                   type="number"
                   value={fase3.aumentoFev1Percentagem ?? ''}
                   onChange={e => setFase3({ aumentoFev1Percentagem: e.target.value ? Number(e.target.value) : null })}
-                  placeholder={fase3.pacientePediatrico ? 'Positivo se > 12% do previsto' : 'Positivo se > 12%'}
+                  placeholder={pacientePediatrico ? 'Positivo se > 12% do previsto' : 'Positivo se > 12%'}
                   style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
                 />
               </div>
-              {!fase3.pacientePediatrico && (
+              {!pacientePediatrico && (
                 <div>
                   <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>
                     Aumento do FEV1 (ml)
@@ -200,15 +254,15 @@ export default function Fase3Page() {
 
             {(fase3.aumentoFev1Percentagem || fase3.aumentoFev1ml) && (
               <ResultBox
-                label={`Reversibilidade broncodilatadora \u2014 crit\u00e9rio ${fase3.pacientePediatrico ? '> 12% do previsto' : '> 12% E > 200 ml'}`}
-                valor={resultado.reversibilidade ? 'Crit\u00e9rio positivo \u2014 reversibilidade confirmada' : 'Crit\u00e9rio negativo \u2014 reversibilidade n\u00e3o confirmada'}
+                label={`Reversibilidade broncodilatadora — critério ${criterioReversibilidade}`}
+                valor={resultado.reversibilidade ? 'Critério positivo — reversibilidade confirmada' : 'Critério negativo — reversibilidade não confirmada'}
                 tipo={resultado.reversibilidade ? 'ok' : 'neutro'}
               />
             )}
 
             <div style={{ marginTop: 16, background: '#1a1a1a', borderRadius: 6, padding: '10px 12px', border: '1px solid #2a2a2a' }}>
               <p style={{ fontSize: 11, color: '#555', margin: 0, lineHeight: 1.6 }}>
-                {'Nota: A reversibilidade pode estar ausente em doentes j\u00e1 medicados com broncodilatadores. A sua presen\u00e7a confirma o diagn\u00f3stico mas a aus\u00eancia n\u00e3o o exclui.'}
+                Nota: a reversibilidade pode estar ausente em doentes já medicados com broncodilatadores. A sua presença suporta o diagnóstico, mas a ausência não o exclui.
               </p>
             </div>
           </>
@@ -217,58 +271,58 @@ export default function Fase3Page() {
         {step === 3 && (
           <>
             <p style={{ fontSize: 12, color: '#888', marginBottom: 16, lineHeight: 1.6 }}>
-              {'O PEF \u00e9 uma alternativa \u00e0 espirometria quando esta n\u00e3o est\u00e1 dispon\u00edvel. \u00c9 especialmente recomendado em asma grave, fraca perce\u00e7\u00e3o de sintomas e suspeita de asma ocupacional.'}
+              O PEF é uma alternativa à espirometria quando esta não está disponível. É especialmente recomendado em asma grave, fraca perceção de sintomas e suspeita de asma ocupacional.
             </p>
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-              {'Variabilidade di\u00e1ria do PEF'}
+              Variabilidade diária do PEF
             </p>
 
             <p style={{ fontSize: 11, color: '#555', marginBottom: 12 }}>
-              {'2 medi\u00e7\u00f5es por dia durante 2 semanas \u2014 melhor de 3 determina\u00e7\u00f5es em cada medi\u00e7\u00e3o.'}
+              2 medições por dia durante 2 semanas — melhor de 3 determinações em cada medição.
             </p>
 
             <div style={{ marginBottom: 20, maxWidth: 220 }}>
               <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>
-                {'Variabilidade di\u00e1ria (%)'}
+                Variabilidade diária (%)
               </label>
               <input
                 type="number"
                 value={fase3.variabilidadePef ?? ''}
                 onChange={e => setFase3({ variabilidadePef: e.target.value ? Number(e.target.value) : null })}
-                placeholder={fase3.pacientePediatrico ? 'Positivo se > 13%' : 'Positivo se > 10%'}
+                placeholder={`Positivo se ${criterioPef}`}
                 style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
               />
             </div>
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-              {'Output autom\u00e1tico \u2014 fase 3'}
+              Resultado automático — Fase 3
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
               <ResultBox
-                label={'Limita\u00e7\u00e3o ao fluxo expirat\u00f3rio (FEV1/FVC)'}
-                valor={fase3.fev1Percentagem
-                  ? (resultado.obstrutivo ? '\u2713 Crit\u00e9rio positivo' : '\u2717 Crit\u00e9rio negativo')
-                  : 'N\u00e3o avaliado'}
-                tipo={fase3.fev1Percentagem ? (resultado.obstrutivo ? 'ok' : 'neutro') : 'neutro'}
+                label="Limitação ao fluxo expiratório (FEV1/FVC)"
+                valor={racio !== null
+                  ? (resultado.obstrutivo ? '✓ Critério positivo' : '✗ Critério negativo')
+                  : 'Não avaliado'}
+                tipo={racio !== null ? (resultado.obstrutivo ? 'ok' : 'neutro') : 'neutro'}
               />
               <ResultBox
                 label="Reversibilidade broncodilatadora"
                 valor={fase3.aumentoFev1Percentagem
-                  ? (resultado.reversibilidade ? '\u2713 Crit\u00e9rio positivo' : '\u2717 Crit\u00e9rio negativo')
-                  : 'N\u00e3o avaliado'}
+                  ? (resultado.reversibilidade ? '✓ Critério positivo' : '✗ Critério negativo')
+                  : 'Não avaliado'}
                 tipo={fase3.aumentoFev1Percentagem ? (resultado.reversibilidade ? 'ok' : 'neutro') : 'neutro'}
               />
               <ResultBox
-                label={`Variabilidade di\u00e1ria do PEF (limiar ${fase3.pacientePediatrico ? '> 13%' : '> 10%'})`}
+                label={`Variabilidade diária do PEF (limiar ${criterioPef})`}
                 valor={fase3.variabilidadePef
-                  ? (resultado.pefPositivo ? '\u2713 Crit\u00e9rio positivo' : '\u2717 Crit\u00e9rio negativo')
-                  : 'N\u00e3o avaliado'}
+                  ? (resultado.pefPositivo ? '✓ Critério positivo' : '✗ Critério negativo')
+                  : 'Não avaliado'}
                 tipo={fase3.variabilidadePef ? (resultado.pefPositivo ? 'ok' : 'neutro') : 'neutro'}
               />
               <ResultBox
-                label={'Total de crit\u00e9rios objetivos positivos'}
+                label="Total de critérios objetivos positivos"
                 valor={`${resultado.criteriosPositivos} de 3`}
                 tipo={resultado.criteriosPositivos >= 1 ? 'ok' : 'neutro'}
               />
@@ -276,7 +330,7 @@ export default function Fase3Page() {
 
             <div style={{ background: '#1a1a1a', borderRadius: 6, padding: '10px 12px', border: '1px solid #2a2a2a' }}>
               <p style={{ fontSize: 11, color: '#555', margin: 0, lineHeight: 1.6 }}>
-                {'A conclus\u00e3o diagn\u00f3stica final \u00e9 da responsabilidade do m\u00e9dico. Na p\u00e1gina seguinte poder\u00e1 confirmar ou n\u00e3o o diagn\u00f3stico de asma com base em toda a informa\u00e7\u00e3o recolhida.'}
+                A conclusão diagnóstica final é da responsabilidade do médico. Na página seguinte, poderá confirmar ou não o diagnóstico de asma com base em toda a informação recolhida.
               </p>
             </div>
           </>
@@ -288,7 +342,7 @@ export default function Fase3Page() {
         totalSteps={steps.length}
         onAnterior={() => step > 0 ? setStep(step - 1) : navegarPara(1)}
         onProximo={handleProximo}
-        labelProximo={step === steps.length - 1 ? 'Decis\u00e3o diagn\u00f3stica \u2192' : 'Pr\u00f3ximo \u2192'}
+        labelProximo={step === steps.length - 1 ? 'Decisão diagnóstica →' : 'Próximo →'}
       />
     </Layout>
   )

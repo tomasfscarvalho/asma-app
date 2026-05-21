@@ -49,7 +49,7 @@ export default function RelatorioPage() {
 
         <div style={{ background: '#1e1e1e', borderRadius: 12, border: '1px solid #333', overflow: 'hidden', marginBottom: 16 }}>
           <div style={{ padding: '12px 20px', borderBottom: '1px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 14, fontWeight: 500, color: '#fff' }}>Registo clínico — Modelo SOAP</span>
+            <span style={{ fontSize: 14, fontWeight: 500, color: '#fff' }}>Registo clínico — modelo SOAP</span>
           </div>
           <pre
             style={{
@@ -70,7 +70,7 @@ export default function RelatorioPage() {
 
         <div style={{ background: '#0F6E5615', border: '1px solid #1D9E7530', borderRadius: 8, padding: '10px 16px', marginBottom: 16 }}>
           <p style={{ color: '#5DCAA5', fontSize: 12, margin: 0 }}>
-            {'Este relatório é de apoio à decisão clínica. A responsabilidade diagnóstica e terapêutica é do médico assistente. Os dados são eliminados ao fechar o browser.'}
+            {'Este relatório é um instrumento de apoio à decisão clínica. A responsabilidade diagnóstica e terapêutica é do médico assistente. Os dados são eliminados ao fechar o browser.'}
           </p>
         </div>
 
@@ -79,7 +79,7 @@ export default function RelatorioPage() {
             onClick={copiar}
             style={{ flex: 1, background: '#0F6E56', color: 'white', border: 'none', borderRadius: 8, padding: '12px', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}
           >
-            Copiar relatório para área de transferência
+            Copiar relatório para a área de transferência
           </button>
           <button
             onClick={novaConsulta}
