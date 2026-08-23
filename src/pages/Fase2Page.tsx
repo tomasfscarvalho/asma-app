@@ -1,4 +1,5 @@
 import { useAsmaStore } from '../store/useAsmaStore'
+import { calcularIdade } from '../domain/idade'
 import { ECRA } from '../domain/fases'
 import Layout from '../components/Layout'
 import NavFooter from '../components/NavFooter'
@@ -113,8 +114,8 @@ const diferenciaisPorFaixa = {
 }
 
 function calcularFaixa(dataNascimento: string): 'crianca' | 'jovem' | 'adulto' {
-  if (!dataNascimento) return 'adulto'
-  const idade = Math.floor((Date.now() - new Date(dataNascimento).getTime()) / 31557600000)
+  const idade = calcularIdade(dataNascimento)
+  if (idade === null) return 'adulto'
   if (idade <= 11) return 'crianca'
   if (idade <= 39) return 'jovem'
   return 'adulto'

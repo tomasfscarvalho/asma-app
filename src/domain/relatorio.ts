@@ -2,6 +2,7 @@ import type {
   Paciente, Fase1Dados, Fase2Dados, Fase3Dados, Fase4Dados,
   Fase5Dados, Fase6Dados, Fase8Dados, DecisaoDiagnostica,
 } from './types'
+import { calcularIdade } from './idade'
 import { calcularFase3 } from './fase3-provas'
 import { calcularFase4, calcularCaratRinite, calcularCaratAsma } from './fase4-controlo'
 import { calcularFase6, obterDescricaoDegrau } from './fase6-terapeutica'
@@ -41,9 +42,7 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
 
   const { paciente: p, fase1: f1, fase2: f2, fase5: f5 } = dados
 
-  const idade = p.dataNascimento
-    ? Math.floor((Date.now() - new Date(p.dataNascimento).getTime()) / 31557600000)
-    : '—'
+  const idade = calcularIdade(p.dataNascimento) ?? '—'
 
   const controloTexto = {
     'controlada': 'Controlada',

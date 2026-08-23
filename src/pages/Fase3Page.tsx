@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { calcularIdade } from '../domain/idade'
 import { ECRA } from '../domain/fases'
 import { useAsmaStore } from '../store/useAsmaStore'
 import { calcularFase3 } from '../domain/fase3-provas'
@@ -8,22 +9,6 @@ import NavFooter from '../components/NavFooter'
 import ResultBox from '../components/ResultBox'
 
 const steps = ['Contexto', 'Espirometria', 'Reversibilidade', 'PEF + Output']
-
-function calcularIdade(dataNascimento: string): number | null {
-  if (!dataNascimento) return null
-
-  const nascimento = new Date(dataNascimento)
-  if (Number.isNaN(nascimento.getTime())) return null
-
-  const hoje = new Date()
-  let idade = hoje.getFullYear() - nascimento.getFullYear()
-  const aindaNaoFezAnos =
-    hoje.getMonth() < nascimento.getMonth() ||
-    (hoje.getMonth() === nascimento.getMonth() && hoje.getDate() < nascimento.getDate())
-
-  if (aindaNaoFezAnos) idade -= 1
-  return idade
-}
 
 function obterRacio(fev1Litros: number | null, fvcLitros: number | null): number | null {
   if (fev1Litros === null || fvcLitros === null || fvcLitros <= 0) return null
