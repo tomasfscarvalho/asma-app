@@ -12,6 +12,7 @@ export default function RelatorioPage() {
     fase4: store.fase4,
     fase5: store.fase5,
     fase6: store.fase6,
+    fase7: store.fase7,
     fase8: store.fase8,
     decisaoDiagnostica: store.decisaoDiagnostica,
   })

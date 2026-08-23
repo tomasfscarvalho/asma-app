@@ -1,11 +1,12 @@
 import type {
   Paciente, Fase1Dados, Fase2Dados, Fase3Dados, Fase4Dados,
-  Fase5Dados, Fase6Dados, Fase8Dados, DecisaoDiagnostica,
+  Fase5Dados, Fase6Dados, Fase7Dados, Fase8Dados, DecisaoDiagnostica,
 } from './types'
 import { calcularIdade } from './idade'
 import { calcularFase3 } from './fase3-provas'
 import { calcularFase4, calcularCaratRinite, calcularCaratAsma, interpretarAct } from './fase4-controlo'
 import { calcularFase6, obterDescricaoDegrau } from './fase6-terapeutica'
+import { calcularFase7 } from './fase7-referenciacao'
 import { calcularFase8 } from './fase8-agudizacao'
 
 interface DadosRelatorio {
@@ -16,6 +17,7 @@ interface DadosRelatorio {
   fase4: Fase4Dados
   fase5: Fase5Dados
   fase6: Fase6Dados
+  fase7: Fase7Dados
   fase8: Fase8Dados
   decisaoDiagnostica: DecisaoDiagnostica
 }
@@ -28,14 +30,12 @@ function sim(valor: boolean): string {
   return valor ? 'Sim' : 'Não'
 }
 
-function formatarFatorMaior(bool: boolean, texto: string): string {
-  return bool ? `  ⚠ ${texto}` : ''
-}
 
 export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
   const r3 = calcularFase3(dados.fase3)
   const r4 = calcularFase4(dados.fase4)
   const r6 = calcularFase6(dados.fase4, dados.fase6, dados.fase5.fev1Baixo)
+  const r7 = calcularFase7(dados.fase4, dados.fase6, dados.fase7, dados.fase5.fev1Baixo)
   const r8 = calcularFase8(dados.fase8)
   const caratRinite = calcularCaratRinite(dados.fase4)
   const caratAsma = calcularCaratAsma(dados.fase4)
@@ -61,6 +61,72 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
 
   const linhaFev1Atual = r4.fev1Atual !== null
     ? `  • FEV1 atual: ${r4.fev1Atual}% do previsto`
+    : ''
+
+  const listaOuNenhum = (itens: string[], vazio: string): string =>
+    itens.length > 0 ? itens.map(i => `  • ${i}`).join('\n') : `  • ${vazio}`
+
+  const historiaClinica = listaOuNenhum(
+    [
+      f1.inicioNaInfancia && 'Início dos sintomas na infância',
+      f1.riniteOuEczema && 'História de rinite alérgica ou eczema',
+      f1.familiarAsmaAtopia && 'História familiar de asma ou atopia',
+      f1.sensibilizacaoAlergenica && 'Sensibilização alergénica documentada',
+    ].filter(Boolean) as string[],
+    'Nenhum dos fatores de história clínica e familiar registado.'
+  )
+
+  const exameFisico = listaOuNenhum(
+    [
+      f1.sibilosNaExpiracao && 'Sibilos na expiração',
+      f1.exameFisicoNormal && 'Exame físico normal',
+      f1.silencioRespiratorio && '⚠ SILÊNCIO RESPIRATÓRIO — sinal de obstrução brônquica muito grave',
+    ].filter(Boolean) as string[],
+    'Sem alterações registadas.'
+  )
+
+  const comorbilidades = listaOuNenhum(
+    [
+      f5.obesidade && 'Obesidade',
+      f5.rinossinusite && 'Rinossinusite crónica',
+      f5.alergiaAlimentar && 'Alergia alimentar',
+      f5.refluxo && 'Refluxo gastroesofágico',
+      f5.gravidez && 'Gravidez',
+      f5.eosinofilia && 'Eosinofilia',
+    ].filter(Boolean) as string[],
+    'Nenhuma comorbilidade registada.'
+  )
+
+  const exposicaoEFatores = listaOuNenhum(
+    [
+      f5.fumoTabaco && 'Exposição ao fumo do tabaco',
+      f5.biomassa && 'Exposição a biomassa',
+      f5.alergenios && 'Exposição a alergénios',
+      f5.problemasPsicologicos && 'Problemas psicológicos',
+      f5.fatoresSocioeconomicos && 'Fatores socioeconómicos',
+    ].filter(Boolean) as string[],
+    'Nenhuma exposição registada.'
+  )
+
+  const fatoresModificaveis = listaOuNenhum(
+    [
+      f5.sintomasNaoControlados && 'Sintomas não controlados',
+      f5.naoCumprimentoIcs && 'Não cumprimento da terapêutica com ICS',
+      f5.maAdesao && 'Má adesão à terapêutica',
+      f5.tecnicaInalatoriaIncorreta && 'Técnica inalatória incorreta',
+      f5.abusoDeSaba && 'Abuso de SABA (≥ 3 embalagens/ano)',
+      f5.fev1Baixo && 'FEV1 < 60% do previsto',
+    ].filter(Boolean) as string[],
+    'Nenhum fator modificável registado.'
+  )
+
+  const blocoReferenciacao = r7.referenciar
+    ? `⚠ CRITÉRIOS DE REFERENCIAÇÃO PRESENTES (${r7.criteriosPresentes.length}):\n`
+      + r7.criteriosPresentes.map(c => `  • ${c}`).join('\n')
+    : '  • Não foram identificados critérios de referenciação para consulta de especialidade.'
+
+  const blocoAgudizacao = r8.gravidade !== 'ligeira-moderada'
+    ? `\n⚠ AGUDIZAÇÃO DETETADA\n  Gravidade: ${r8.gravidade === 'grave' ? 'Grave' : 'Crítica'}\n  Nível de cuidados: ${r8.nivelCuidados}\n`
     : ''
 
   const degrauTerapiaTexto = obterDescricaoDegrau(r6)
@@ -102,6 +168,14 @@ Fatores que diminuem probabilidade de asma:
   • Tosse isolada: ${sim(f1.tosseIsolada)}
   • Tosse produtiva crónica: ${sim(f1.tosseProdutivaCronica)}
   • Dor torácica: ${sim(f1.dorToracica)}
+  • Dispneia com tonturas ou parestesias: ${sim(f1.dispneiaTonturasParestesias)}
+  • Dispneia de esforço com inspiração ruídosa: ${sim(f1.dispneiaPorExercicioComInspiracao)}
+
+História clínica e familiar:
+${historiaClinica}
+
+Exame físico:
+${exameFisico}
 
 ----------------------------------------
 O — OBJETIVO
@@ -174,13 +248,29 @@ Fatores que diminuem probabilidade de asma:
   • Tosse isolada: ${sim(f1.tosseIsolada)}
   • Tosse produtiva crónica: ${sim(f1.tosseProdutivaCronica)}
   • Dor torácica: ${sim(f1.dorToracica)}
+  • Dispneia com tonturas ou parestesias: ${sim(f1.dispneiaTonturasParestesias)}
+  • Dispneia de esforço com inspiração ruídosa: ${sim(f1.dispneiaPorExercicioComInspiracao)}
 
-Agudizações e risco futuro:
-  • Fumo do tabaco: ${sim(f5.fumoTabaco)}
-  • Abuso de SABA: ${sim(f5.abusoDeSaba)}
-  • Internamento em UCI prévio: ${sim(f5.intubacaoOuUciPrevia)}
+História clínica e familiar:
+${historiaClinica}
+
+Exame físico:
+${exameFisico}
+
+Risco futuro — fatores modificáveis:
+${fatoresModificaveis}
+
+Risco futuro — exposição e fatores contextuais:
+${exposicaoEFatores}
+
+Risco futuro — comorbilidades:
+${comorbilidades}
+
+Agudizações e fatores de risco major:
+  • Internamento em UCI ou intubação prévia: ${sim(f5.intubacaoOuUciPrevia)}
   • Agudização grave no último ano: ${sim(f5.agudizacaoGraveUltimoAno)}
-  • Nº agudizações último ano: ${f5.agudizacoesUltimoAno ?? '—'}
+  • Nº de agudizações no último ano: ${f5.agudizacoesUltimoAno ?? '—'}
+  • Nº de internamentos por asma no último ano: ${f5.internamentosUltimoAno ?? '—'}
 
 ----------------------------------------
 O — OBJETIVO
@@ -208,9 +298,13 @@ A — AVALIAÇÃO
   • Diagnóstico: Asma confirmada
   • Nível de controlo: ${controloTexto}
   • Degrau terapêutico atual: ${degrauTerapiaTexto} (Percurso ${r6.percurso})
-${r6.criterioReferenciacao ? '  ⚠ CRITÉRIO DE REFERENCIAÇÃO PRESENTE' : ''}
-${formatarFatorMaior(f5.intubacaoOuUciPrevia, 'FATOR DE RISCO MAJOR: Internamento prévio em UCI')}
-${formatarFatorMaior(f5.agudizacaoGraveUltimoAno, 'FATOR DE RISCO MAJOR: Agudização grave no último ano')}
+
+Referenciação para consulta de especialidade:
+${blocoReferenciacao}
+${[
+    f5.intubacaoOuUciPrevia && '  ⚠ FATOR DE RISCO MAJOR: Internamento prévio em UCI ou intubação',
+    f5.agudizacaoGraveUltimoAno && '  ⚠ FATOR DE RISCO MAJOR: Agudização grave no último ano',
+  ].filter(Boolean).join('\n')}
 
 ----------------------------------------
 P — PLANO
@@ -222,11 +316,7 @@ P — PLANO
   • Vacinação antigripal: Recomendar anualmente
   • Técnica inalatória: Rever na consulta
   • Plano de ação escrito: A elaborar com o doente
-
-${r8.gravidade !== 'ligeira-moderada' ? `⚠ AGUDIZAÇÃO DETETADA
-  Gravidade: ${r8.gravidade === 'grave' ? 'Grave' : 'Crítica'}
-  Nível de cuidados: ${r8.nivelCuidados}` : ''}
-
+${blocoAgudizacao}
 ========================================
 Gerado pelo Sistema de Apoio à Decisão
 Clínica ASMA — GRESP 2022 / GINA 2025
