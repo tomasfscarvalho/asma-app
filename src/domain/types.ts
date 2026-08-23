@@ -130,7 +130,7 @@ export interface Fase5Dados {
   fumoTabaco: boolean
   biomassa: boolean
   alergenios: boolean
-  problemaspsicologicos: boolean
+  problemasPsicologicos: boolean
   fatoresSocioeconomicos: boolean
 
   // Comorbilidades
@@ -147,7 +147,7 @@ export interface Fase5Dados {
 
   // Agudizações
   agudizacoesUltimoAno: number | null
-  internamatosUltimoAno: number | null
+  internamentosUltimoAno: number | null
 }
 
 // ============================================
@@ -184,7 +184,7 @@ export interface Fase8Dados {
   sonolenciaConfusaoToraxSilencioso: boolean
 
   // Fatores de mau prognóstico
-  ventilaçãoMecanicaPrevia: boolean
+  ventilacaoMecanicaPrevia: boolean
   duasOuMaisUrgencias: boolean
   corticosteroidesRecentes: boolean
   abusoDeSabaProlong: boolean

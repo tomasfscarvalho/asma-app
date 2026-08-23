@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Fase4Dados } from '../domain/types'
 import { useAsmaStore } from '../store/useAsmaStore'
-import { calcularFase4 } from '../domain/fase4-controlo'
+import { calcularFase4, calcularCaratRinite, calcularCaratAsma, interpretarCarat } from '../domain/fase4-controlo'
 import Layout from '../components/Layout'
 import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
@@ -62,43 +62,6 @@ const frequenciaSintomasOpcoes: Array<{ label: string; value: Fase4Dados['freque
   { label: '≥ 2x/mês, mas não na maioria dos dias', value: 'mais-2x-mes' },
   { label: 'Maioria dos dias', value: 'maioria-dias' },
 ]
-
-function calcularCaratRinite(fase4: Fase4Dados): number | null {
-  const campos = [
-    fase4.caratNasalCongestion,
-    fase4.caratSneezing,
-    fase4.caratNasalItching,
-    fase4.caratRunnyNose,
-  ]
-
-  if (campos.some(c => c === null)) return null
-  return (campos as number[]).reduce((acc, val) => acc + val, 0)
-}
-
-function calcularCaratAsma(fase4: Fase4Dados): number | null {
-  const campos = [
-    fase4.caratBreathlessness,
-    fase4.caratWheeze,
-    fase4.caratChestTightness,
-    fase4.caratActivityLimitation,
-    fase4.caratSleepDisturbance,
-    fase4.caratMedicationIncrease,
-  ]
-
-  if (campos.some(c => c === null)) return null
-  return (campos as number[]).reduce((acc, val) => acc + val, 0)
-}
-
-function interpretarCarat(scoreTotal: number | null, scoreRinite: number | null, scoreAsma: number | null): string {
-  if (scoreTotal === null || scoreRinite === null || scoreAsma === null) {
-    return 'Incompleto — preencha todas as perguntas.'
-  }
-
-  const global = scoreTotal > 24 ? 'bom controlo global' : 'controlo global insuficiente'
-  const rinite = scoreRinite > 8 ? 'rinite controlada' : 'rinite não controlada'
-  const asma = scoreAsma >= 16 ? 'asma controlada' : 'asma não controlada'
-  return `${scoreTotal} / 30 — ${global}; ${rinite}; ${asma}.`
-}
 
 export default function Fase4Page() {
   const { fase4, setFase4, setResultadoFase4, navegarPara, tipoConsulta } = useAsmaStore()

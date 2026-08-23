@@ -179,7 +179,7 @@ export default function Fase8Page() {
               Fatores de mau prognóstico
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <CheckItem label="Episódios prévios de ventilação mecânica" checked={fase8.ventilaçãoMecanicaPrevia} onChange={v => setFase8({ ventilaçãoMecanicaPrevia: v })} alerta />
+              <CheckItem label="Episódios prévios de ventilação mecânica" checked={fase8.ventilacaoMecanicaPrevia} onChange={v => setFase8({ ventilacaoMecanicaPrevia: v })} alerta />
               <CheckItem label="≥ 2 urgências ou hospitalizações no último ano" checked={fase8.duasOuMaisUrgencias} onChange={v => setFase8({ duasOuMaisUrgencias: v })} alerta />
               <CheckItem label="Corticosteroides sistémicos recentes" checked={fase8.corticosteroidesRecentes} onChange={v => setFase8({ corticosteroidesRecentes: v })} />
               <CheckItem label="Abuso prolongado de SABA" checked={fase8.abusoDeSabaProlong} onChange={v => setFase8({ abusoDeSabaProlong: v })} />

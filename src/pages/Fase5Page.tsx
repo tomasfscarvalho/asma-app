@@ -87,8 +87,8 @@ export default function Fase5Page() {
                 <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>Internamentos no último ano</label>
                 <input
                   type="number"
-                  value={fase5.internamatosUltimoAno ?? ''}
-                  onChange={e => setFase5({ internamatosUltimoAno: e.target.value ? Number(e.target.value) : null })}
+                  value={fase5.internamentosUltimoAno ?? ''}
+                  onChange={e => setFase5({ internamentosUltimoAno: e.target.value ? Number(e.target.value) : null })}
                   placeholder="Número de internamentos"
                   style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
                 />
@@ -106,7 +106,7 @@ export default function Fase5Page() {
               <CheckItem label="Fumo do tabaco" checked={fase5.fumoTabaco} onChange={v => setFase5({ fumoTabaco: v })} alerta />
               <CheckItem label="Biomassa / poluição atmosférica" checked={fase5.biomassa} onChange={v => setFase5({ biomassa: v })} />
               <CheckItem label="Alergénios, se existir sensibilização" checked={fase5.alergenios} onChange={v => setFase5({ alergenios: v })} />
-              <CheckItem label="Problemas psicológicos" checked={fase5.problemaspsicologicos} onChange={v => setFase5({ problemaspsicologicos: v })} />
+              <CheckItem label="Problemas psicológicos" checked={fase5.problemasPsicologicos} onChange={v => setFase5({ problemasPsicologicos: v })} />
               <CheckItem label="Fatores socioeconómicos" checked={fase5.fatoresSocioeconomicos} onChange={v => setFase5({ fatoresSocioeconomicos: v })} />
             </div>
           </>

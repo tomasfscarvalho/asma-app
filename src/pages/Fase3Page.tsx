@@ -63,7 +63,7 @@ export default function Fase3Page() {
       badge="Decisão automática"
       resumo={[
         { key: 'Obstrução', val: racio !== null ? (resultado.obstrutivo ? '✓ Confirmada' : '✗ Não confirmada') : '—' },
-        { key: 'Reversibilidade', val: fase3.aumentoFev1Percentagem ? (resultado.reversibilidade ? '✓ Positiva' : '✗ Negativa') : '—' },
+        { key: 'Reversibilidade', val: fase3.aumentoFev1Percentagem !== null ? (resultado.reversibilidade ? '✓ Positiva' : '✗ Negativa') : '—' },
         { key: 'Critérios +', val: `${resultado.criteriosPositivos} / 3` },
       ]}
     >
@@ -252,7 +252,7 @@ export default function Fase3Page() {
               )}
             </div>
 
-            {(fase3.aumentoFev1Percentagem || fase3.aumentoFev1ml) && (
+            {(fase3.aumentoFev1Percentagem !== null || fase3.aumentoFev1ml !== null) && (
               <ResultBox
                 label={`Reversibilidade broncodilatadora — critério ${criterioReversibilidade}`}
                 valor={resultado.reversibilidade ? 'Critério positivo — reversibilidade confirmada' : 'Critério negativo — reversibilidade não confirmada'}
@@ -309,17 +309,17 @@ export default function Fase3Page() {
               />
               <ResultBox
                 label="Reversibilidade broncodilatadora"
-                valor={fase3.aumentoFev1Percentagem
+                valor={fase3.aumentoFev1Percentagem !== null
                   ? (resultado.reversibilidade ? '✓ Critério positivo' : '✗ Critério negativo')
                   : 'Não avaliado'}
-                tipo={fase3.aumentoFev1Percentagem ? (resultado.reversibilidade ? 'ok' : 'neutro') : 'neutro'}
+                tipo={fase3.aumentoFev1Percentagem !== null ? (resultado.reversibilidade ? 'ok' : 'neutro') : 'neutro'}
               />
               <ResultBox
                 label={`Variabilidade diária do PEF (limiar ${criterioPef})`}
-                valor={fase3.variabilidadePef
+                valor={fase3.variabilidadePef !== null
                   ? (resultado.pefPositivo ? '✓ Critério positivo' : '✗ Critério negativo')
                   : 'Não avaliado'}
-                tipo={fase3.variabilidadePef ? (resultado.pefPositivo ? 'ok' : 'neutro') : 'neutro'}
+                tipo={fase3.variabilidadePef !== null ? (resultado.pefPositivo ? 'ok' : 'neutro') : 'neutro'}
               />
               <ResultBox
                 label="Total de critérios objetivos positivos"

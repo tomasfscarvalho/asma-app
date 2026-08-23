@@ -3,7 +3,7 @@ import Layout from '../components/Layout'
 import NavFooter from '../components/NavFooter'
 
 // Box 1-3 GINA 2025 — DD por faixa etária com sinais clínicos
-const diferencialsPorFaixa = {
+const diferenciaisPorFaixa = {
   crianca: [
     {
       grupo: 'Vias aéreas superiores',
@@ -123,8 +123,8 @@ export default function Fase2Page() {
   const { paciente, fase1, fase2, setFase2, navegarPara } = useAsmaStore()
 
   const faixa = calcularFaixa(paciente.dataNascimento)
-  const gruposFaixa = diferencialsPorFaixa[faixa]
-  const gruposTodos = diferencialsPorFaixa.todos
+  const gruposFaixa = diferenciaisPorFaixa[faixa]
+  const gruposTodos = diferenciaisPorFaixa.todos
   const todosOsGrupos = [...gruposFaixa, ...gruposTodos]
   const todosOsItems = todosOsGrupos.flatMap(g => g.items)
   const todosOsDDs = todosOsItems.map(i => i.dd)

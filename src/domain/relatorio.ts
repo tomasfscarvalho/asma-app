@@ -3,7 +3,7 @@ import type {
   Fase5Dados, Fase6Dados, Fase8Dados, DecisaoDiagnostica,
 } from './types'
 import { calcularFase3 } from './fase3-provas'
-import { calcularFase4 } from './fase4-controlo'
+import { calcularFase4, calcularCaratRinite, calcularCaratAsma } from './fase4-controlo'
 import { calcularFase6, obterDescricaoDegrau } from './fase6-terapeutica'
 import { calcularFase8 } from './fase8-agudizacao'
 
@@ -25,32 +25,6 @@ function formatarData(): string {
 
 function sim(valor: boolean): string {
   return valor ? 'Sim' : 'Não'
-}
-
-function calcularCaratRinite(fase4: Fase4Dados): number | null {
-  const campos = [
-    fase4.caratNasalCongestion,
-    fase4.caratSneezing,
-    fase4.caratNasalItching,
-    fase4.caratRunnyNose,
-  ]
-
-  if (campos.some(c => c === null)) return null
-  return (campos as number[]).reduce((acc, val) => acc + val, 0)
-}
-
-function calcularCaratAsma(fase4: Fase4Dados): number | null {
-  const campos = [
-    fase4.caratBreathlessness,
-    fase4.caratWheeze,
-    fase4.caratChestTightness,
-    fase4.caratActivityLimitation,
-    fase4.caratSleepDisturbance,
-    fase4.caratMedicationIncrease,
-  ]
-
-  if (campos.some(c => c === null)) return null
-  return (campos as number[]).reduce((acc, val) => acc + val, 0)
 }
 
 function formatarFatorMaior(bool: boolean, texto: string): string {

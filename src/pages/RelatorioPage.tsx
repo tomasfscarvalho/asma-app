@@ -18,7 +18,10 @@ export default function RelatorioPage() {
 
   function copiar() {
     navigator.clipboard.writeText(relatorio)
-    alert('Relatório copiado para a área de transferência.')
+      .then(() => alert('Relatório copiado para a área de transferência.'))
+      .catch(() => alert(
+        'Não foi possível copiar o relatório. Selecione o texto abaixo e copie manualmente (Ctrl+C) antes de fechar a sessão.'
+      ))
   }
 
   function novaConsulta() {

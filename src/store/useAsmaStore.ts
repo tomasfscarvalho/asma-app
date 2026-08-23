@@ -107,7 +107,7 @@ const fase5Inicial: Fase5Dados = {
   fumoTabaco: false,
   biomassa: false,
   alergenios: false,
-  problemaspsicologicos: false,
+  problemasPsicologicos: false,
   fatoresSocioeconomicos: false,
   obesidade: false,
   rinossinusite: false,
@@ -118,7 +118,7 @@ const fase5Inicial: Fase5Dados = {
   intubacaoOuUciPrevia: false,
   agudizacaoGraveUltimoAno: false,
   agudizacoesUltimoAno: null,
-  internamatosUltimoAno: null,
+  internamentosUltimoAno: null,
 }
 
 const fase6Inicial: Fase6Dados = {
@@ -144,7 +144,7 @@ const fase8Inicial: Fase8Dados = {
   pacientePediatrico: false,
   idadeMenorCinco: false,
   sonolenciaConfusaoToraxSilencioso: false,
-  ventilaçãoMecanicaPrevia: false,
+  ventilacaoMecanicaPrevia: false,
   duasOuMaisUrgencias: false,
   corticosteroidesRecentes: false,
   abusoDeSabaProlong: false,
