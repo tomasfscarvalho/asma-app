@@ -2,7 +2,7 @@ import type { Fase3Dados, ResultadoFase3 } from './types'
 
 // ============================================
 // FASE 3 — Confirmação Diagnóstica
-// GRESP 2022 / GINA 2022
+// GRESP 2022 / GINA 2025
 // ============================================
 
 export function calcularFase3(dados: Fase3Dados): ResultadoFase3 {

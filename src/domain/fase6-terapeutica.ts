@@ -3,7 +3,7 @@ import { calcularControlo } from './fase4-controlo'
 
 // ============================================
 // FASE 6 - Recomendação Terapêutica
-// GRESP 2022 / GINA 2022
+// GRESP 2022 / GINA 2025
 // ============================================
 
 const medicacaoPercurso1: Record<DegrauTerapeutico, { preferencial: string; alternativa: string }> = {

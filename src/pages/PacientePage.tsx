@@ -26,7 +26,7 @@ export default function PacientePage() {
     <div style={{ minHeight: '100vh', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
       <div style={{ width: '100%', maxWidth: 640 }}>
         <div style={{ background: '#0F6E56', borderRadius: 8, padding: '10px 16px', marginBottom: 16, display: 'flex', alignItems: 'center' }}>
-          <span style={{ color: '#9FE1CB', fontSize: 13, fontWeight: 500 }}>{'ASTHMA GUIDE - Ferramenta de Apoio à Interpretação da Asma'}</span>
+          <span style={{ color: '#9FE1CB', fontSize: 13, fontWeight: 500 }}>AsthmaGuide</span>
         </div>
 
         <div style={{ background: '#1e1e1e', borderRadius: 12, border: '1px solid #333', padding: '2rem' }}>

@@ -2,7 +2,7 @@ import type { Fase4Dados, ResultadoFase4, NivelControlo } from './types'
 
 // ============================================
 // FASE 4 — Controlo dos Sintomas
-// GRESP 2022 / GINA 2022
+// GRESP 2022 / GINA 2025
 // ============================================
 
 export function calcularControlo(dados: Fase4Dados): NivelControlo {

@@ -135,7 +135,7 @@ P — PLANO
 
 ========================================
 Gerado pelo Sistema de Apoio à Decisão
-Clínica ASMA — GRESP/GINA 2022
+Clínica ASMA — GRESP 2022 / GINA 2025
 Este relatório é de apoio à decisão.
 A responsabilidade clínica é do médico.
 ========================================
@@ -219,7 +219,7 @@ P — PLANO
   • Terapêutica sugerida: ${degrauTerapiaTexto} — ${r6.medicacaoPreferencial}
   • Alternativa terapêutica: ${r6.medicacaoAlternativa}
   • Ajuste terapêutico sugerido: ${r6.ajuste === 'subir' ? 'Verificar técnica/adesão/fatores modificáveis e considerar subir degrau' : r6.ajuste === 'descer' ? 'Considerar descer degrau apenas se controlo ≥ 3 meses' : 'Manter terapêutica atual'}
-  • Percurso preferencial GINA 2022: Percurso 1 (ICS-formoterol)
+  • Percurso preferencial GINA 2025: Percurso 1 (ICS-formoterol)
   • Vacinação antigripal: Recomendar anualmente
   • Técnica inalatória: Rever na consulta
   • Plano de ação escrito: A elaborar com o doente
@@ -230,7 +230,7 @@ ${r8.gravidade !== 'ligeira-moderada' ? `⚠ AGUDIZAÇÃO DETETADA
 
 ========================================
 Gerado pelo Sistema de Apoio à Decisão
-Clínica ASMA — GRESP/GINA 2022
+Clínica ASMA — GRESP 2022 / GINA 2025
 Este relatório é de apoio à decisão.
 A responsabilidade clínica é do médico.
 ========================================

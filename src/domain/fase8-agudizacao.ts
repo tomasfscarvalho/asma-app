@@ -2,7 +2,7 @@ import type { Fase8Dados, ResultadoFase8, GravidadeAgudizacao } from './types'
 
 // ============================================
 // FASE 8 — Agudização
-// GRESP 2022 / GINA 2022
+// GRESP 2022 / GINA 2025
 // ============================================
 
 export function calcularFase8(dados: Fase8Dados): ResultadoFase8 {
