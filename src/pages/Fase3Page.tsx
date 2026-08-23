@@ -30,7 +30,7 @@ function obterRacio(fev1Litros: number | null, fvcLitros: number | null): number
 }
 
 export default function Fase3Page() {
-  const { fase3, setFase3, setResultadoFase3, navegarPara, paciente } = useAsmaStore()
+  const { fase3, setFase3, setResultadoFase3, navegarPara, paciente, setPaciente } = useAsmaStore()
   const [step, setStep] = useState(0)
 
   const idade = calcularIdade(paciente.dataNascimento)
@@ -118,6 +118,48 @@ export default function Fase3Page() {
                   </p>
                 </div>
               )}
+            </div>
+
+            <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', margin: '20px 0 12px' }}>
+              Terapêutica prévia
+            </p>
+            <div
+              onClick={() => setPaciente({ jaEmICS: !paciente.jaEmICS })}
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 12,
+                padding: '12px 14px',
+                borderRadius: 8,
+                cursor: 'pointer',
+                border: paciente.jaEmICS ? '1px solid #FAC775' : '1px solid #333',
+                background: paciente.jaEmICS ? '#FAEEDA20' : '#111',
+              }}
+            >
+              <div
+                style={{
+                  width: 16,
+                  height: 16,
+                  borderRadius: 3,
+                  flexShrink: 0,
+                  marginTop: 1,
+                  border: `1px solid ${paciente.jaEmICS ? '#FAC775' : '#555'}`,
+                  background: paciente.jaEmICS ? '#BA7517' : 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {paciente.jaEmICS && <span style={{ color: 'white', fontSize: 10 }}>{'✓'}</span>}
+              </div>
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 500, color: paciente.jaEmICS ? '#FAC775' : '#ccc', margin: '0 0 4px' }}>
+                  {'Doente já em tratamento com ICS'}
+                </p>
+                <p style={{ fontSize: 11, color: '#555', margin: 0 }}>
+                  {'Corticosteroide inalado iniciado antes de confirmação diagnóstica formal por espirometria. Condiciona a interpretação das provas funcionais.'}
+                </p>
+              </div>
             </div>
           </>
         )}

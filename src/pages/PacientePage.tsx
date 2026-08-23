@@ -135,47 +135,6 @@ export default function PacientePage() {
             </div>
           </div>
 
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div
-              onClick={() => setPaciente({ jaEmICS: !paciente.jaEmICS })}
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 12,
-                padding: '12px 14px',
-                borderRadius: 8,
-                cursor: 'pointer',
-                border: paciente.jaEmICS ? '1px solid #FAC775' : '1px solid #333',
-                background: paciente.jaEmICS ? '#FAEEDA20' : '#111',
-              }}
-            >
-              <div
-                style={{
-                  width: 16,
-                  height: 16,
-                  borderRadius: 3,
-                  flexShrink: 0,
-                  marginTop: 1,
-                  border: `1px solid ${paciente.jaEmICS ? '#FAC775' : '#555'}`,
-                  background: paciente.jaEmICS ? '#BA7517' : 'transparent',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {paciente.jaEmICS && <span style={{ color: 'white', fontSize: 10 }}>{'\u2713'}</span>}
-              </div>
-              <div>
-                <p style={{ fontSize: 13, fontWeight: 500, color: paciente.jaEmICS ? '#FAC775' : '#ccc', margin: '0 0 4px' }}>
-                  {'Doente já em tratamento com ICS'}
-                </p>
-                <p style={{ fontSize: 11, color: '#555', margin: 0 }}>
-                  {'Corticosteroide inalado iniciado antes de confirmação diagnóstica formal por espirometria.'}
-                </p>
-              </div>
-            </div>
-          </div>
-
           <button
             onClick={handleSubmit}
             style={{ width: '100%', background: '#0F6E56', color: 'white', border: 'none', borderRadius: 8, padding: '12px', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}
