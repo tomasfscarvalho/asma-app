@@ -1,4 +1,5 @@
 import { useAsmaStore } from '../store/useAsmaStore'
+import { ECRA } from '../domain/fases'
 import Layout from '../components/Layout'
 import NavFooter from '../components/NavFooter'
 
@@ -296,8 +297,8 @@ export default function Fase2Page() {
       <NavFooter
         stepAtual={0}
         totalSteps={1}
-        onAnterior={() => navegarPara(0)}
-        onProximo={() => navegarPara(2)}
+        onAnterior={() => navegarPara(ECRA.FASE_1_AVALIACAO)}
+        onProximo={() => navegarPara(ECRA.FASE_3_PROVAS)}
         labelProximo="Fase 3 →"
       />
     </Layout>

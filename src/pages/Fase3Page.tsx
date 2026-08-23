@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ECRA } from '../domain/fases'
 import { useAsmaStore } from '../store/useAsmaStore'
 import { calcularFase3 } from '../domain/fase3-provas'
 import Layout from '../components/Layout'
@@ -53,7 +54,7 @@ export default function Fase3Page() {
 
     setFase3({ pacientePediatrico, fev1FvcRacio: racio })
     setResultadoFase3(calcularFase3({ ...dadosFase3, fev1FvcRacio: racio }))
-    navegarPara(9)
+    navegarPara(ECRA.DECISAO_DIAGNOSTICA)
   }
 
   return (
@@ -382,7 +383,7 @@ export default function Fase3Page() {
       <NavFooter
         stepAtual={step}
         totalSteps={steps.length}
-        onAnterior={() => step > 0 ? setStep(step - 1) : navegarPara(1)}
+        onAnterior={() => step > 0 ? setStep(step - 1) : navegarPara(ECRA.FASE_2_DIFERENCIAIS)}
         onProximo={handleProximo}
         labelProximo={step === steps.length - 1 ? 'Decisão diagnóstica →' : 'Próximo →'}
       />

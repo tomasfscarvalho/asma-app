@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ECRA } from '../domain/fases'
 import { useAsmaStore } from '../store/useAsmaStore'
 import { calcularFase8 } from '../domain/fase8-agudizacao'
 import Layout from '../components/Layout'
@@ -20,7 +21,7 @@ export default function Fase8Page() {
       setStep(step + 1)
     } else {
       setResultadoFase8(resultado)
-      navegarPara(8)
+      navegarPara(ECRA.RELATORIO)
     }
   }
 
@@ -194,7 +195,7 @@ export default function Fase8Page() {
       <NavFooter
         stepAtual={step}
         totalSteps={steps.length}
-        onAnterior={() => step > 0 ? setStep(step - 1) : navegarPara(6)}
+        onAnterior={() => step > 0 ? setStep(step - 1) : navegarPara(ECRA.FASE_7_REFERENCIACAO)}
         onProximo={handleProximo}
         labelProximo={step === steps.length - 1 ? 'Ver relatório →' : 'Próximo →'}
       />

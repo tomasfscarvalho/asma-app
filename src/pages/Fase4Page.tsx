@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ECRA } from '../domain/fases'
 import type { Fase4Dados } from '../domain/types'
 import { useAsmaStore } from '../store/useAsmaStore'
 import { calcularFase4, calcularCaratRinite, calcularCaratAsma, interpretarCarat } from '../domain/fase4-controlo'
@@ -76,7 +77,7 @@ export default function Fase4Page() {
       setStep(step + 1)
     } else {
       setResultadoFase4(resultado)
-      navegarPara(4)
+      navegarPara(ECRA.FASE_5_RISCO)
     }
   }
 
@@ -318,7 +319,7 @@ export default function Fase4Page() {
       <NavFooter
         stepAtual={step}
         totalSteps={steps.length}
-        onAnterior={() => step > 0 ? setStep(step - 1) : navegarPara(2)}
+        onAnterior={() => step > 0 ? setStep(step - 1) : navegarPara(ECRA.FASE_3_PROVAS)}
         onProximo={handleProximo}
         labelProximo={step === steps.length - 1 ? 'Fase 5 →' : 'Próximo →'}
       />

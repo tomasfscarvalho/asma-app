@@ -1,4 +1,5 @@
 import { useAsmaStore } from '../store/useAsmaStore'
+import { ECRA } from '../domain/fases'
 import Layout from '../components/Layout'
 
 export default function DecisaoDiagnosticaPage() {
@@ -6,12 +7,12 @@ export default function DecisaoDiagnosticaPage() {
 
   function confirmar() {
     setDecisaoDiagnostica('confirmado')
-    navegarPara(3)
+    navegarPara(ECRA.FASE_4_CONTROLO)
   }
 
   function naoConfirmar() {
     setDecisaoDiagnostica('nao-confirmado')
-    navegarPara(8)
+    navegarPara(ECRA.RELATORIO)
   }
 
   return (

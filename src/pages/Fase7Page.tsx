@@ -1,4 +1,5 @@
 import { useAsmaStore } from '../store/useAsmaStore'
+import { ECRA } from '../domain/fases'
 import { calcularFase7 } from '../domain/fase7-referenciacao'
 import Layout from '../components/Layout'
 import NavFooter from '../components/NavFooter'
@@ -11,7 +12,7 @@ export default function Fase7Page() {
 
   function handleProximo() {
     setResultadoFase7(resultado)
-    navegarPara(7)
+    navegarPara(ECRA.FASE_8_AGUDIZACAO)
   }
 
   return (
@@ -73,7 +74,7 @@ export default function Fase7Page() {
       <NavFooter
         stepAtual={0}
         totalSteps={1}
-        onAnterior={() => navegarPara(5)}
+        onAnterior={() => navegarPara(ECRA.FASE_6_TERAPEUTICA)}
         onProximo={handleProximo}
         labelProximo="Fase 8 →"
       />

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ECRA } from '../domain/fases'
 import { useAsmaStore } from '../store/useAsmaStore'
 import { calcularFase6, obterDescricaoDegrau } from '../domain/fase6-terapeutica'
 import type { ResultadoFase6 } from '../domain/types'
@@ -62,7 +63,7 @@ export default function Fase6Page() {
     }
 
     setResultadoFase6(resultado)
-    navegarPara(6)
+    navegarPara(ECRA.FASE_7_REFERENCIACAO)
   }
 
   return (
@@ -212,7 +213,7 @@ export default function Fase6Page() {
       <NavFooter
         stepAtual={step}
         totalSteps={steps.length}
-        onAnterior={() => step > 0 ? setStep(step - 1) : navegarPara(4)}
+        onAnterior={() => step > 0 ? setStep(step - 1) : navegarPara(ECRA.FASE_5_RISCO)}
         onProximo={handleProximo}
         labelProximo={step === steps.length - 1 ? 'Fase 7 →' : 'Próximo →'}
       />

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ECRA } from '../domain/fases'
 import { useAsmaStore } from '../store/useAsmaStore'
 import Layout from '../components/Layout'
 import SubstepNav from '../components/SubstepNav'
@@ -132,8 +133,8 @@ export default function Fase5Page() {
       <NavFooter
         stepAtual={step}
         totalSteps={steps.length}
-        onAnterior={() => step > 0 ? setStep(step - 1) : navegarPara(3)}
-        onProximo={() => step < steps.length - 1 ? setStep(step + 1) : navegarPara(5)}
+        onAnterior={() => step > 0 ? setStep(step - 1) : navegarPara(ECRA.FASE_4_CONTROLO)}
+        onProximo={() => step < steps.length - 1 ? setStep(step + 1) : navegarPara(ECRA.FASE_6_TERAPEUTICA)}
         labelProximo={step === steps.length - 1 ? 'Fase 6 →' : 'Próximo →'}
       />
     </Layout>

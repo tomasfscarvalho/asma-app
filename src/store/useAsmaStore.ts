@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { ECRA } from '../domain/fases'
 import type {
   Paciente,
   Fase1Dados,
@@ -217,7 +218,7 @@ export const useAsmaStore = create<AsmaState>((set) => ({
   resultadoFase7: null,
   resultadoFase8: null,
 
-  faseAtual: -1,
+  faseAtual: ECRA.DADOS_DOENTE,
   substepAtual: 0,
   tipoConsulta: null,
   decisaoDiagnostica: null,
@@ -242,7 +243,7 @@ export const useAsmaStore = create<AsmaState>((set) => ({
   navegarPara: (fase, substep = 0) => set({ faseAtual: fase, substepAtual: substep }),
   setTipoConsulta: (t) => set({ tipoConsulta: t }),
   setDecisaoDiagnostica: (d) => set({ decisaoDiagnostica: d }),
-  ativarFase8: () => set({ fase8Ativa: true, faseAtual: 7 }),
+  ativarFase8: () => set({ fase8Ativa: true, faseAtual: ECRA.FASE_8_AGUDIZACAO }),
 
   resetarSessao: () => set({
     paciente: pacienteInicial,
@@ -259,7 +260,7 @@ export const useAsmaStore = create<AsmaState>((set) => ({
     resultadoFase6: null,
     resultadoFase7: null,
     resultadoFase8: null,
-    faseAtual: -1,
+    faseAtual: ECRA.DADOS_DOENTE,
     substepAtual: 0,
     tipoConsulta: null,
     decisaoDiagnostica: null,

@@ -1,4 +1,5 @@
 import { useAsmaStore } from '../store/useAsmaStore'
+import { ECRA } from '../domain/fases'
 import type { TipoConsulta } from '../domain/types'
 
 export default function PacientePage() {
@@ -16,9 +17,9 @@ export default function PacientePage() {
     }
 
     if (tipoConsulta === 'seguimento') {
-      navegarPara(3)
+      navegarPara(ECRA.FASE_4_CONTROLO)
     } else {
-      navegarPara(0)
+      navegarPara(ECRA.FASE_1_AVALIACAO)
     }
   }
 

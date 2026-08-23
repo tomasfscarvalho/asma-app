@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ECRA } from '../domain/fases'
 import { useAsmaStore } from '../store/useAsmaStore'
 import Layout from '../components/Layout'
 import SubstepNav from '../components/SubstepNav'
@@ -26,12 +27,12 @@ export default function Fase1Page() {
 
   function handleAnterior() {
     if (step > 0) setStep(step - 1)
-    else navegarPara(-1)
+    else navegarPara(ECRA.DADOS_DOENTE)
   }
 
   function handleProximo() {
     if (step < steps.length - 1) setStep(step + 1)
-    else navegarPara(1)
+    else navegarPara(ECRA.FASE_2_DIFERENCIAIS)
   }
 
   return (
