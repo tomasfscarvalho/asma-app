@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ECRA } from '../domain/fases'
 import type { Fase4Dados } from '../domain/types'
 import { useAsmaStore } from '../store/useAsmaStore'
-import { calcularFase4, calcularCaratRinite, calcularCaratAsma, interpretarCarat } from '../domain/fase4-controlo'
+import { calcularFase4, calcularCaratRinite, calcularCaratAsma, interpretarCarat, interpretarAct } from '../domain/fase4-controlo'
 import Layout from '../components/Layout'
 import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
@@ -253,8 +253,8 @@ export default function Fase4Page() {
                 <div style={{ marginTop: 8 }}>
                   <ResultBox
                     label="Score ACT"
-                    valor={resultado.scoreAct !== null ? `${resultado.scoreAct} / 25` : 'Incompleto — preencha todas as perguntas.'}
-                    tipo={resultado.scoreAct !== null ? (resultado.scoreAct >= 20 ? 'ok' : resultado.scoreAct >= 16 ? 'neutro' : 'alerta') : 'neutro'}
+                    valor={interpretarAct(resultado.scoreAct)}
+                    tipo={resultado.scoreAct !== null ? (resultado.scoreAct >= 20 ? 'ok' : 'alerta') : 'neutro'}
                   />
                 </div>
               </>

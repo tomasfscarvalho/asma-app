@@ -59,6 +59,17 @@ export function calcularCARATScore(dados: Fase4Dados): number | null {
   return soma
 }
 
+// Pontos de corte publicados do Asthma Control Test: <= 19 asma não
+// controlada, 20-24 asma bem controlada, 25 controlo total. O Guia prático do
+// GRESP recomenda o instrumento mas não publica os pontos de corte, pelo que
+// a referência é a do próprio ACT.
+export function interpretarAct(score: number | null): string {
+  if (score === null) return 'Incompleto — preencha as cinco perguntas.'
+  if (score <= 19) return `${score} / 25 — asma não controlada.`
+  if (score < 25) return `${score} / 25 — asma bem controlada.`
+  return `${score} / 25 — controlo total.`
+}
+
 // --- Subescalas do CARAT (CARAT-PT: itens 1-4 vias aéreas superiores /12;
 //     itens 5-10 vias aéreas inferiores /18) ---
 

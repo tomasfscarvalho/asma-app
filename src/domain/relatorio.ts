@@ -4,7 +4,7 @@ import type {
 } from './types'
 import { calcularIdade } from './idade'
 import { calcularFase3 } from './fase3-provas'
-import { calcularFase4, calcularCaratRinite, calcularCaratAsma } from './fase4-controlo'
+import { calcularFase4, calcularCaratRinite, calcularCaratAsma, interpretarAct } from './fase4-controlo'
 import { calcularFase6, obterDescricaoDegrau } from './fase6-terapeutica'
 import { calcularFase8 } from './fase8-agudizacao'
 
@@ -57,7 +57,7 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
 
   const linhaQuestionario = dados.fase4.questionarioUsado === 'carat'
     ? `  • Score CARAT: ${r4.scoreCarat ?? 'Não preenchido'}/30 (rinite: ${caratRinite ?? '—'}/12; asma: ${caratAsma ?? '—'}/18)`
-    : `  • Score ACT: ${r4.scoreAct ?? 'Não preenchido'}/25`
+    : `  • ACT: ${r4.scoreAct !== null ? interpretarAct(r4.scoreAct) : 'Não preenchido'}`
 
   const linhaFev1Atual = r4.fev1Atual !== null
     ? `  • FEV1 atual: ${r4.fev1Atual}% do previsto`
