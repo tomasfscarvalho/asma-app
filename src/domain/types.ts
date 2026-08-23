@@ -163,6 +163,7 @@ export interface Fase6Dados {
 export interface Fase7Dados {
   dificuldadesDiagnostico: boolean
   suspeitaAsmaOcupacional: boolean
+  necessitaTestesAdicionais: boolean
   semControloDegrau3: boolean
   duasOuMaisHospitalizacoes: boolean
   asmaGrave: boolean

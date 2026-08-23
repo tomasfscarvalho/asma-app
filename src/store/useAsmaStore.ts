@@ -129,6 +129,7 @@ const fase6Inicial: Fase6Dados = {
 const fase7Inicial: Fase7Dados = {
   dificuldadesDiagnostico: false,
   suspeitaAsmaOcupacional: false,
+  necessitaTestesAdicionais: false,
   semControloDegrau3: false,
   duasOuMaisHospitalizacoes: false,
   asmaGrave: false,

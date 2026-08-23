@@ -45,6 +45,11 @@ export default function Fase7Page() {
             onChange={v => setFase7({ suspeitaAsmaOcupacional: v })}
           />
           <CheckItem
+            label="Necessidade de testes adicionais (por exemplo, testes de alergia)"
+            checked={fase7.necessitaTestesAdicionais}
+            onChange={v => setFase7({ necessitaTestesAdicionais: v })}
+          />
+          <CheckItem
             label="≥ 2 hospitalizações ou episódios de urgência nos últimos 12 meses"
             checked={fase7.duasOuMaisHospitalizacoes}
             onChange={v => setFase7({ duasOuMaisHospitalizacoes: v })}

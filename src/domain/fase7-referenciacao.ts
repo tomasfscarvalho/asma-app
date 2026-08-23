@@ -24,6 +24,9 @@ export function calcularFase7(
   if (fase7.suspeitaAsmaOcupacional)
     criteriosPresentes.push('Suspeita de asma ocupacional')
 
+  if (fase7.necessitaTestesAdicionais)
+    criteriosPresentes.push('Necessidade de testes adicionais (por exemplo, testes de alergia)')
+
   // Automático: sem controlo após degrau ≥ 3
   if (controlo !== 'controlada' && r6.degrau >= 3)
     criteriosPresentes.push('Ausência de controlo com degrau ≥ 3')
