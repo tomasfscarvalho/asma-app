@@ -14,30 +14,13 @@ import {
 import { calcularFase8 } from '../src/domain/fase8-agudizacao'
 import { calcularFase6, obterDescricaoDegrau } from '../src/domain/fase6-terapeutica'
 import { calcularIdade } from '../src/domain/idade'
-import type { Fase4Dados, Fase8Dados } from '../src/domain/types'
+import type { Fase8Dados } from '../src/domain/types'
+import { dadosFase4, dadosFase5, dadosFase6, dadosFase8 } from './_fixtures'
 
 // ---------------------------------------------------------------- fixtures
 
-const fase4Vazia: Fase4Dados = {
-  sintomasDiurnos: false, sintomasNoturnos: false, limitacaoAtividades: false,
-  necessidadeAlivio: false, frequenciaSintomas: 'menos-2x-mes', despertarSemanal: false,
-  actLimitacaoAtividades: null, actFaltaAr: null, actSintomasNoturnos: null,
-  actUsoAlivio: null, actAutoavaliacao: null,
-  questionarioUsado: null, fev1Atual: null,
-  caratNasalCongestion: null, caratSneezing: null, caratRunnyNose: null,
-  caratNasalItching: null, caratSleepDisturbance: null, caratBreathlessness: null,
-  caratWheeze: null, caratChestTightness: null, caratActivityLimitation: null,
-  caratMedicationIncrease: null,
-}
-
-const fase8Vazia: Fase8Dados = {
-  exprimePorFrases: null, freqRespiratoria: null, freqCardiaca: null, spo2: null,
-  pefPercentagem: null, pacientePediatrico: false, idadeMenorCinco: false,
-  sonolenciaConfusaoToraxSilencioso: false,
-  ventilacaoMecanicaPrevia: false, duasOuMaisUrgencias: false,
-  corticosteroidesRecentes: false, abusoDeSabaProlong: false,
-  comorbilidadesGraves: false, naoAdesaoTratamento: false, alergiaAlimentar: false,
-}
+const fase4Vazia = dadosFase4()
+const fase8Vazia = dadosFase8()
 
 // ------------------------------------------------- GRESP 2022, Imagem 3
 describe('Controlo dos sintomas — GRESP 2022, Imagem 3', () => {
@@ -75,7 +58,7 @@ describe('CARAT — formulário CARAT-PT', () => {
     caratBreathlessness: 3, caratWheeze: 3, caratChestTightness: 3,
     caratActivityLimitation: 3, caratSleepDisturbance: 3, caratMedicationIncrease: 3,
   }
-  const cheio: Fase4Dados = { ...fase4Vazia, ...maximo }
+  const cheio = { ...fase4Vazia, ...maximo }
 
   it('subescalas: itens 1-4 valem /12 e itens 5-10 valem /18', () => {
     expect(calcularCaratRinite(cheio)).toBe(12)
@@ -84,7 +67,7 @@ describe('CARAT — formulário CARAT-PT', () => {
   })
 
   it('o item 9 (acordou de noite) pertence às vias aéreas inferiores', () => {
-    const semItem9: Fase4Dados = { ...cheio, caratSleepDisturbance: 0 }
+    const semItem9 = { ...cheio, caratSleepDisturbance: 0 }
     expect(calcularCaratRinite(semItem9)).toBe(12)
     expect(calcularCaratAsma(semItem9)).toBe(15)
   })
@@ -154,41 +137,42 @@ describe('Agudização no adulto — GRESP 2022, Tabela 7', () => {
   })
 
   it('os limites não disparam abaixo do critério', () => {
-    expect(calcularFase8({ ...fase8Vazia, freqRespiratoria: 30 }).gravidade).toBe('ligeira-moderada')
-    expect(calcularFase8({ ...fase8Vazia, freqCardiaca: 120 }).gravidade).toBe('ligeira-moderada')
-    expect(calcularFase8({ ...fase8Vazia, spo2: 90 }).gravidade).toBe('ligeira-moderada')
-    expect(calcularFase8({ ...fase8Vazia, pefPercentagem: 51 }).gravidade).toBe('ligeira-moderada')
+    expect(calcularFase8({ ...fase8Vazia, freqRespiratoria: 30 }).gravidade).toBe('ligeira')
+    expect(calcularFase8({ ...fase8Vazia, freqCardiaca: 120 }).gravidade).toBe('ligeira')
+    expect(calcularFase8({ ...fase8Vazia, spo2: 90 }).gravidade).toBe('ligeira')
+    expect(calcularFase8({ ...fase8Vazia, pefPercentagem: 51 }).gravidade).toBe('ligeira')
   })
 })
 
 // ------------------------------------------------- GRESP 2022, Imagem 6.a
 describe('Seleção do degrau inicial no Percurso 1 — GRESP 2022, Imagem 6.a', () => {
-  const semRisco = { percursoSelecionado: 1 as const }
+  const semRisco = dadosFase5()
+  const percurso1 = dadosFase6({ percursoSelecionado: 1 })
 
   it('sintomas pouco frequentes e sem risco → Degrau 1-2', () => {
-    const r = calcularFase6(fase4Vazia, semRisco, false)
+    const r = calcularFase6(fase4Vazia, percurso1, semRisco)
     expect(r.degrau).toBe(2)
     expect(obterDescricaoDegrau(r)).toBe('Degrau 1-2')
   })
 
   it('sintomas na maioria dos dias → Degrau 3', () => {
-    const r = calcularFase6({ ...fase4Vazia, frequenciaSintomas: 'maioria-dias' }, semRisco, false)
+    const r = calcularFase6({ ...fase4Vazia, frequenciaSintomas: 'maioria-dias' }, percurso1, semRisco)
     expect(r.degrau).toBe(3)
   })
 
   it('despertar semanal por asma → Degrau 3', () => {
-    const r = calcularFase6({ ...fase4Vazia, despertarSemanal: true }, semRisco, false)
+    const r = calcularFase6({ ...fase4Vazia, despertarSemanal: true }, percurso1, semRisco)
     expect(r.degrau).toBe(3)
   })
 
   it('baixa função respiratória → Degrau 4, mesmo sem sintomas frequentes', () => {
-    const r = calcularFase6(fase4Vazia, semRisco, true)
+    const r = calcularFase6(fase4Vazia, percurso1, dadosFase5({ fev1Baixo: true }))
     expect(r.degrau).toBe(4)
   })
 
   it('o Percurso 1 usa ICS-formoterol como alívio em todos os degraus', () => {
     for (const f4 of [fase4Vazia, { ...fase4Vazia, frequenciaSintomas: 'maioria-dias' as const }]) {
-      expect(calcularFase6(f4, semRisco, false).medicacaoPreferencial).toContain('ICS-formoterol')
+      expect(calcularFase6(f4, percurso1, semRisco).medicacaoPreferencial).toContain('ICS-formoterol')
     }
   })
 })

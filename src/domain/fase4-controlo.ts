@@ -116,11 +116,51 @@ export function interpretarCarat(
   return `${scoreTotal} / 30 — ${global}; ${rinite}; ${asma}.`
 }
 
+// O guia apresenta os questionários como forma alternativa de realizar a mesma
+// avaliação, e não como acréscimo. A classificação continua a sair dos quatro
+// domínios, mas quando o questionário aponta em sentido oposto isso é
+// sinalizado, em vez de as duas leituras coexistirem sem se verem.
+export function detetarDivergencia(
+  dados: Fase4Dados,
+  nivel: NivelControlo,
+  scoreAct: number | null,
+  scoreCarat: number | null,
+): string | null {
+  const dominiosControlada = nivel === 'controlada'
+
+  if (dados.questionarioUsado === 'act' && scoreAct !== null) {
+    const actControlada = scoreAct >= 20
+    if (dominiosControlada && !actControlada) {
+      return `Os quatro domínios classificam a asma como controlada, mas o ACT deu ${scoreAct} (não controlada). Confirmar os domínios com o doente.`
+    }
+    if (!dominiosControlada && actControlada) {
+      return `O ACT deu ${scoreAct} (bem controlada), mas os quatro domínios não classificam a asma como controlada. Confirmar os domínios com o doente.`
+    }
+  }
+
+  if (dados.questionarioUsado === 'carat' && scoreCarat !== null) {
+    const caratControlada = scoreCarat > 24
+    if (dominiosControlada && !caratControlada) {
+      return `Os quatro domínios classificam a asma como controlada, mas o CARAT deu ${scoreCarat} (controlo global insuficiente). Confirmar os domínios com o doente.`
+    }
+    if (!dominiosControlada && caratControlada) {
+      return `O CARAT deu ${scoreCarat} (bom controlo global), mas os quatro domínios não classificam a asma como controlada. Confirmar os domínios com o doente.`
+    }
+  }
+
+  return null
+}
+
 export function calcularFase4(dados: Fase4Dados): ResultadoFase4 {
+  const nivelControlo = calcularControlo(dados)
+  const scoreAct = calcularACT(dados)
+  const scoreCarat = calcularCARATScore(dados)
+
   return {
-    nivelControlo: calcularControlo(dados),
-    scoreAct: calcularACT(dados),
-    scoreCarat: calcularCARATScore(dados),
+    nivelControlo,
+    scoreAct,
+    scoreCarat,
     fev1Atual: dados.fev1Atual,
+    divergenciaQuestionario: detetarDivergencia(dados, nivelControlo, scoreAct, scoreCarat),
   }
 }

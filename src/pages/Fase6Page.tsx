@@ -7,6 +7,7 @@ import Layout from '../components/Layout'
 import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
 import ResultBox from '../components/ResultBox'
+import CheckItem from '../components/CheckItem'
 
 const steps = ['Percurso e degrau', 'Detalhe do degrau']
 
@@ -35,9 +36,9 @@ const tabelaAdultos = {
 }
 
 export default function Fase6Page() {
-  const { fase4, fase5, fase6, setFase6, setResultadoFase6, navegarPara } = useAsmaStore()
+  const { fase4, fase5, fase6, setFase6, setResultadoFase6, navegarPara, tipoConsulta } = useAsmaStore()
   const [step, setStep] = useState(0)
-  const resultado = calcularFase6(fase4, fase6, fase5.fev1Baixo)
+  const resultado = calcularFase6(fase4, fase6, fase5)
   const degrauTexto = obterDescricaoDegrau(resultado)
 
   const ajusteTextoPorTipo: Record<NonNullable<ResultadoFase6['ajuste']>, string> = {
@@ -85,6 +86,38 @@ export default function Fase6Page() {
             <p style={{ fontSize: 12, color: '#888', marginBottom: 20 }}>
               Selecione o percurso terapêutico. O Percurso 1 é o preferencial segundo a GINA/GRESP.
             </p>
+
+            {tipoConsulta === 'seguimento' && (
+              <div style={{ marginBottom: 24 }}>
+                <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
+                  Terapêutica atual do doente
+                </p>
+                <p style={{ fontSize: 11, color: '#777', marginBottom: 10, lineHeight: 1.6 }}>
+                  Sem o degrau atual, a ferramenta só pode propor um degrau inicial. Com ele, a recomendação passa a ser um ajuste ao que o doente já faz.
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 6, marginBottom: 10 }}>
+                  {([null, 1, 2, 3, 4, 5] as const).map(d => (
+                    <button
+                      key={String(d)}
+                      onClick={() => setFase6({ degrauAtual: d })}
+                      style={{
+                        minHeight: 40, padding: '6px 4px', borderRadius: 6, fontSize: 11, cursor: 'pointer',
+                        border: fase6.degrauAtual === d ? '1px solid #5DCAA5' : '1px solid #444',
+                        background: fase6.degrauAtual === d ? '#0F6E56' : '#111',
+                        color: fase6.degrauAtual === d ? 'white' : '#bbb',
+                      }}
+                    >
+                      {d === null ? 'Sem tratamento' : `Degrau ${d}`}
+                    </button>
+                  ))}
+                </div>
+                <CheckItem
+                  label="Controlo mantido nos últimos 3 meses — condição para descer degrau"
+                  checked={fase6.controloMantidoTresMeses}
+                  onChange={v => setFase6({ controloMantidoTresMeses: v })}
+                />
+              </div>
+            )}
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
               {[1, 2].map((percurso) => (

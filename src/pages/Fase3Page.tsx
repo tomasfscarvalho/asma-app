@@ -10,6 +10,13 @@ import ResultBox from '../components/ResultBox'
 
 const steps = ['Contexto', 'Espirometria', 'Reversibilidade', 'PEF + Output']
 
+const rotuloConfirmacao = {
+  'confirmada': 'Confirmada',
+  'nao-confirmada': 'Não confirmada',
+  'incompleta': 'Incompleta',
+}
+
+
 function obterRacio(fev1Litros: number | null, fvcLitros: number | null): number | null {
   if (fev1Litros === null || fvcLitros === null || fvcLitros <= 0) return null
   return fev1Litros / fvcLitros
@@ -50,7 +57,7 @@ export default function Fase3Page() {
       resumo={[
         { key: 'Obstrução', val: racio !== null ? (resultado.obstrutivo ? '✓ Confirmada' : '✗ Não confirmada') : '—' },
         { key: 'Reversibilidade', val: fase3.aumentoFev1Percentagem !== null ? (resultado.reversibilidade ? '✓ Positiva' : '✗ Negativa') : '—' },
-        { key: 'Critérios +', val: `${resultado.criteriosPositivos} / 3` },
+        { key: 'Confirmação', val: rotuloConfirmacao[resultado.confirmacaoFuncional] },
       ]}
     >
       <SubstepNav steps={steps} atual={step} onChange={setStep} />
@@ -350,10 +357,24 @@ export default function Fase3Page() {
                 tipo={fase3.variabilidadePef !== null ? (resultado.pefPositivo ? 'ok' : 'neutro') : 'neutro'}
               />
               <ResultBox
-                label="Total de critérios objetivos positivos"
-                valor={`${resultado.criteriosPositivos} de 3`}
-                tipo={resultado.criteriosPositivos >= 1 ? 'ok' : 'neutro'}
+                label="Variabilidade documentada (reversibilidade ou PEF)"
+                valor={resultado.variabilidadeConfirmada === null
+                  ? 'Não avaliada'
+                  : resultado.variabilidadeConfirmada ? '✓ Documentada' : '✗ Não documentada'}
+                tipo={resultado.variabilidadeConfirmada === true ? 'ok' : 'neutro'}
               />
+              <ResultBox
+                label="Confirmação funcional — exige obstrução E variabilidade"
+                valor={rotuloConfirmacao[resultado.confirmacaoFuncional]}
+                tipo={resultado.confirmacaoFuncional === 'confirmada' ? 'ok' : 'neutro'}
+              />
+              {resultado.criteriosPorAvaliar.length > 0 && (
+                <div style={{ background: '#FAEEDA20', border: '1px solid #FAC77550', borderRadius: 6, padding: '10px 12px' }}>
+                  <p style={{ color: '#FAC775', fontSize: 11, margin: 0, lineHeight: 1.6 }}>
+                    Por avaliar: {resultado.criteriosPorAvaliar.join('; ')}. Um critério sem dados não é um critério negativo.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div style={{ background: '#1a1a1a', borderRadius: 6, padding: '10px 12px', border: '1px solid #2a2a2a' }}>

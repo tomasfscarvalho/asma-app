@@ -3,6 +3,7 @@ import { ECRA } from '../domain/fases'
 import type { Fase4Dados } from '../domain/types'
 import { useAsmaStore } from '../store/useAsmaStore'
 import { calcularFase4, calcularCaratRinite, calcularCaratAsma, interpretarCarat, interpretarAct } from '../domain/fase4-controlo'
+import { calcularIdade } from '../domain/idade'
 import Layout from '../components/Layout'
 import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
@@ -65,9 +66,11 @@ const frequenciaSintomasOpcoes: Array<{ label: string; value: Fase4Dados['freque
 ]
 
 export default function Fase4Page() {
-  const { fase4, setFase4, setResultadoFase4, navegarPara, tipoConsulta } = useAsmaStore()
+  const { fase4, setFase4, setResultadoFase4, navegarPara, tipoConsulta, paciente } = useAsmaStore()
   const [step, setStep] = useState(0)
 
+  const idade = calcularIdade(paciente.dataNascimento)
+  const caratAplicavel = idade === null || idade >= 18
   const resultado = calcularFase4(fase4)
   const scoreCaratRinite = calcularCaratRinite(fase4)
   const scoreCaratAsma = calcularCaratAsma(fase4)
@@ -205,12 +208,13 @@ export default function Fase4Page() {
                 <div style={{ fontSize: 12, color: '#888' }}>5 perguntas, escala 1-5, score total 5-25.</div>
               </button>
               <button
-                onClick={() => setFase4({ questionarioUsado: 'carat' })}
+                onClick={() => caratAplicavel && setFase4({ questionarioUsado: 'carat' })}
                 style={{
                   padding: '12px 14px',
                   borderRadius: 8,
                   textAlign: 'left',
-                  cursor: 'pointer',
+                  cursor: caratAplicavel ? 'pointer' : 'not-allowed',
+                  opacity: caratAplicavel ? 1 : 0.45,
                   border: fase4.questionarioUsado === 'carat' ? '1px solid #5DCAA5' : '1px solid #333',
                   background: fase4.questionarioUsado === 'carat' ? '#0F6E5620' : 'transparent',
                   color: fase4.questionarioUsado === 'carat' ? '#9FE1CB' : '#ccc',
@@ -220,6 +224,23 @@ export default function Fase4Page() {
                 <div style={{ fontSize: 12, color: '#888' }}>10 perguntas, escala 0-3, score total 0-30.</div>
               </button>
             </div>
+
+            {!caratAplicavel && (
+              <div style={{ marginBottom: 16, background: '#FAEEDA20', border: '1px solid #FAC77550', borderRadius: 6, padding: '10px 12px' }}>
+                <p style={{ color: '#FAC775', fontSize: 11, margin: 0, lineHeight: 1.6 }}>
+                  O CARAT está validado em Portugal para adultos com diagnóstico médico anterior, pelo que não está disponível para este doente ({idade} anos). O ACT aplica-se a partir dos 12 anos.
+                </p>
+              </div>
+            )}
+
+            {resultado.divergenciaQuestionario && (
+              <div style={{ marginBottom: 16, background: '#FAEEDA20', border: '1px solid #FAC77550', borderRadius: 6, padding: '10px 12px' }}>
+                <p style={{ color: '#FAC775', fontSize: 12, fontWeight: 500, margin: '0 0 4px' }}>⚠ Divergência entre os domínios e o questionário</p>
+                <p style={{ color: '#FAC775', fontSize: 11, margin: 0, lineHeight: 1.6 }}>
+                  {resultado.divergenciaQuestionario}
+                </p>
+              </div>
+            )}
 
             {fase4.questionarioUsado === 'act' && (
               <>

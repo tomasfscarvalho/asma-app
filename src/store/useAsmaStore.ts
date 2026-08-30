@@ -124,6 +124,8 @@ const fase5Inicial: Fase5Dados = {
 
 const fase6Inicial: Fase6Dados = {
   percursoSelecionado: 1,
+  degrauAtual: null,
+  controloMantidoTresMeses: false,
 }
 
 const fase7Inicial: Fase7Dados = {
@@ -146,6 +148,11 @@ const fase8Inicial: Fase8Dados = {
   pacientePediatrico: false,
   idadeMenorCinco: false,
   sonolenciaConfusaoToraxSilencioso: false,
+  musculosAcessorios: false,
+  posicaoDebrucada: false,
+  agitacao: false,
+  cianose: false,
+  respostaIncompletaAoAlivio: false,
   ventilacaoMecanicaPrevia: false,
   duasOuMaisUrgencias: false,
   corticosteroidesRecentes: false,

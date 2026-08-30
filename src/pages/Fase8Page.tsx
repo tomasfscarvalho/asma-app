@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ECRA } from '../domain/fases'
 import { useAsmaStore } from '../store/useAsmaStore'
 import { calcularFase8 } from '../domain/fase8-agudizacao'
+import { calcularIdade } from '../domain/idade'
 import Layout from '../components/Layout'
 import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
@@ -11,10 +12,11 @@ import ResultBox from '../components/ResultBox'
 const steps = ['Parâmetros', 'Gravidade']
 
 export default function Fase8Page() {
-  const { fase8, setFase8, setResultadoFase8, navegarPara } = useAsmaStore()
+  const { fase8, setFase8, setResultadoFase8, navegarPara, paciente } = useAsmaStore()
   const [step, setStep] = useState(0)
 
-  const resultado = calcularFase8(fase8)
+  const idade = calcularIdade(paciente.dataNascimento)
+  const resultado = calcularFase8(fase8, idade)
 
   function handleProximo() {
     if (step < steps.length - 1) {
@@ -26,13 +28,15 @@ export default function Fase8Page() {
   }
 
   const gravidadeTexto = {
-    'ligeira-moderada': 'Ligeira ou Moderada',
+    'ligeira': 'Ligeira',
+    'moderada': 'Moderada',
     'grave': 'Grave',
     'critica': 'Crítica',
   }[resultado.gravidade]
 
   const gravidadeTipo = {
-    'ligeira-moderada': 'ok',
+    'ligeira': 'ok',
+    'moderada': 'alerta',
     'grave': 'alerta',
     'critica': 'alerta',
   }[resultado.gravidade] as 'ok' | 'alerta' | 'neutro'
@@ -107,7 +111,7 @@ export default function Fase8Page() {
                   type="number"
                   value={fase8.freqRespiratoria ?? ''}
                   onChange={e => setFase8({ freqRespiratoria: e.target.value ? Number(e.target.value) : null })}
-                  placeholder={fase8.idadeMenorCinco ? 'Normal ≤ 40' : 'Normal ≤ 30'}
+                  placeholder={(idade !== null ? idade < 6 : fase8.idadeMenorCinco) ? 'Normal ≤ 40' : 'Normal ≤ 30'}
                   style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
                 />
               </div>
@@ -119,7 +123,7 @@ export default function Fase8Page() {
                   type="number"
                   value={fase8.freqCardiaca ?? ''}
                   onChange={e => setFase8({ freqCardiaca: e.target.value ? Number(e.target.value) : null })}
-                  placeholder={fase8.idadeMenorCinco ? 'Normal ≤ 150' : 'Normal ≤ 120'}
+                  placeholder={idade === null ? 'Normal ≤ 120' : idade <= 3 ? 'Grave > 180' : idade <= 5 ? 'Grave > 150' : 'Grave > 120'}
                   style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
                 />
               </div>
@@ -131,7 +135,7 @@ export default function Fase8Page() {
                   type="number"
                   value={fase8.spo2 ?? ''}
                   onChange={e => setFase8({ spo2: e.target.value ? Number(e.target.value) : null })}
-                  placeholder={fase8.pacientePediatrico ? 'Normal ≥ 92' : 'Normal 90-95'}
+                  placeholder={(idade !== null ? idade < 12 : fase8.pacientePediatrico) ? 'Normal ≥ 92' : 'Normal 90-95'}
                   style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
                 />
               </div>
@@ -154,6 +158,17 @@ export default function Fase8Page() {
         {step === 1 && (
           <>
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
+              Restantes critérios de gravidade
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
+              <CheckItem label="Utilização de músculos acessórios (tiragem supraesternal, supraclavicular ou intercostal)" checked={fase8.musculosAcessorios} onChange={v => setFase8({ musculosAcessorios: v })} alerta />
+              <CheckItem label="Debruçado para a frente" checked={fase8.posicaoDebrucada} onChange={v => setFase8({ posicaoDebrucada: v })} alerta />
+              <CheckItem label="Agitação" checked={fase8.agitacao} onChange={v => setFase8({ agitacao: v })} alerta />
+              <CheckItem label="Cianose" checked={fase8.cianose} onChange={v => setFase8({ cianose: v })} alerta />
+              <CheckItem label="Sem boa resposta à intensificação inicial do alívio" checked={fase8.respostaIncompletaAoAlivio} onChange={v => setFase8({ respostaIncompletaAoAlivio: v })} />
+            </div>
+
+            <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
               Classificação automática de gravidade
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
@@ -165,7 +180,7 @@ export default function Fase8Page() {
               <ResultBox
                 label="Nível de cuidados"
                 valor={resultado.nivelCuidados}
-                tipo={resultado.gravidade === 'ligeira-moderada' ? 'ok' : 'alerta'}
+                tipo={resultado.gravidade === 'ligeira' ? 'ok' : 'alerta'}
               />
               {resultado.transferirUci && (
                 <ResultBox
@@ -174,6 +189,50 @@ export default function Fase8Page() {
                   tipo="alerta"
                 />
               )}
+            </div>
+
+            {resultado.criteriosPresentes.length > 0 && (
+              <div style={{ marginBottom: 16, background: '#E24B4A15', border: '1px solid #E24B4A50', borderRadius: 6, padding: '10px 12px' }}>
+                <p style={{ color: '#F09595', fontSize: 12, fontWeight: 500, margin: '0 0 6px' }}>Critérios de gravidade presentes</p>
+                {resultado.criteriosPresentes.map(c => (
+                  <p key={c} style={{ color: '#F09595', fontSize: 11, margin: '2px 0' }}>• {c}</p>
+                ))}
+              </div>
+            )}
+
+            {resultado.avaliacaoIncompleta && (
+              <div style={{ marginBottom: 16, background: '#FAEEDA20', border: '1px solid #FAC77550', borderRadius: 6, padding: '10px 12px' }}>
+                <p style={{ color: '#FAC775', fontSize: 12, fontWeight: 500, margin: '0 0 6px' }}>
+                  ⚠ Avaliação incompleta — {resultado.criteriosPorAvaliar.length} critérios por medir
+                </p>
+                <p style={{ color: '#FAC775', fontSize: 11, margin: '0 0 6px' }}>
+                  {resultado.criteriosPorAvaliar.join('; ')}.
+                </p>
+                <p style={{ color: '#BA7517', fontSize: 11, margin: 0 }}>
+                  Um parâmetro não medido não é um parâmetro normal. A classificação acima só cobre o que foi avaliado.
+                </p>
+              </div>
+            )}
+
+            {resultado.fatoresMauPrognostico.length > 0 && (
+              <div style={{ marginBottom: 16, background: '#E24B4A15', border: '1px solid #E24B4A50', borderRadius: 6, padding: '10px 12px' }}>
+                <p style={{ color: '#F09595', fontSize: 12, fontWeight: 500, margin: '0 0 6px' }}>
+                  ⚠ {resultado.fatoresMauPrognostico.length} fator(es) de mau prognóstico
+                </p>
+                {resultado.fatoresMauPrognostico.map(f => (
+                  <p key={f} style={{ color: '#F09595', fontSize: 11, margin: '2px 0' }}>• {f}</p>
+                ))}
+                <p style={{ color: '#BA7517', fontSize: 11, margin: '6px 0 0' }}>
+                  Não alteram a classificação de gravidade, que assenta nos sinais vitais, mas pesam na decisão de hospitalização.
+                </p>
+              </div>
+            )}
+
+            <div style={{ marginBottom: 24, background: '#0F6E5615', border: '1px solid #1D9E7530', borderRadius: 6, padding: '10px 12px' }}>
+              <p style={{ color: '#9FE1CB', fontSize: 12, fontWeight: 500, margin: '0 0 6px' }}>Tratamento recomendado</p>
+              {resultado.tratamento.map(t => (
+                <p key={t} style={{ color: '#9FE1CB', fontSize: 11, margin: '2px 0' }}>• {t}</p>
+              ))}
             </div>
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>

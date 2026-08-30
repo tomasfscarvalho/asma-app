@@ -2,6 +2,12 @@ import { useAsmaStore } from '../store/useAsmaStore'
 import { ECRA } from '../domain/fases'
 import Layout from '../components/Layout'
 
+const rotuloConfirmacao = {
+  'confirmada': 'Confirmada',
+  'nao-confirmada': 'Não confirmada',
+  'incompleta': 'Incompleta',
+}
+
 export default function DecisaoDiagnosticaPage() {
   const { setDecisaoDiagnostica, navegarPara, resultadoFase3, paciente } = useAsmaStore()
 
@@ -21,7 +27,7 @@ export default function DecisaoDiagnosticaPage() {
       faseTitulo={'Decis\u00e3o diagn\u00f3stica'}
       badge={'Decis\u00e3o do m\u00e9dico'}
       resumo={[
-        { key: 'Crit\u00e9rios +', val: resultadoFase3 ? `${resultadoFase3.criteriosPositivos}/3` : '\u2014' },
+        { key: 'Confirma\u00e7\u00e3o', val: resultadoFase3 ? rotuloConfirmacao[resultadoFase3.confirmacaoFuncional] : '\u2014' },
       ]}
     >
       <div style={{ padding: 24 }}>
@@ -72,8 +78,10 @@ export default function DecisaoDiagnosticaPage() {
                 </div>
               ))}
               <div style={{ borderTop: '1px solid #333', marginTop: 8, paddingTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-                <span style={{ color: '#aaa', fontWeight: 500 }}>{'Crit\u00e9rios objetivos positivos'}</span>
-                <span style={{ color: '#5DCAA5', fontWeight: 500 }}>{resultadoFase3.criteriosPositivos} de 3</span>
+                <span style={{ color: '#aaa', fontWeight: 500 }}>{'Confirma\u00e7\u00e3o funcional'}</span>
+                <span style={{ color: resultadoFase3.confirmacaoFuncional === 'confirmada' ? '#5DCAA5' : '#FAC775', fontWeight: 500 }}>
+                  {rotuloConfirmacao[resultadoFase3.confirmacaoFuncional]}
+                </span>
               </div>
             </div>
           </div>

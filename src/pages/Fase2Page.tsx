@@ -121,6 +121,17 @@ function calcularFaixa(dataNascimento: string): 'crianca' | 'jovem' | 'adulto' {
   return 'adulto'
 }
 
+// A lista pediátrica implementada é a da Box 1-3 da GINA para os 6-11 anos. Em
+// crianças até aos 5 anos o Guia prático do GRESP tem uma tabela própria
+// (Tabela 8), com itens diferentes, que a ferramenta ainda não cobre — daí o
+// aviso em vez de um rótulo que afirmaria uma faixa etária errada.
+function rotuloDaFaixa(faixa: 'crianca' | 'jovem' | 'adulto', idade: number | null): string {
+  if (faixa === 'crianca') {
+    return idade !== null && idade < 6 ? 'Idade pré-escolar (≤ 5 anos)' : 'Crianças (6–11 anos)'
+  }
+  return faixa === 'jovem' ? 'Jovens adultos (12–39 anos)' : 'Adultos (≥ 40 anos)'
+}
+
 export default function Fase2Page() {
   const { paciente, fase1, fase2, setFase2, navegarPara } = useAsmaStore()
 
@@ -131,7 +142,9 @@ export default function Fase2Page() {
   const todosOsItems = todosOsGrupos.flatMap(g => g.items)
   const todosOsDDs = todosOsItems.map(i => i.dd)
 
-  const faixaLabel = { crianca: 'Crianças (6–11 anos)', jovem: 'Jovens adultos (12–39 anos)', adulto: 'Adultos (≥ 40 anos)' }[faixa]
+  const idade = calcularIdade(paciente.dataNascimento)
+  const idadeInferiorASeis = idade !== null && idade < 6
+  const faixaLabel = rotuloDaFaixa(faixa, idade)
 
   function toggle(d: string) {
     const atual = fase2.diferenciaisExcluidos
@@ -175,6 +188,14 @@ export default function Fase2Page() {
         <p style={{ fontSize: 12, color: '#888', marginBottom: 16, lineHeight: 1.6 }}>
           Diagnósticos diferenciais filtrados para <strong style={{ color: '#ccc' }}>{faixaLabel}</strong> segundo a GINA 2025 (Box 1-3). Devem ser assinalados os que foram avaliados e excluídos clinicamente. A ferramenta não exclui diagnósticos automaticamente.
         </p>
+
+        {idadeInferiorASeis && (
+          <div style={{ marginBottom: 16, background: '#FAEEDA20', border: '1px solid #FAC77550', borderRadius: 6, padding: '10px 12px' }}>
+            <p style={{ color: '#FAC775', fontSize: 11, margin: 0, lineHeight: 1.6 }}>
+              Doente com {idade} anos. A lista apresentada é a da faixa dos 6 aos 11 anos. Abaixo dos 6, o Guia prático do GRESP indica uma lista própria (Tabela 8), que inclui infeções víricas recorrentes e refluxo gastroesofágico e que a ferramenta ainda não implementa. Interpretar com esta ressalva.
+            </p>
+          </div>
+        )}
 
         {/* Botões selecionar/limpar */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>

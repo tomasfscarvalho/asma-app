@@ -136,7 +136,8 @@ export default function PacientePage() {
             </div>
           </div>
 
-          <button
+
+        <button
             onClick={handleSubmit}
             style={{ width: '100%', background: '#0F6E56', color: 'white', border: 'none', borderRadius: 8, padding: '12px', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}
           >

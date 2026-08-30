@@ -155,6 +155,10 @@ export interface Fase5Dados {
 // ============================================
 export interface Fase6Dados {
   percursoSelecionado: 1 | 2
+  /** Degrau que o doente já faz. null numa primeira prescrição. */
+  degrauAtual: DegrauTerapeutico | null
+  /** Controlo mantido nos últimos 3 meses — condição para descer degrau. */
+  controloMantidoTresMeses: boolean
 }
 
 // ============================================
@@ -184,6 +188,15 @@ export interface Fase8Dados {
   idadeMenorCinco: boolean
   sonolenciaConfusaoToraxSilencioso: boolean
 
+  // Restantes critérios de gravidade da Tabela 7
+  musculosAcessorios: boolean
+  posicaoDebrucada: boolean
+  agitacao: boolean
+  cianose: boolean
+
+  /** Sem boa resposta à intensificação inicial do alívio: separa moderada de ligeira. */
+  respostaIncompletaAoAlivio: boolean
+
   // Fatores de mau prognóstico
   ventilacaoMecanicaPrevia: boolean
   duasOuMaisUrgencias: boolean
@@ -198,15 +211,20 @@ export interface Fase8Dados {
 // RESULTADOS AUTOMÁTICOS
 // ============================================
 export type NivelControlo = 'controlada' | 'parcialmente-controlada' | 'nao-controlada'
-export type GravidadeAgudizacao = 'ligeira-moderada' | 'grave' | 'critica'
+export type GravidadeAgudizacao = 'ligeira' | 'moderada' | 'grave' | 'critica'
 export type DegrauTerapeutico = 1 | 2 | 3 | 4 | 5
 export type FrequenciaSintomas = 'menos-2x-mes' | 'mais-2x-mes' | 'maioria-dias'
 
 export interface ResultadoFase3 {
-  obstrutivo: boolean
-  reversibilidade: boolean
-  pefPositivo: boolean
-  criteriosPositivos: number
+  /** Bloco 1 da Imagem 2: limitação ao fluxo expiratório. */
+  obstrutivo: boolean | null
+  /** Bloco 2 da Imagem 2, por qualquer das duas vias. */
+  reversibilidade: boolean | null
+  pefPositivo: boolean | null
+  variabilidadeConfirmada: boolean | null
+  /** Exige os dois blocos documentados. */
+  confirmacaoFuncional: 'confirmada' | 'nao-confirmada' | 'incompleta'
+  criteriosPorAvaliar: string[]
 }
 
 export interface ResultadoFase4 {
@@ -214,10 +232,15 @@ export interface ResultadoFase4 {
   scoreAct: number | null
   scoreCarat: number | null
   fev1Atual: number | null
+  /** Aviso quando os domínios e o questionário apontam em sentidos opostos. */
+  divergenciaQuestionario: string | null
 }
 
 export interface ResultadoFase6 {
   degrau: DegrauTerapeutico
+  /** A recomendação veio da seleção inicial, e não de um ajuste. */
+  degrauInicial: boolean
+  fatoresDeRiscoPresentes: string[]
   percurso: 1 | 2
   ajuste: 'subir' | 'manter' | 'descer' | null
   criterioReferenciacao: boolean
@@ -230,12 +253,19 @@ export interface ResultadoFase6 {
 export interface ResultadoFase7 {
   referenciar: boolean
   criteriosPresentes: string[]
+  /** Condições objetivas reunidas: falta o médico confirmar duração e adesão. */
+  perguntarDegrau3: boolean
 }
 
 export interface ResultadoFase8 {
   gravidade: GravidadeAgudizacao
   nivelCuidados: string
   transferirUci: boolean
+  criteriosPresentes: string[]
+  criteriosPorAvaliar: string[]
+  avaliacaoIncompleta: boolean
+  fatoresMauPrognostico: string[]
+  tratamento: string[]
 }
 
 
