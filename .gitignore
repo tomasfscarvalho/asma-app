@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# capturas de ecrã geradas por scripts/capturar-figuras.mjs
+figuras
