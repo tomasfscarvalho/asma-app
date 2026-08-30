@@ -7,6 +7,7 @@
 import { chromium } from 'playwright'
 import { mkdirSync } from 'node:fs'
 import { join } from 'node:path'
+import { TRANSFORMAR_PARA_CLARO } from './tema-claro-figuras.mjs'
 
 const DESTINO = process.argv[2] ?? 'figuras'
 const URL = 'http://localhost:5173/'
@@ -20,9 +21,15 @@ const pagina = await navegador.newPage({
   deviceScaleFactor: 2,          // dobro da densidade: legível em papel
 })
 
+// Tema claro só para as figuras: a aplicação continua escura. Aplicado a cada
+// captura porque o React reescreve os estilos inline em cada navegação.
+const CLARO = !process.argv.includes('--escuro')
+
 let capturas = 0
 async function capturar(nome, legenda) {
-  await pagina.waitForTimeout(250)
+  await pagina.waitForTimeout(300)
+  if (CLARO) await pagina.evaluate(TRANSFORMAR_PARA_CLARO)
+  await pagina.waitForTimeout(120)
   const caminho = join(DESTINO, `${nome}.png`)
   await pagina.screenshot({ path: caminho, fullPage: true })
   capturas += 1
@@ -69,17 +76,26 @@ await capturar('figura-3-1', 'Ecrã inicial: seleção do tipo de consulta')
 await clicar('Iniciar avaliação')
 
 // ============================================================ Fase 1
-for (const s of ['Sibilância (pieira)', 'Dispneia (falta de ar)', 'Tosse']) await marcar(s)
+// Rótulos exatos: um .catch() aqui esconderia falhas de seleção e o relatório
+// da figura 3.10 sairia com todos os fatores a "Não".
+for (const r of ['Sibilância (pieira)', 'Dispneia (falta de ar)', 'Tosse']) await marcar(r)
 await proximo()
-for (const s of ['Mais do que 1 tipo de sintoma', 'Sintomas variáveis', 'Agravam com exercício']) {
-  await marcar(s).catch(() => {})
-}
+for (const r of [
+  'Normalmente ocorre mais do que um tipo de sintoma',
+  'Sintomas surgem de forma e intensidade variável ao longo do tempo',
+  'Exercício físico',
+  'Alergénios ou irritantes',
+  'Sintomas ocorrem mais do que uma vez por semana',
+  'Sintomas aparecem ou pioram à noite ou de manhã',
+]) await marcar(r)
 await proximo()
-for (const s of ['Início dos sintomas na infância', 'Rinite alérgica ou eczema']) {
-  await marcar(s).catch(() => {})
-}
+for (const r of [
+  'Início de sintomas na infância',
+  'História de rinite alérgica ou eczema',
+  'História familiar de asma ou atopia',
+]) await marcar(r)
 await proximo()
-await marcar('Sibilos na expiração').catch(() => {})
+await marcar('Sibilos na expiração (alteração mais frequente, não específica)')
 await capturar('figura-3-3', 'Fase 1: perfil de probabilidade gerado')
 await proximo()
 
@@ -122,9 +138,14 @@ await capturar('figura-3-7', 'Fase 4: score ACT calculado')
 await proximo()
 
 // ============================================================ Fase 5
-for (const s of ['Abuso de SABA', 'Má adesão à terapêutica']) await marcar(s).catch(() => {})
-await marcar('Intubação ou internamento prévio em UCI por asma').catch(() => {})
-await marcar('≥ 1 agudização grave nos últimos 12 meses').catch(() => {})
+for (const r of [
+  'Abuso de SABA (≥ 3 embalagens/ano)',
+  'Má adesão à terapêutica',
+  'Intubação ou internamento prévio em UCI por asma',
+  '≥ 1 agudização grave nos últimos 12 meses',
+]) await marcar(r)
+await escrever(0, 2)   // agudizações no último ano
+await escrever(1, 1)   // internamentos no último ano
 await capturar('figura-3-8', 'Fase 5: sinalização de fatores major')
 await proximo(); await proximo(); await proximo()
 
@@ -147,6 +168,18 @@ await capturar('figura-3-4', 'Fase 8: avaliação de agudização')
 await proximo()
 
 // ============================================================ 3.10 relatório
+// A caixa do relatório tem maxHeight 60vh na aplicação, o que faria a figura
+// mostrar apenas o cabeçalho. Solta-se até um limite: sem limite, o relatório
+// inteiro daria uma figura de 6600 px de altura, que na página da tese ficaria
+// reduzida a uma tira estreita e ilegível.
+await pagina.evaluate(() => {
+  for (const el of document.querySelectorAll('pre, div')) {
+    const st = getComputedStyle(el)
+    if (st.overflowY === 'auto' && st.maxHeight !== 'none') {
+      el.style.setProperty('max-height', '980px', 'important')
+    }
+  }
+})
 await capturar('figura-3-10', 'Relatório SOAP gerado automaticamente')
 
 await navegador.close()

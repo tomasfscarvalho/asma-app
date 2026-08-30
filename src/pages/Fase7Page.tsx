@@ -6,9 +6,9 @@ import NavFooter from '../components/NavFooter'
 import CheckItem from '../components/CheckItem'
 
 export default function Fase7Page() {
-  const { fase4, fase5, fase6, fase7, setFase7, setResultadoFase7, navegarPara } = useAsmaStore()
+  const { fase3, fase4, fase5, fase6, fase7, setFase7, setResultadoFase7, navegarPara } = useAsmaStore()
 
-  const resultado = calcularFase7(fase4, fase6, fase7, fase5)
+  const resultado = calcularFase7(fase4, fase6, fase7, fase5, fase3)
 
   function handleProximo() {
     setResultadoFase7(resultado)

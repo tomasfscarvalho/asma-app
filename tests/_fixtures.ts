@@ -17,7 +17,7 @@ export function dadosFase3(o: Partial<Fase3Dados> = {}): Fase3Dados {
 export function dadosFase4(o: Partial<Fase4Dados> = {}): Fase4Dados {
   return {
     sintomasDiurnos: false, sintomasNoturnos: false, limitacaoAtividades: false,
-    necessidadeAlivio: false, frequenciaSintomas: 'menos-2x-mes', despertarSemanal: false,
+    necessidadeAlivio: false, frequenciaSintomas: null, despertarSemanal: false,
     actLimitacaoAtividades: null, actFaltaAr: null, actSintomasNoturnos: null,
     actUsoAlivio: null, actAutoavaliacao: null,
     questionarioUsado: null, fev1Atual: null,

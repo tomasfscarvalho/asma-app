@@ -151,6 +151,26 @@ export function detetarDivergencia(
   return null
 }
 
+// A Fase 4 recolhe a frequência de sintomas em duas escalas diferentes, por
+// servirem fins distintos: o domínio de controlo da Imagem 3 do guia, que é
+// binário e usa o limiar de duas vezes por semana, e a banda de frequência das
+// Imagens 6, que serve a seleção do degrau terapêutico. As duas não se
+// traduzem uma na outra: a banda intermédia, de duas vezes por mês a menos de
+// quatro ou cinco dias por semana, atravessa o limiar do domínio de controlo.
+//
+// O que se pode afirmar sem julgamento clínico é que duas combinações são
+// impossíveis, e são essas que a função sinaliza. A banda intermédia é
+// compatível com qualquer valor do domínio e não gera aviso.
+export function detetarIncoerenciaSintomas(dados: Fase4Dados): string | null {
+  if (dados.frequenciaSintomas === 'maioria-dias' && !dados.sintomasDiurnos) {
+    return 'Sintomas na maioria dos dias implicam sintomas diurnos mais de duas vezes por semana, mas o domínio de controlo não está assinalado.'
+  }
+  if (dados.frequenciaSintomas === 'menos-2x-mes' && dados.sintomasDiurnos) {
+    return 'Sintomas menos de duas vezes por mês são incompatíveis com sintomas diurnos mais de duas vezes por semana, que está assinalado.'
+  }
+  return null
+}
+
 export function calcularFase4(dados: Fase4Dados): ResultadoFase4 {
   const nivelControlo = calcularControlo(dados)
   const scoreAct = calcularACT(dados)
@@ -162,5 +182,6 @@ export function calcularFase4(dados: Fase4Dados): ResultadoFase4 {
     scoreCarat,
     fev1Atual: dados.fev1Atual,
     divergenciaQuestionario: detetarDivergencia(dados, nivelControlo, scoreAct, scoreCarat),
+    incoerenciaSintomas: detetarIncoerenciaSintomas(dados),
   }
 }

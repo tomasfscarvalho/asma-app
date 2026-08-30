@@ -88,7 +88,8 @@ export interface Fase4Dados {
   sintomasNoturnos: boolean
   limitacaoAtividades: boolean
   necessidadeAlivio: boolean
-  frequenciaSintomas: FrequenciaSintomas
+  /** null enquanto o médico não escolher: um valor pré-selecionado não é uma resposta. */
+  frequenciaSintomas: FrequenciaSintomas | null
   despertarSemanal: boolean
 
   // ACT
@@ -234,6 +235,8 @@ export interface ResultadoFase4 {
   fev1Atual: number | null
   /** Aviso quando os domínios e o questionário apontam em sentidos opostos. */
   divergenciaQuestionario: string | null
+  /** Aviso quando as duas escalas de frequência de sintomas se contradizem. */
+  incoerenciaSintomas: string | null
 }
 
 export interface ResultadoFase6 {
@@ -264,6 +267,8 @@ export interface ResultadoFase8 {
   criteriosPresentes: string[]
   criteriosPorAvaliar: string[]
   avaliacaoIncompleta: boolean
+  /** Foi introduzido algum dado de agudização? */
+  avaliada: boolean
   fatoresMauPrognostico: string[]
   tratamento: string[]
 }

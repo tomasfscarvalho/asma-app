@@ -36,9 +36,9 @@ const tabelaAdultos = {
 }
 
 export default function Fase6Page() {
-  const { fase4, fase5, fase6, setFase6, setResultadoFase6, navegarPara, tipoConsulta } = useAsmaStore()
+  const { fase3, fase4, fase5, fase6, setFase6, setResultadoFase6, navegarPara, tipoConsulta } = useAsmaStore()
   const [step, setStep] = useState(0)
-  const resultado = calcularFase6(fase4, fase6, fase5)
+  const resultado = calcularFase6(fase4, fase6, fase5, fase3)
   const degrauTexto = obterDescricaoDegrau(resultado)
 
   const ajusteTextoPorTipo: Record<NonNullable<ResultadoFase6['ajuste']>, string> = {

@@ -109,6 +109,15 @@ export function calcularFase8(dados: Fase8Dados, idade: number | null = null): R
 
   const avaliacaoIncompleta = criteriosPorAvaliar.length > 0
 
+  // Distinguir "agudização ligeira" de "agudização não avaliada": sem nenhum
+  // dado introduzido, o módulo não foi usado e não deve aparecer no relatório.
+  const avaliada =
+    transferirUci ||
+    criteriosPresentes.length > 0 ||
+    [dados.exprimePorFrases, dados.freqRespiratoria, dados.freqCardiaca,
+     dados.spo2, dados.pefPercentagem].some(v => v !== null) ||
+    dados.respostaIncompletaAoAlivio
+
   return {
     gravidade,
     nivelCuidados,
@@ -116,6 +125,7 @@ export function calcularFase8(dados: Fase8Dados, idade: number | null = null): R
     criteriosPresentes,
     criteriosPorAvaliar,
     avaliacaoIncompleta,
+    avaliada,
     fatoresMauPrognostico,
     tratamento: tratamentoAgudizacao(gravidade, pediatrico),
   }

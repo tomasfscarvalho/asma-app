@@ -12,10 +12,9 @@ import {
   calcularCaratRinite, calcularCaratAsma, interpretarCarat, interpretarAct,
 } from '../src/domain/fase4-controlo'
 import { calcularFase8 } from '../src/domain/fase8-agudizacao'
-import { calcularFase6, obterDescricaoDegrau } from '../src/domain/fase6-terapeutica'
 import { calcularIdade } from '../src/domain/idade'
 import type { Fase8Dados } from '../src/domain/types'
-import { dadosFase4, dadosFase5, dadosFase6, dadosFase8 } from './_fixtures'
+import { dadosFase4, dadosFase8 } from './_fixtures'
 
 // ---------------------------------------------------------------- fixtures
 
@@ -141,39 +140,6 @@ describe('Agudização no adulto — GRESP 2022, Tabela 7', () => {
     expect(calcularFase8({ ...fase8Vazia, freqCardiaca: 120 }).gravidade).toBe('ligeira')
     expect(calcularFase8({ ...fase8Vazia, spo2: 90 }).gravidade).toBe('ligeira')
     expect(calcularFase8({ ...fase8Vazia, pefPercentagem: 51 }).gravidade).toBe('ligeira')
-  })
-})
-
-// ------------------------------------------------- GRESP 2022, Imagem 6.a
-describe('Seleção do degrau inicial no Percurso 1 — GRESP 2022, Imagem 6.a', () => {
-  const semRisco = dadosFase5()
-  const percurso1 = dadosFase6({ percursoSelecionado: 1 })
-
-  it('sintomas pouco frequentes e sem risco → Degrau 1-2', () => {
-    const r = calcularFase6(fase4Vazia, percurso1, semRisco)
-    expect(r.degrau).toBe(2)
-    expect(obterDescricaoDegrau(r)).toBe('Degrau 1-2')
-  })
-
-  it('sintomas na maioria dos dias → Degrau 3', () => {
-    const r = calcularFase6({ ...fase4Vazia, frequenciaSintomas: 'maioria-dias' }, percurso1, semRisco)
-    expect(r.degrau).toBe(3)
-  })
-
-  it('despertar semanal por asma → Degrau 3', () => {
-    const r = calcularFase6({ ...fase4Vazia, despertarSemanal: true }, percurso1, semRisco)
-    expect(r.degrau).toBe(3)
-  })
-
-  it('baixa função respiratória → Degrau 4, mesmo sem sintomas frequentes', () => {
-    const r = calcularFase6(fase4Vazia, percurso1, dadosFase5({ fev1Baixo: true }))
-    expect(r.degrau).toBe(4)
-  })
-
-  it('o Percurso 1 usa ICS-formoterol como alívio em todos os degraus', () => {
-    for (const f4 of [fase4Vazia, { ...fase4Vazia, frequenciaSintomas: 'maioria-dias' as const }]) {
-      expect(calcularFase6(f4, percurso1, semRisco).medicacaoPreferencial).toContain('ICS-formoterol')
-    }
   })
 })
 

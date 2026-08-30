@@ -1,7 +1,8 @@
 import type {
-  Fase4Dados, Fase5Dados, Fase6Dados, ResultadoFase6, DegrauTerapeutico,
+  Fase3Dados, Fase4Dados, Fase5Dados, Fase6Dados, ResultadoFase6, DegrauTerapeutico,
 } from './types'
 import { calcularControlo } from './fase4-controlo'
+import { avaliarFev1Baixo, fatoresDeRisco, temRiscoAgudizacoes } from './fase5-risco'
 
 // ============================================
 // FASE 6 — Recomendação Terapêutica
@@ -71,39 +72,18 @@ const medicacaoPercurso2: Record<DegrauTerapeutico, { preferencial: string; alte
   },
 }
 
-// --- Risco de agudizações (GRESP 2022, "Potenciais fatores de risco para as
-//     agudizações": a existência de 1 ou mais destes fatores aumenta o risco) ---
-export function fatoresDeRisco(fase5: Fase5Dados): string[] {
-  return [
-    fase5.sintomasNaoControlados && 'Sintomas não controlados',
-    fase5.naoCumprimentoIcs && 'Não cumprimento da terapêutica com ICS',
-    fase5.maAdesao && 'Má adesão à terapêutica',
-    fase5.tecnicaInalatoriaIncorreta && 'Técnica inalatória incorreta',
-    fase5.abusoDeSaba && 'Abuso de SABA (≥ 3 embalagens/ano)',
-    fase5.fev1Baixo && 'FEV1 < 60% do previsto',
-    fase5.intubacaoOuUciPrevia && 'Intubação ou internamento prévio em UCI por asma',
-    fase5.agudizacaoGraveUltimoAno && '≥ 1 agudização grave nos últimos 12 meses',
-    (fase5.agudizacoesUltimoAno ?? 0) > 0 && 'Agudizações no último ano',
-    (fase5.internamentosUltimoAno ?? 0) > 0 && 'Internamentos por asma no último ano',
-    fase5.fumoTabaco && 'Exposição ao fumo do tabaco',
-  ].filter(Boolean) as string[]
-}
-
-export function temRiscoAgudizacoes(fase5: Fase5Dados): boolean {
-  return fatoresDeRisco(fase5).length > 0
-}
-
 function sintomasRelevantes(fase4: Fase4Dados): boolean {
   return fase4.frequenciaSintomas === 'maioria-dias' || fase4.despertarSemanal
 }
 
 function selecionarDegrauInicial(
+  fase3: Fase3Dados,
   fase4: Fase4Dados,
   fase5: Fase5Dados,
   percurso: 1 | 2,
 ): DegrauTerapeutico {
   // Imagem 6.a / 6.b: baixa função respiratória leva a degrau 4.
-  if (fase5.fev1Baixo) return 4
+  if (avaliarFev1Baixo(fase3, fase4, fase5).valor) return 4
   if (sintomasRelevantes(fase4)) return 3
 
   if (percurso === 1) {
@@ -113,7 +93,7 @@ function selecionarDegrauInicial(
 
   if (fase4.frequenciaSintomas === 'mais-2x-mes') return 2
   // Degrau 1 exige sintomas < 2x/mês E ausência de risco de agudizações.
-  return temRiscoAgudizacoes(fase5) ? 2 : 1
+  return temRiscoAgudizacoes(fase3, fase4, fase5) ? 2 : 1
 }
 
 function limitar(degrau: number): DegrauTerapeutico {
@@ -143,6 +123,7 @@ export function calcularFase6(
   fase4: Fase4Dados,
   fase6: Fase6Dados,
   fase5: Fase5Dados,
+  fase3: Fase3Dados,
 ): ResultadoFase6 {
   const controlo = calcularControlo(fase4)
   const percurso = fase6.percursoSelecionado
@@ -152,7 +133,7 @@ export function calcularFase6(
   const degrauInicial = degrauAtual === null
   const passo = ajuste === 'subir' ? 1 : ajuste === 'descer' ? -1 : 0
   const degrau = degrauAtual === null
-    ? selecionarDegrauInicial(fase4, fase5, percurso)
+    ? selecionarDegrauInicial(fase3, fase4, fase5, percurso)
     : limitar(degrauAtual + passo)
 
   const medicamentos = percurso === 1 ? medicacaoPercurso1[degrau] : medicacaoPercurso2[degrau]
@@ -168,6 +149,6 @@ export function calcularFase6(
     ajustarVerificarPrimeiro: ajuste === 'subir',
     medicacaoPreferencial: medicamentos.preferencial,
     medicacaoAlternativa: medicamentos.alternativa,
-    fatoresDeRiscoPresentes: fatoresDeRisco(fase5),
+    fatoresDeRiscoPresentes: fatoresDeRisco(fase3, fase4, fase5),
   }
 }

@@ -77,7 +77,7 @@ const fase4Inicial: Fase4Dados = {
   sintomasNoturnos: false,
   limitacaoAtividades: false,
   necessidadeAlivio: false,
-  frequenciaSintomas: 'menos-2x-mes',
+  frequenciaSintomas: null,
   despertarSemanal: false,
   actLimitacaoAtividades: null,
   actFaltaAr: null,

@@ -30,6 +30,14 @@ function sim(valor: boolean): string {
   return valor ? 'Sim' : 'Não'
 }
 
+/**
+ * Um bloco condicional vazio deixa uma linha em branco a mais no relatório.
+ * Em vez de o tratar em cada ponto de interpolação, normaliza-se o texto final.
+ */
+function limpar(texto: string): string {
+  return texto.replace(/\n[ \t]*(?:\n[ \t]*)+\n/g, '\n\n').trim()
+}
+
 /** Critérios com três estados: um valor não medido não é um valor negativo. */
 function estado(valor: boolean | null): string {
   if (valor === null) return 'Não avaliado'
@@ -41,8 +49,8 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
   const p0 = dados.paciente
   const r3 = calcularFase3(dados.fase3)
   const r4 = calcularFase4(dados.fase4)
-  const r6 = calcularFase6(dados.fase4, dados.fase6, dados.fase5)
-  const r7 = calcularFase7(dados.fase4, dados.fase6, dados.fase7, dados.fase5)
+  const r6 = calcularFase6(dados.fase4, dados.fase6, dados.fase5, dados.fase3)
+  const r7 = calcularFase7(dados.fase4, dados.fase6, dados.fase7, dados.fase5, dados.fase3)
   const idadeNum = calcularIdade(p0.dataNascimento)
   const r8 = calcularFase8(dados.fase8, idadeNum)
   const caratRinite = calcularCaratRinite(dados.fase4)
@@ -66,6 +74,16 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
   const linhaQuestionario = dados.fase4.questionarioUsado === 'carat'
     ? `  • Score CARAT: ${r4.scoreCarat ?? 'Não preenchido'}/30 (rinite: ${caratRinite ?? '—'}/12; asma: ${caratAsma ?? '—'}/18)`
     : `  • ACT: ${r4.scoreAct !== null ? interpretarAct(r4.scoreAct) : 'Não preenchido'}`
+
+  // A frequência de sintomas é o critério que escolhe o degrau inicial, pelo
+  // que tem de constar do relatório.
+  const linhaFrequencia = dados.fase4.frequenciaSintomas !== null
+    ? '  • Frequência dos sintomas: ' + {
+        'menos-2x-mes': 'menos de 2x por mês',
+        'mais-2x-mes': '2x por mês ou mais, mas não na maioria dos dias',
+        'maioria-dias': 'na maioria dos dias',
+      }[dados.fase4.frequenciaSintomas]
+    : '  • Frequência dos sintomas: Não registada'
 
   const linhaFev1Atual = r4.fev1Atual !== null
     ? `  • FEV1 atual: ${r4.fev1Atual}% do previsto`
@@ -137,12 +155,7 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
     'ligeira': 'Ligeira', 'moderada': 'Moderada', 'grave': 'Grave', 'critica': 'Crítica',
   }[r8.gravidade]
 
-  const agudizacaoAvaliada =
-    r8.criteriosPresentes.length > 0 ||
-    r8.criteriosPorAvaliar.length < 9 ||
-    r8.transferirUci
-
-  const blocoAgudizacao = agudizacaoAvaliada
+  const blocoAgudizacao = r8.avaliada
     ? [
         '',
         '----------------------------------------',
@@ -172,9 +185,10 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
         ? `Confirmação funcional incompleta — por avaliar: ${r3.criteriosPorAvaliar.join('; ')}.`
         : 'Confirmação funcional não obtida: a limitação ao fluxo expiratório e a variabilidade não estão ambas documentadas.'
 
-  const blocoDivergencia = r4.divergenciaQuestionario
-    ? `\n  ⚠ ${r4.divergenciaQuestionario}`
-    : ''
+  const blocoDivergencia = [
+    r4.divergenciaQuestionario,
+    r4.incoerenciaSintomas,
+  ].filter(Boolean).map(aviso => `\n  ⚠ ${aviso}`).join('')
 
   const blocoFatoresRisco = r6.fatoresDeRiscoPresentes.length > 0
     ? r6.fatoresDeRiscoPresentes.map(f => `  • ${f}`).join('\n')
@@ -188,7 +202,7 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
   // Doente fora do âmbito do percurso crónico: só a avaliação de agudização,
   // que é o único domínio coberto pela fonte nacional abaixo dos 6 anos.
   if (idade !== '—' && !dentroDoAmbitoCronico(idade)) {
-    return `
+    return limpar(`
 ========================================
 RELATÓRIO CLÍNICO — AVALIAÇÃO DE AGUDIZAÇÃO
 Data: ${formatarData()}
@@ -216,11 +230,11 @@ Clínica ASMA — GRESP 2022 / GINA 2025
 Este relatório é de apoio à decisão.
 A responsabilidade clínica é do médico.
 ========================================
-`.trim()
+`)
   }
 
   if (dados.decisaoDiagnostica === 'nao-confirmado') {
-    return `
+    return limpar(`
 ========================================
 RELATÓRIO CLÍNICO — EXCLUSÃO DE ASMA
 Data: ${formatarData()}
@@ -303,10 +317,10 @@ Clínica ASMA — GRESP 2022 / GINA 2025
 Este relatório é de apoio à decisão.
 A responsabilidade clínica é do médico.
 ========================================
-`.trim()
+`)
   }
 
-  return `
+  return limpar(`
 ========================================
 RELATÓRIO CLÍNICO — ASMA
 Data: ${formatarData()}
@@ -386,6 +400,7 @@ Controlo dos sintomas (últimas 4 semanas):
   • Sintomas noturnos e/ou ao despertar, com perturbação do sono incluindo tosse: ${sim(dados.fase4.sintomasNoturnos)}
   • Limitação das atividades diárias: ${sim(dados.fase4.limitacaoAtividades)}
   • Necessidade de alívio > 2x/semana: ${sim(dados.fase4.necessidadeAlivio)}
+${linhaFrequencia}
 ${linhaQuestionario}
 ${linhaFev1Atual}
 
@@ -423,5 +438,5 @@ Clínica ASMA — GRESP 2022 / GINA 2025
 Este relatório é de apoio à decisão.
 A responsabilidade clínica é do médico.
 ========================================
-`.trim()
+`)
 }

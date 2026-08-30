@@ -1,4 +1,4 @@
-import type { Fase4Dados, Fase5Dados, Fase6Dados, Fase7Dados, ResultadoFase7 } from './types'
+import type { Fase3Dados, Fase4Dados, Fase5Dados, Fase6Dados, Fase7Dados, ResultadoFase7 } from './types'
 import { calcularControlo } from './fase4-controlo'
 import { calcularFase6 } from './fase6-terapeutica'
 
@@ -22,8 +22,9 @@ export function condicoesParaPerguntaDegrau3(
   fase4: Fase4Dados,
   fase6Dados: Fase6Dados,
   fase5: Fase5Dados,
+  fase3: Fase3Dados,
 ): boolean {
-  const r6 = calcularFase6(fase4, fase6Dados, fase5)
+  const r6 = calcularFase6(fase4, fase6Dados, fase5, fase3)
   return calcularControlo(fase4) !== 'controlada' && r6.degrau >= 3
 }
 
@@ -32,6 +33,7 @@ export function calcularFase7(
   fase6Dados: Fase6Dados,
   fase7: Fase7Dados,
   fase5: Fase5Dados,
+  fase3: Fase3Dados,
 ): ResultadoFase7 {
   const criteriosPresentes: string[] = []
 
@@ -64,6 +66,6 @@ export function calcularFase7(
   return {
     referenciar: criteriosPresentes.length > 0,
     criteriosPresentes,
-    perguntarDegrau3: condicoesParaPerguntaDegrau3(fase4, fase6Dados, fase5),
+    perguntarDegrau3: condicoesParaPerguntaDegrau3(fase4, fase6Dados, fase5, fase3),
   }
 }

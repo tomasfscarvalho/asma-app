@@ -5,14 +5,17 @@ import Layout from '../components/Layout'
 import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
 import CheckItem from '../components/CheckItem'
+import { avaliarFev1Baixo, divergenciaFev1 } from '../domain/fase5-risco'
 
 const steps = ['Medicação / Função', 'Exposição', 'Comorbilidades']
 
 export default function Fase5Page() {
-  const { fase5, setFase5, navegarPara } = useAsmaStore()
+  const { fase3, fase4, fase5, setFase5, navegarPara } = useAsmaStore()
   const [step, setStep] = useState(0)
 
   const fatoresMajor = fase5.intubacaoOuUciPrevia || fase5.agudizacaoGraveUltimoAno
+  const fev1 = avaliarFev1Baixo(fase3, fase4, fase5)
+  const avisoFev1 = divergenciaFev1(fase3, fase4, fase5)
 
   return (
     <Layout
@@ -44,7 +47,14 @@ export default function Fase5Page() {
               <CheckItem label="Má adesão à terapêutica" checked={fase5.maAdesao} onChange={v => setFase5({ maAdesao: v })} />
               <CheckItem label="Técnica inalatória incorreta" checked={fase5.tecnicaInalatoriaIncorreta} onChange={v => setFase5({ tecnicaInalatoriaIncorreta: v })} />
               <CheckItem label="Abuso de SABA (≥ 3 embalagens/ano)" checked={fase5.abusoDeSaba} onChange={v => setFase5({ abusoDeSaba: v })} alerta />
-              <CheckItem label="FEV1 < 60% do previsto" checked={fase5.fev1Baixo} onChange={v => setFase5({ fev1Baixo: v })} alerta />
+              <CheckItem
+                label={fev1.origem === 'medido'
+                  ? `FEV1 < 60% do previsto — medido: ${fev1.percentagem}%`
+                  : 'FEV1 < 60% do previsto'}
+                checked={fev1.valor}
+                onChange={v => setFase5({ fev1Baixo: v })}
+                alerta
+              />
             </div>
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
@@ -64,6 +74,14 @@ export default function Fase5Page() {
                 alerta
               />
             </div>
+
+            {avisoFev1 && (
+              <div style={{ marginTop: 12, background: '#FAEEDA20', border: '1px solid #FAC77550', borderRadius: 6, padding: '10px 12px' }}>
+                <p style={{ color: '#FAC775', fontSize: 11, margin: 0, lineHeight: 1.6 }}>
+                  ⚠ {avisoFev1}
+                </p>
+              </div>
+            )}
 
             {fatoresMajor && (
               <div style={{ marginTop: 16, background: '#E24B4A15', border: '1px solid #E24B4A50', borderRadius: 6, padding: '10px 12px' }}>
