@@ -129,6 +129,15 @@ describe('Fase 6 — ajuste ao degrau que o doente já faz', () => {
     expect(calcularFase6(dadosFase4(), dadosFase6(), semRisco, f3).degrauInicial).toBe(true)
   })
 
+  // Quem acaba de receber a primeira proposta de degrau não tem nada para
+  // subir, e não está há 3-6 meses sem controlo num degrau que ainda não faz.
+  it('numa seleção inicial não há ajuste nem critério de referenciação por degrau', () => {
+    const r = calcularFase6(naoControlada, dadosFase6(), semRisco, f3)
+    expect(r.ajuste).toBeNull()
+    expect(r.ajustarVerificarPrimeiro).toBe(false)
+    expect(r.referenciarEspecialidade).toBe(false)
+  })
+
   it('com degrau atual e asma não controlada, sobe um degrau', () => {
     const r = calcularFase6(naoControlada, dadosFase6({ degrauAtual: 3 }), semRisco, f3)
     expect(r.degrauInicial).toBe(false)

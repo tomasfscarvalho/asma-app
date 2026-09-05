@@ -154,19 +154,20 @@ describe('Referenciação — a app pergunta, não conclui (GRESP 2022, §3.2.3)
     frequenciaSintomas: 'maioria-dias',
   })
 
+  // O critério pressupõe tratamento em curso: sem degrau atual não há pergunta.
   it('sem controlo em degrau >= 3, a app levanta a questão', () => {
-    const r = calcularFase7(naoControlada, dadosFase6(), dadosFase7(), dadosFase5(), dadosFase3())
+    const r = calcularFase7(naoControlada, dadosFase6({ degrauAtual: 3 }), dadosFase7(), dadosFase5(), dadosFase3())
     expect(r.perguntarDegrau3).toBe(true)
   })
 
   it('mas não acrescenta o critério sozinha', () => {
-    const r = calcularFase7(naoControlada, dadosFase6(), dadosFase7(), dadosFase5(), dadosFase3())
+    const r = calcularFase7(naoControlada, dadosFase6({ degrauAtual: 3 }), dadosFase7(), dadosFase5(), dadosFase3())
     expect(r.criteriosPresentes.join(' ')).not.toContain('3-6 meses')
   })
 
   it('só a confirmação do médico ativa o critério', () => {
     const r = calcularFase7(
-      naoControlada, dadosFase6(), dadosFase7({ semControloDegrau3: true }), dadosFase5(), dadosFase3(),
+      naoControlada, dadosFase6({ degrauAtual: 3 }), dadosFase7({ semControloDegrau3: true }), dadosFase5(), dadosFase3(),
     )
     expect(r.criteriosPresentes.join(' ')).toContain('3-6 meses')
     expect(r.referenciar).toBe(true)
@@ -179,7 +180,7 @@ describe('Referenciação — a app pergunta, não conclui (GRESP 2022, §3.2.3)
       duasOuMaisHospitalizacoes: true, asmaGrave: true,
       fatoresMauPrognostico: true, riscoEfeitosSecundarios: true,
     })
-    const r = calcularFase7(dadosFase4(), dadosFase6(), todos, dadosFase5(), dadosFase3())
+    const r = calcularFase7(dadosFase4(), dadosFase6({ degrauAtual: 3 }), todos, dadosFase5(), dadosFase3())
     expect(r.criteriosPresentes).toHaveLength(8)
   })
 })

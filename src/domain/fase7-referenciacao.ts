@@ -24,6 +24,9 @@ export function condicoesParaPerguntaDegrau3(
   fase5: Fase5Dados,
   fase3: Fase3Dados,
 ): boolean {
+  // Só se aplica a quem já está em tratamento: numa seleção inicial o doente
+  // ainda não fez qualquer degrau, muito menos durante 3-6 meses.
+  if (fase6Dados.degrauAtual === null) return false
   const r6 = calcularFase6(fase4, fase6Dados, fase5, fase3)
   return calcularControlo(fase4) !== 'controlada' && r6.degrau >= 3
 }

@@ -127,17 +127,20 @@ export function calcularFase6(
 ): ResultadoFase6 {
   const controlo = calcularControlo(fase4)
   const percurso = fase6.percursoSelecionado
-  const ajuste = calcularAjuste(controlo, fase6)
-
   const degrauAtual = fase6.degrauAtual
   const degrauInicial = degrauAtual === null
+
+  // Sem degrau atual não há nada para ajustar: o doente ainda não faz o que
+  // se propõe. Subir, manter ou descer só fazem sentido face a um tratamento
+  // em curso, e o mesmo vale para o critério de referenciação do degrau >= 3.
+  const ajuste = degrauInicial ? null : calcularAjuste(controlo, fase6)
   const passo = ajuste === 'subir' ? 1 : ajuste === 'descer' ? -1 : 0
   const degrau = degrauAtual === null
     ? selecionarDegrauInicial(fase3, fase4, fase5, percurso)
     : limitar(degrauAtual + passo)
 
   const medicamentos = percurso === 1 ? medicacaoPercurso1[degrau] : medicacaoPercurso2[degrau]
-  const referenciarEspecialidade = controlo !== 'controlada' && degrau >= 3
+  const referenciarEspecialidade = !degrauInicial && controlo !== 'controlada' && degrau >= 3
 
   return {
     degrau,

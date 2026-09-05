@@ -426,7 +426,7 @@ P — PLANO
 ----------------------------------------
   • Terapêutica sugerida: ${degrauTerapiaTexto} — ${r6.medicacaoPreferencial}
   • Alternativa terapêutica: ${r6.medicacaoAlternativa}
-  • Ajuste terapêutico sugerido: ${r6.ajuste === 'subir' ? 'Verificar técnica/adesão/fatores modificáveis e considerar subir degrau' : r6.ajuste === 'descer' ? 'Considerar descer degrau apenas se controlo ≥ 3 meses' : 'Manter terapêutica atual'}
+  • ${r6.degrauInicial ? 'Seguimento' : 'Ajuste terapêutico sugerido'}: ${r6.degrauInicial ? 'Iniciar no degrau proposto e reavaliar a resposta em 2 a 3 meses' : r6.ajuste === 'subir' ? 'Verificar técnica/adesão/fatores modificáveis e considerar subir degrau' : r6.ajuste === 'descer' ? 'Considerar descer degrau apenas se controlo ≥ 3 meses' : 'Manter terapêutica atual'}
   • Percurso preferencial GINA 2025: Percurso 1 (ICS-formoterol)
   • Vacinação antigripal: Recomendar anualmente
   • Técnica inalatória: Rever na consulta

@@ -193,6 +193,9 @@ describe('As duas variantes do relatório', () => {
 
   it('a de asma confirmada traz o degrau e distingue seleção inicial de ajuste', () => {
     expect(relatorio()).toContain('seleção inicial')
+    expect(relatorio()).toContain('reavaliar a resposta em 2 a 3 meses')
+    expect(relatorio()).not.toContain('considerar subir degrau')
+    expect(relatorio()).not.toContain('há 3-6 meses sem controlo')
     const comDegrau = relatorio({ fase6: dadosFase6({ degrauAtual: 3 }) })
     expect(comDegrau).toContain('o doente fazia Degrau 3')
   })

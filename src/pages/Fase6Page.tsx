@@ -47,7 +47,9 @@ export default function Fase6Page() {
     descer: 'Considerar descer degrau (controlo ≥ 3 meses)',
   }
 
-  const ajusteTexto = resultado.ajuste === null ? '-' : ajusteTextoPorTipo[resultado.ajuste]
+  const ajusteTexto = resultado.ajuste === null
+    ? (resultado.degrauInicial ? 'Iniciar no degrau proposto e reavaliar a resposta em 2 a 3 meses' : '-')
+    : ajusteTextoPorTipo[resultado.ajuste]
   const ajusteResumo =
     resultado.ajuste === 'subir'
       ? 'Subir'
@@ -55,7 +57,7 @@ export default function Fase6Page() {
         ? 'Descer'
         : resultado.ajuste === 'manter'
           ? 'Manter'
-          : '-'
+          : resultado.degrauInicial ? 'Iniciar' : '-'
 
   function handleProximo() {
     if (step < steps.length - 1) {
