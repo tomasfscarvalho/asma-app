@@ -125,7 +125,6 @@ export interface Fase4Dados {
 // ============================================
 export interface Fase5Dados {
   // Medicação e função pulmonar
-  sintomasNaoControlados: boolean
   naoCumprimentoIcs: boolean
   maAdesao: boolean
   tecnicaInalatoriaIncorreta: boolean
@@ -163,6 +162,8 @@ export interface Fase6Dados {
   percursoSelecionado: 1 | 2
   /** Degrau que o doente já faz. null numa primeira prescrição. */
   degrauAtual: DegrauTerapeutico | null
+  /** Percurso em que o doente está (adultos e adolescentes). null se não indicado. */
+  percursoAtual: 1 | 2 | null
   /** Controlo mantido nos últimos 3 meses — condição para descer degrau. */
   controloMantidoTresMeses: boolean
 }
@@ -200,7 +201,7 @@ export interface Fase8Dados {
   agitacao: boolean
   cianose: boolean
 
-  /** Sem boa resposta à intensificação inicial do alívio: separa moderada de ligeira. */
+  /** Sem boa resposta ao tratamento inicial, avaliada ao fim de 1 hora (Imagem 11). */
   respostaIncompletaAoAlivio: boolean
 
   // Fatores de mau prognóstico
@@ -217,7 +218,8 @@ export interface Fase8Dados {
 // RESULTADOS AUTOMÁTICOS
 // ============================================
 export type NivelControlo = 'controlada' | 'parcialmente-controlada' | 'nao-controlada'
-export type GravidadeAgudizacao = 'ligeira' | 'moderada' | 'grave' | 'critica'
+// A Tabela 7 do GRESP e a Box 9-4 da GINA juntam a ligeira e a moderada numa só classe.
+export type GravidadeAgudizacao = 'ligeira-moderada' | 'grave' | 'critica'
 export type DegrauTerapeutico = 1 | 2 | 3 | 4 | 5
 export type FrequenciaSintomas = 'menos-2x-mes' | 'mais-2x-mes' | 'maioria-dias'
 export type FrequenciaSintomasPediatrica = 'menos-2-dias-semana' | '2-5-dias-semana' | 'maioria-dias'
@@ -257,6 +259,8 @@ export interface ResultadoFase6 {
   fatoresDeRiscoPresentes: string[]
   percurso: 1 | 2
   ajuste: 'subir' | 'manter' | 'descer' | null
+  /** A proposta usa um percurso diferente daquele em que o doente está. */
+  mudaPercurso: boolean
   criterioReferenciacao: boolean
   referenciarEspecialidade: boolean
   ajustarVerificarPrimeiro: boolean
@@ -281,6 +285,8 @@ export interface ResultadoFase8 {
   /** Foi introduzido algum dado de agudização? */
   avaliada: boolean
   fatoresMauPrognostico: string[]
+  /** Ligeira ou moderada sem boa resposta à 1.ª hora: reavaliar o destino. */
+  reavaliar: boolean
   tratamento: string[]
 }
 

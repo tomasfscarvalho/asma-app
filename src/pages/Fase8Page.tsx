@@ -33,16 +33,15 @@ export default function Fase8Page() {
     }
   }
 
+  // A Tabela 7 do GRESP junta a ligeira e a moderada numa só classe.
   const gravidadeTexto = {
-    'ligeira': 'Ligeira',
-    'moderada': 'Moderada',
+    'ligeira-moderada': 'Ligeira ou moderada',
     'grave': 'Grave',
     'critica': 'Crítica',
   }[resultado.gravidade]
 
   const gravidadeTipo = {
-    'ligeira': 'ok',
-    'moderada': 'alerta',
+    'ligeira-moderada': 'ok',
     'grave': 'alerta',
     'critica': 'alerta',
   }[resultado.gravidade] as 'ok' | 'alerta' | 'neutro'
@@ -181,7 +180,7 @@ export default function Fase8Page() {
               <CheckItem label="Debruçado para a frente" checked={fase8.posicaoDebrucada} onChange={v => setFase8({ posicaoDebrucada: v })} alerta />
               <CheckItem label="Agitação" checked={fase8.agitacao} onChange={v => setFase8({ agitacao: v })} alerta />
               <CheckItem label="Cianose" checked={fase8.cianose} onChange={v => setFase8({ cianose: v })} alerta />
-              <CheckItem label="Sem boa resposta à intensificação inicial do alívio" checked={fase8.respostaIncompletaAoAlivio} onChange={v => setFase8({ respostaIncompletaAoAlivio: v })} />
+              <CheckItem label="Sem boa resposta ao tratamento inicial, avaliada ao fim de 1 hora" checked={fase8.respostaIncompletaAoAlivio} onChange={v => setFase8({ respostaIncompletaAoAlivio: v })} />
             </div>
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
@@ -196,7 +195,7 @@ export default function Fase8Page() {
               <ResultBox
                 label="Nível de cuidados"
                 valor={resultado.nivelCuidados}
-                tipo={resultado.gravidade === 'ligeira' ? 'ok' : 'alerta'}
+                tipo={resultado.gravidade === 'ligeira-moderada' && !resultado.reavaliar && resultado.fatoresMauPrognostico.length === 0 ? 'ok' : 'alerta'}
               />
               {resultado.transferirUci && (
                 <ResultBox

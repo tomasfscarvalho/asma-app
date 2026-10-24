@@ -101,7 +101,6 @@ const fase4Inicial: Fase4Dados = {
 }
 
 const fase5Inicial: Fase5Dados = {
-  sintomasNaoControlados: false,
   naoCumprimentoIcs: false,
   maAdesao: false,
   tecnicaInalatoriaIncorreta: false,
@@ -127,6 +126,7 @@ const fase5Inicial: Fase5Dados = {
 const fase6Inicial: Fase6Dados = {
   percursoSelecionado: 1,
   degrauAtual: null,
+  percursoAtual: null,
   controloMantidoTresMeses: false,
 }
 

@@ -1,5 +1,6 @@
 import type { Fase3Dados, Fase4Dados, Fase5Dados } from './types'
 import { calcularFase3 } from './fase3-provas'
+import { calcularControlo } from './fase4-controlo'
 
 // ============================================
 // FASE 5 — Risco futuro
@@ -21,6 +22,11 @@ import { calcularFase3 } from './fase3-provas'
 //  2. A "reversibilidade broncodilatadora elevada" consta da mesma lista do
 //     guia, ao lado do FEV1 baixo, e era calculada na Fase 3 sem nunca ser
 //     usada como fator de risco.
+//  3. A lista só tinha parte dos fatores da Imagem 4 (GINA 2025, Box 2-2B):
+//     a Fase 5 recolhia o contexto clínico, a exposição e as comorbilidades,
+//     mas não os contava no risco que decide entre os Degraus 1 e 2. Os
+//     "sintomas não controlados" eram uma caixa à parte, independente da
+//     classificação da Fase 4; passam a sair dela.
 
 export const LIMIAR_FEV1_BAIXO = 60
 
@@ -77,7 +83,7 @@ export function fatoresDeRisco(
   const fev1 = avaliarFev1Baixo(fase3, fase4, fase5)
 
   return [
-    fase5.sintomasNaoControlados && 'Sintomas não controlados',
+    calcularControlo(fase4) !== 'controlada' && 'Sintomas não controlados (Fase 4)',
     fase5.naoCumprimentoIcs && 'Não cumprimento da terapêutica com ICS',
     fase5.maAdesao && 'Má adesão à terapêutica',
     fase5.tecnicaInalatoriaIncorreta && 'Técnica inalatória incorreta',
@@ -86,11 +92,24 @@ export function fatoresDeRisco(
       ? `FEV1 ${fev1.percentagem}% do previsto (< ${LIMIAR_FEV1_BAIXO}%)`
       : `FEV1 < ${LIMIAR_FEV1_BAIXO}% do previsto`),
     reversibilidadeElevada(fase3) && 'Reversibilidade broncodilatadora elevada',
+    // Contexto clínico e exposição
+    fase5.problemasPsicologicos && 'Problemas psicológicos',
+    fase5.fatoresSocioeconomicos && 'Fatores socioeconómicos',
+    fase5.fumoTabaco && 'Exposição ao fumo do tabaco',
+    fase5.biomassa && 'Exposição a biomassa ou poluição atmosférica',
+    fase5.alergenios && 'Exposição a alergénios (com sensibilização)',
+    // Comorbilidades e outros
+    fase5.obesidade && 'Obesidade',
+    fase5.rinossinusite && 'Rinossinusite',
+    fase5.alergiaAlimentar && 'Alergia alimentar',
+    fase5.refluxo && 'Refluxo gastroesofágico',
+    fase5.gravidez && 'Gravidez',
+    fase5.eosinofilia && 'Eosinofilia',
+    // Fatores major e histórico
     fase5.intubacaoOuUciPrevia && 'Intubação ou internamento prévio em UCI por asma',
     fase5.agudizacaoGraveUltimoAno && '≥ 1 agudização grave nos últimos 12 meses',
     (fase5.agudizacoesUltimoAno ?? 0) > 0 && 'Agudizações no último ano',
     (fase5.internamentosUltimoAno ?? 0) > 0 && 'Internamentos por asma no último ano',
-    fase5.fumoTabaco && 'Exposição ao fumo do tabaco',
   ].filter(Boolean) as string[]
 }
 

@@ -9,10 +9,23 @@ const comFev1Baixo = dadosFase5({ fev1Baixo: true })
 const p1 = dadosFase6({ percursoSelecionado: 1 })
 const p2 = dadosFase6({ percursoSelecionado: 2 })
 
-describe('Fase 6 — seleção do degrau inicial (GRESP 2022, Imagens 6.a e 6.b)', () => {
-  it('baixa função respiratória seleciona degrau 4 nos dois percursos', () => {
-    expect(calcularFase6(dadosFase4(), p1, comFev1Baixo, f3).degrau).toBe(4)
-    expect(calcularFase6(dadosFase4(), p2, comFev1Baixo, f3).degrau).toBe(4)
+describe('Fase 6 — seleção do degrau inicial (GRESP 2022, Imagens 6.a e 6.b; GINA 2025, Box 4-4)', () => {
+  // GINA 2025, Box 4-4: a função baixa sozinha fica no Degrau 3; o Degrau 4
+  // exige também sintomas na maioria dos dias ou despertar semanal.
+  it('baixa função respiratória sozinha seleciona degrau 3 nos dois percursos', () => {
+    expect(calcularFase6(dadosFase4(), p1, comFev1Baixo, f3).degrau).toBe(3)
+    expect(calcularFase6(dadosFase4(), p2, comFev1Baixo, f3).degrau).toBe(3)
+  })
+
+  it('sintomas na maioria dos dias com função baixa selecionam degrau 4', () => {
+    const f4 = dadosFase4({ frequenciaSintomas: 'maioria-dias', sintomasDiurnos: true })
+    expect(calcularFase6(f4, p1, comFev1Baixo, f3).degrau).toBe(4)
+    expect(calcularFase6(f4, p2, comFev1Baixo, f3).degrau).toBe(4)
+  })
+
+  it('despertar semanal com agudização recente seleciona degrau 4', () => {
+    const f4 = dadosFase4({ despertarSemanal: true, sintomasNoturnos: true })
+    expect(calcularFase6(f4, p2, dadosFase5({ agudizacoesUltimoAno: 1 }), f3).degrau).toBe(4)
   })
 
   it('sintomas na maioria dos dias selecionam degrau 3', () => {
@@ -26,7 +39,13 @@ describe('Fase 6 — seleção do degrau inicial (GRESP 2022, Imagens 6.a e 6.b)
   })
 
   it('percurso 2 seleciona degrau 1 com sintomas raros e sem risco', () => {
-    expect(calcularFase6(dadosFase4(), p2, semRisco, f3).degrau).toBe(1)
+    expect(calcularFase6(dadosFase4({ frequenciaSintomas: 'menos-2x-mes' }), p2, semRisco, f3).degrau).toBe(1)
+  })
+
+  it('sem a frequência dos sintomas não propõe o degrau 1 e avisa', () => {
+    const r = calcularFase6(dadosFase4(), p2, semRisco, f3)
+    expect(r.degrau).toBe(2)
+    expect(r.avisos.join(' ')).toContain('Frequência dos sintomas por indicar')
   })
 
   it('descreve o degrau 2 do percurso 1 como degrau 1-2', () => {
@@ -41,11 +60,16 @@ describe('Fase 6 — seleção do degrau inicial (GRESP 2022, Imagens 6.a e 6.b)
 })
 
 describe('Fase 6 — o risco de agudizações deixou de ser ignorado', () => {
+  const raros = dadosFase4({ frequenciaSintomas: 'menos-2x-mes' })
+
   it('o degrau 1 exige ausência de risco, e não apenas sintomas raros', () => {
     const comRisco = dadosFase5({ intubacaoOuUciPrevia: true })
-    expect(calcularFase6(dadosFase4(), p2, comRisco, f3).degrau).toBe(2)
+    expect(calcularFase6(raros, p2, semRisco, f3).degrau).toBe(1)
+    expect(calcularFase6(raros, p2, comRisco, f3).degrau).toBe(2)
   })
 
+  // Imagem 4 do GRESP / Box 2-2B da GINA: medicação, função, contexto clínico,
+  // exposição, comorbilidades e outros.
   it('cada fator do guia conta como risco', () => {
     const casos = [
       dadosFase5({ abusoDeSaba: true }),
@@ -54,11 +78,27 @@ describe('Fase 6 — o risco de agudizações deixou de ser ignorado', () => {
       dadosFase5({ internamentosUltimoAno: 1 }),
       dadosFase5({ maAdesao: true }),
       dadosFase5({ fumoTabaco: true }),
+      dadosFase5({ biomassa: true }),
+      dadosFase5({ alergenios: true }),
+      dadosFase5({ problemasPsicologicos: true }),
+      dadosFase5({ fatoresSocioeconomicos: true }),
+      dadosFase5({ obesidade: true }),
+      dadosFase5({ rinossinusite: true }),
+      dadosFase5({ alergiaAlimentar: true }),
+      dadosFase5({ refluxo: true }),
+      dadosFase5({ gravidez: true }),
+      dadosFase5({ eosinofilia: true }),
     ]
     for (const f5 of casos) {
-      expect(temRiscoAgudizacoes(f3, dadosFase4(), f5)).toBe(true)
-      expect(calcularFase6(dadosFase4(), p2, f5, f3).degrau).toBe(2)
+      expect(temRiscoAgudizacoes(f3, raros, f5)).toBe(true)
+      expect(calcularFase6(raros, p2, f5, f3).degrau).toBe(2)
     }
+  })
+
+  it('os sintomas não controlados vêm da classificação da Fase 4', () => {
+    const naoControlada = dadosFase4({ frequenciaSintomas: 'menos-2x-mes', limitacaoAtividades: true })
+    expect(temRiscoAgudizacoes(f3, naoControlada, semRisco)).toBe(true)
+    expect(calcularFase6(naoControlada, p2, semRisco, f3).degrau).toBe(2)
   })
 
   it('sem fatores não há risco', () => {
@@ -76,7 +116,7 @@ describe('Fase 6 — o FEV1 baixo vem do valor medido, não da caixa', () => {
     const f3baixo = dadosFase3({ fev1Percentagem: 55 })
     expect(avaliarFev1Baixo(f3baixo, dadosFase4(), semRisco))
       .toMatchObject({ valor: true, origem: 'medido', percentagem: 55 })
-    expect(calcularFase6(dadosFase4(), p1, semRisco, f3baixo).degrau).toBe(4)
+    expect(calcularFase6(dadosFase4(), p1, semRisco, f3baixo).degrau).toBe(3)
   })
 
   it('um FEV1 medido acima de 60% prevalece sobre a caixa marcada', () => {
@@ -208,6 +248,56 @@ describe('Fase 6 — descer degrau exige estabilidade', () => {
     const r = calcularFase6(dadosFase4(), f6, semRisco, f3)
     expect(r.ajuste).toBe('descer')
     expect(r.degrau).toBe(2)
+  })
+
+  // GRESP 2022, §4.1: a descida não é aconselhada até ao parto.
+  it('na grávida não propõe descer, e avisa', () => {
+    const f6 = dadosFase6({ degrauAtual: 3, controloMantidoTresMeses: true })
+    const r = calcularFase6(dadosFase4(), f6, dadosFase5({ gravidez: true }), f3)
+    expect(r.ajuste).toBe('manter')
+    expect(r.degrau).toBe(3)
+    expect(r.avisos.join(' ')).toContain('Gravidez')
+  })
+
+  // GRESP 2022, p. 24: com fatores de risco, descer com vigilância apertada.
+  it('com fatores de risco, desce com aviso de vigilância apertada', () => {
+    const f6 = dadosFase6({ degrauAtual: 3, controloMantidoTresMeses: true })
+    const r = calcularFase6(dadosFase4(), f6, dadosFase5({ obesidade: true }), f3)
+    expect(r.ajuste).toBe('descer')
+    expect(r.avisos.join(' ')).toContain('vigilância apertada')
+  })
+})
+
+// Imagem 7 do GRESP: no Percurso 1, os Degraus 1 e 2 são um só nível.
+describe('Fase 6 — Percurso 1: subir dos Degraus 1-2 leva ao Degrau 3', () => {
+  const naoControlada = dadosFase4({ sintomasDiurnos: true, sintomasNoturnos: true, limitacaoAtividades: true })
+
+  it('de qualquer dos dois sobe para o Degrau 3, com outra medicação', () => {
+    for (const degrauAtual of [1, 2] as const) {
+      const r = calcularFase6(naoControlada, dadosFase6({ percursoSelecionado: 1, degrauAtual }), semRisco, f3)
+      expect(r.degrau).toBe(3)
+      expect(r.medicacaoPreferencial).toContain('manutenção')
+    }
+  })
+
+  it('no Percurso 2 os degraus continuam separados', () => {
+    const r = calcularFase6(naoControlada, dadosFase6({ percursoSelecionado: 2, degrauAtual: 1 }), semRisco, f3)
+    expect(r.degrau).toBe(2)
+  })
+})
+
+// GRESP 2022, p. 24: o aumento de degrau depende da opção tomada antes.
+describe('Fase 6 — a mudança de percurso fica à vista', () => {
+  it('assinala quando a proposta usa outro percurso', () => {
+    const f6 = dadosFase6({ percursoSelecionado: 1, percursoAtual: 2, degrauAtual: 3 })
+    const r = calcularFase6(dadosFase4(), f6, semRisco, f3)
+    expect(r.mudaPercurso).toBe(true)
+    expect(r.avisos.join(' ')).toContain('do Percurso 2 para o Percurso 1')
+  })
+
+  it('não assinala nada se continua no mesmo percurso', () => {
+    const f6 = dadosFase6({ percursoSelecionado: 2, percursoAtual: 2, degrauAtual: 3 })
+    expect(calcularFase6(dadosFase4(), f6, semRisco, f3).mudaPercurso).toBe(false)
   })
 })
 

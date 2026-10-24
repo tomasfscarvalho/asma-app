@@ -60,28 +60,28 @@ describe('Agudização — não medido não é normal', () => {
     }))
     expect(r.criteriosPorAvaliar).toHaveLength(0)
     expect(r.avaliacaoIncompleta).toBe(false)
-    expect(r.gravidade).toBe('ligeira')
+    expect(r.gravidade).toBe('ligeira-moderada')
   })
 })
 
 describe('Agudização — frequência cardíaca pediátrica (GRESP 2022, Tabela 7)', () => {
   it('> 180 bpm dos 0 aos 3 anos', () => {
-    expect(calcularFase8(dadosFase8({ freqCardiaca: 175 }), 2).gravidade).toBe('ligeira')
+    expect(calcularFase8(dadosFase8({ freqCardiaca: 175 }), 2).gravidade).toBe('ligeira-moderada')
     expect(calcularFase8(dadosFase8({ freqCardiaca: 181 }), 2).gravidade).toBe('grave')
   })
 
   it('> 150 bpm dos 4 aos 5 anos', () => {
-    expect(calcularFase8(dadosFase8({ freqCardiaca: 145 }), 4).gravidade).toBe('ligeira')
+    expect(calcularFase8(dadosFase8({ freqCardiaca: 145 }), 4).gravidade).toBe('ligeira-moderada')
     expect(calcularFase8(dadosFase8({ freqCardiaca: 151 }), 4).gravidade).toBe('grave')
   })
 
   it('> 120 bpm a partir dos 6 anos', () => {
-    expect(calcularFase8(dadosFase8({ freqCardiaca: 118 }), 30).gravidade).toBe('ligeira')
+    expect(calcularFase8(dadosFase8({ freqCardiaca: 118 }), 30).gravidade).toBe('ligeira-moderada')
     expect(calcularFase8(dadosFase8({ freqCardiaca: 121 }), 30).gravidade).toBe('grave')
   })
 
   it('uma criança de 2 anos com 155 bpm já não é classificada como grave', () => {
-    expect(calcularFase8(dadosFase8({ freqCardiaca: 155 }), 2).gravidade).toBe('ligeira')
+    expect(calcularFase8(dadosFase8({ freqCardiaca: 155 }), 2).gravidade).toBe('ligeira-moderada')
   })
 })
 
@@ -106,7 +106,7 @@ describe('Agudização — os fatores de mau prognóstico mudam o destino', () =
       ventilacaoMecanicaPrevia: true, duasOuMaisUrgencias: true,
       exprimePorFrases: true, freqRespiratoria: 18, freqCardiaca: 80, spo2: 98, pefPercentagem: 90,
     }))
-    expect(r.gravidade).toBe('ligeira')
+    expect(r.gravidade).toBe('ligeira-moderada')
   })
 
   it('mas mudam o nível de cuidados', () => {
@@ -122,10 +122,21 @@ describe('Agudização — os fatores de mau prognóstico mudam o destino', () =
   })
 })
 
+// A Tabela 7 do GRESP junta a ligeira e a moderada; a resposta ao tratamento
+// avalia-se ao fim de 1 hora e muda o destino, não a classe (Imagem 11).
 describe('Agudização — três níveis e tratamento (Imagens 10 e 11)', () => {
-  it('a moderada distingue-se da ligeira pela resposta ao alívio', () => {
-    expect(calcularFase8(dadosFase8()).gravidade).toBe('ligeira')
-    expect(calcularFase8(dadosFase8({ respostaIncompletaAoAlivio: true })).gravidade).toBe('moderada')
+  it('sem boa resposta à 1.ª hora, continua ligeira ou moderada mas manda reavaliar', () => {
+    const r = calcularFase8(dadosFase8({ respostaIncompletaAoAlivio: true }))
+    expect(r.gravidade).toBe('ligeira-moderada')
+    expect(r.reavaliar).toBe(true)
+    expect(r.nivelCuidados).toContain('tratar como agudização grave')
+  })
+
+  it('com boa resposta, trata-se nos cuidados de saúde primários', () => {
+    const r = calcularFase8(dadosFase8({ spo2: 95 }))
+    expect(r.reavaliar).toBe(false)
+    expect(r.nivelCuidados).toContain('Cuidados de Saúde Primários')
+    expect(r.tratamento).toContain('Avaliar a resposta ao fim de 1 hora')
   })
 
   it('o tratamento traz as doses do guia', () => {

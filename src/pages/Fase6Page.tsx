@@ -115,7 +115,7 @@ export default function Fase6Page() {
                   {([null, 1, 2, 3, 4, 5] as const).map(d => (
                     <button
                       key={String(d)}
-                      onClick={() => setFase6({ degrauAtual: d })}
+                      onClick={() => setFase6(d === null ? { degrauAtual: null, percursoAtual: null } : { degrauAtual: d })}
                       style={{
                         minHeight: 40, padding: '6px 4px', borderRadius: 6, fontSize: 11, cursor: 'pointer',
                         border: fase6.degrauAtual === d ? '1px solid #5DCAA5' : '1px solid #444',
@@ -127,6 +127,30 @@ export default function Fase6Page() {
                     </button>
                   ))}
                 </div>
+                {!pediatrico && fase6.degrauAtual !== null && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
+                    <span style={{ fontSize: 12, color: '#888' }}>Percurso em que está:</span>
+                    {([1, 2] as const).map(p => {
+                      const ativo = fase6.percursoAtual === p
+                      return (
+                        <button
+                          key={p}
+                          // Por omissão, a proposta continua no percurso em que o doente está.
+                          onClick={() => setFase6({ percursoAtual: p, percursoSelecionado: p })}
+                          style={{
+                            padding: '6px 12px', borderRadius: 6, fontSize: 12, cursor: 'pointer',
+                            border: ativo ? '1px solid #5DCAA5' : '1px solid #444',
+                            background: ativo ? '#0F6E56' : '#111',
+                            color: ativo ? 'white' : '#bbb',
+                            fontWeight: ativo ? 500 : 400,
+                          }}
+                        >
+                          {`Percurso ${p}`}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
                 <CheckItem
                   label="Controlo mantido nos últimos 3 meses — condição para descer degrau"
                   checked={fase6.controloMantidoTresMeses}
@@ -173,7 +197,7 @@ export default function Fase6Page() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <ResultBox label="Degrau terapêutico sugerido" valor={degrauTexto} tipo="ok" />
               {resultado.avisos.map(aviso => (
-                <ResultBox key={aviso} label="Dados em falta" valor={aviso} tipo="alerta" />
+                <ResultBox key={aviso} label="Atenção" valor={aviso} tipo="alerta" />
               ))}
               <ResultBox
                 label="Ajuste sugerido"

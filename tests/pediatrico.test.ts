@@ -130,7 +130,7 @@ describe('Fase 8 — a idade conhecida decide os limiares e o tratamento', () =>
   })
 
   it('8 anos: limiar de gravidade da SpO₂ do adulto (< 90%), como na Tabela 7', () => {
-    expect(calcularFase8(dadosFase8({ spo2: 91 }), 8).gravidade).toBe('ligeira')
+    expect(calcularFase8(dadosFase8({ spo2: 91 }), 8).gravidade).toBe('ligeira-moderada')
     expect(calcularFase8(dadosFase8({ spo2: 89 }), 8).gravidade).toBe('grave')
   })
 

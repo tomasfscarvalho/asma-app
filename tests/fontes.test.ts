@@ -136,10 +136,10 @@ describe('Agudização no adulto — GRESP 2022, Tabela 7', () => {
   })
 
   it('os limites não disparam abaixo do critério', () => {
-    expect(calcularFase8({ ...fase8Vazia, freqRespiratoria: 30 }).gravidade).toBe('ligeira')
-    expect(calcularFase8({ ...fase8Vazia, freqCardiaca: 120 }).gravidade).toBe('ligeira')
-    expect(calcularFase8({ ...fase8Vazia, spo2: 90 }).gravidade).toBe('ligeira')
-    expect(calcularFase8({ ...fase8Vazia, pefPercentagem: 51 }).gravidade).toBe('ligeira')
+    expect(calcularFase8({ ...fase8Vazia, freqRespiratoria: 30 }).gravidade).toBe('ligeira-moderada')
+    expect(calcularFase8({ ...fase8Vazia, freqCardiaca: 120 }).gravidade).toBe('ligeira-moderada')
+    expect(calcularFase8({ ...fase8Vazia, spo2: 90 }).gravidade).toBe('ligeira-moderada')
+    expect(calcularFase8({ ...fase8Vazia, pefPercentagem: 51 }).gravidade).toBe('ligeira-moderada')
   })
 })
 

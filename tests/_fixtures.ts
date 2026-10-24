@@ -31,7 +31,7 @@ export function dadosFase4(o: Partial<Fase4Dados> = {}): Fase4Dados {
 
 export function dadosFase5(o: Partial<Fase5Dados> = {}): Fase5Dados {
   return {
-    sintomasNaoControlados: false, naoCumprimentoIcs: false, maAdesao: false,
+    naoCumprimentoIcs: false, maAdesao: false,
     tecnicaInalatoriaIncorreta: false, abusoDeSaba: false, fev1Baixo: false,
     fumoTabaco: false, biomassa: false, alergenios: false,
     problemasPsicologicos: false, fatoresSocioeconomicos: false,
@@ -45,7 +45,7 @@ export function dadosFase5(o: Partial<Fase5Dados> = {}): Fase5Dados {
 
 export function dadosFase6(o: Partial<Fase6Dados> = {}): Fase6Dados {
   return {
-    percursoSelecionado: 1, degrauAtual: null, controloMantidoTresMeses: false,
+    percursoSelecionado: 1, degrauAtual: null, percursoAtual: null, controloMantidoTresMeses: false,
     ...o,
   }
 }

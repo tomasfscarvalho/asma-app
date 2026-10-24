@@ -3,16 +3,19 @@ interface CheckItemProps {
   checked: boolean
   onChange: (val: boolean) => void
   alerta?: boolean
+  /** Valor calculado a partir de outra fase: mostra-se, mas não se edita aqui. */
+  bloqueado?: boolean
 }
 
-export default function CheckItem({ label, checked, onChange, alerta }: CheckItemProps) {
+export default function CheckItem({ label, checked, onChange, alerta, bloqueado }: CheckItemProps) {
   return (
     <div
-      onClick={() => onChange(!checked)}
+      onClick={() => { if (!bloqueado) onChange(!checked) }}
+      aria-disabled={bloqueado || undefined}
       style={{
         display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px',
         border: `1px solid ${alerta && checked ? '#E24B4A' : checked ? '#5DCAA5' : '#333'}`,
-        borderRadius: 6, cursor: 'pointer',
+        borderRadius: 6, cursor: bloqueado ? 'default' : 'pointer', opacity: bloqueado ? 0.85 : 1,
         background: alerta && checked ? '#E24B4A15' : checked ? '#0F6E5620' : 'transparent',
       }}
     >

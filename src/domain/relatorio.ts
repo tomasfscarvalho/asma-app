@@ -8,6 +8,7 @@ import { alivioContaParaControlo, calcularFase4, calcularCaratRinite, calcularCa
 import { calcularFase6, obterDescricaoDegrau } from './fase6-terapeutica'
 import { calcularFase7 } from './fase7-referenciacao'
 import { calcularFase8 } from './fase8-agudizacao'
+import { avaliarFev1Baixo, LIMIAR_FEV1_BAIXO } from './fase5-risco'
 
 interface DadosRelatorio {
   paciente: Paciente
@@ -150,14 +151,17 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
     'Nenhuma exposição registada.'
   )
 
+  const fev1 = avaliarFev1Baixo(dados.fase3, dados.fase4, f5)
   const fatoresModificaveis = listaOuNenhum(
     [
-      f5.sintomasNaoControlados && 'Sintomas não controlados',
+      r4.nivelControlo !== 'controlada' && 'Sintomas não controlados (Fase 4)',
       f5.naoCumprimentoIcs && 'Não cumprimento da terapêutica com ICS',
       f5.maAdesao && 'Má adesão à terapêutica',
       f5.tecnicaInalatoriaIncorreta && 'Técnica inalatória incorreta',
       f5.abusoDeSaba && 'Abuso de SABA (≥ 3 embalagens/ano)',
-      f5.fev1Baixo && 'FEV1 < 60% do previsto',
+      fev1.valor && (fev1.origem === 'medido'
+        ? `FEV1 ${fev1.percentagem}% do previsto (< ${LIMIAR_FEV1_BAIXO}%)`
+        : `FEV1 < ${LIMIAR_FEV1_BAIXO}% do previsto`),
     ].filter(Boolean) as string[],
     'Nenhum fator modificável registado.'
   )
@@ -168,7 +172,7 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
     : '  • Não foram identificados critérios de referenciação para consulta de especialidade.'
 
   const gravidadeTexto = {
-    'ligeira': 'Ligeira', 'moderada': 'Moderada', 'grave': 'Grave', 'critica': 'Crítica',
+    'ligeira-moderada': 'Ligeira ou moderada', 'grave': 'Grave', 'critica': 'Crítica',
   }[r8.gravidade]
 
   const blocoAgudizacao = r8.avaliada
@@ -215,12 +219,10 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
     ? f2.diferenciaisExcluidos.map(dd => `  • ${dd}`).join('\n')
     : '  • Não foram registados diagnósticos diferenciais excluídos.'
 
-  // Secções S e O dos relatórios sem diagnóstico confirmado: o que foi
-  // registado nas Fases 1 a 3, sem controlo, risco nem terapêutica.
-  const secoesSO = `----------------------------------------
-S — SUBJETIVO
-----------------------------------------
-Sintomas respiratórios presentes:
+  // Partes S e O que vêm das Fases 1 a 3 (avaliação diagnóstica). Numa
+  // consulta de seguimento estas fases não são feitas, e o relatório di-lo em
+  // vez de imprimir "Não" em critérios que ninguém avaliou.
+  const sDiagnostico = `Sintomas respiratórios presentes:
   • Sibilância: ${sim(f1.sibilancia)}
   • Dispneia: ${sim(f1.dispneia)}
   • Tosse: ${sim(f1.tosse)}
@@ -244,12 +246,9 @@ História clínica e familiar:
 ${historiaClinica}
 
 Exame físico:
-${exameFisico}
+${exameFisico}`
 
-----------------------------------------
-O — OBJETIVO
-----------------------------------------
-Provas Funcionais Respiratórias:
+  const oProvas = `Provas Funcionais Respiratórias:
   • FEV1: ${dados.fase3.fev1Percentagem ?? '—'}% do previsto
   • FVC: ${dados.fase3.fvcPercentagem ?? '—'}% do previsto
   • FEV1/FVC: ${dados.fase3.fev1FvcRacio?.toFixed(2) ?? '—'}
@@ -263,6 +262,21 @@ Confirmação da variabilidade ao fluxo expiratório:
   • Variabilidade documentada: ${estado(r3.variabilidadeConfirmada)}
 
   ${textoConfirmacao}`
+
+  const sSeguimento = '  • Avaliação diagnóstica (Fases 1 a 3) não realizada nesta consulta: doente com diagnóstico de asma já estabelecido.'
+  const oSeguimento = '  • Provas de diagnóstico não repetidas nesta consulta.'
+
+  // Secções S e O dos relatórios sem diagnóstico confirmado: o que foi
+  // registado nas Fases 1 a 3, sem controlo, risco nem terapêutica.
+  const secoesSO = `----------------------------------------
+S — SUBJETIVO
+----------------------------------------
+${sDiagnostico}
+
+----------------------------------------
+O — OBJETIVO
+----------------------------------------
+${oProvas}`
 
   // Doente fora do âmbito do percurso crónico: só a avaliação de agudização,
   // que é o único domínio coberto pela fonte nacional abaixo dos 6 anos.
@@ -400,31 +414,7 @@ Cartão de Cidadão: ${p.cartaoCidadao || '—'}
 ----------------------------------------
 S — SUBJETIVO
 ----------------------------------------
-Sintomas respiratórios presentes:
-  • Sibilância: ${sim(f1.sibilancia)}
-  • Dispneia: ${sim(f1.dispneia)}
-  • Tosse: ${sim(f1.tosse)}
-  • Opressão torácica: ${sim(f1.opressaoToracica)}
-
-Fatores que aumentam probabilidade de asma:
-  • Mais do que 1 tipo de sintoma: ${sim(f1.maisDe1Sintoma)}
-  • Sintomas variáveis ao longo do tempo: ${sim(f1.sintomasVariaveis)}
-  • Agravam com exposição: ${sim(agravamComExposicao)}
-  • Sintomas > 1x por semana: ${sim(f1.sintomasMaisde1xSemana)}
-  • Sintomas noturnos ou matinais: ${sim(f1.sintomasNoturnosOuManha)}
-
-Fatores que diminuem probabilidade de asma:
-  • Tosse isolada: ${sim(f1.tosseIsolada)}
-  • Tosse produtiva crónica: ${sim(f1.tosseProdutivaCronica)}
-  • Dor torácica: ${sim(f1.dorToracica)}
-  • Dispneia com tonturas ou parestesias: ${sim(f1.dispneiaTonturasParestesias)}
-  • Dispneia de esforço com inspiração ruídosa: ${sim(f1.dispneiaPorExercicioComInspiracao)}
-
-História clínica e familiar:
-${historiaClinica}
-
-Exame físico:
-${exameFisico}
+${dados.tipoConsulta === 'seguimento' ? sSeguimento : sDiagnostico}
 
 Risco futuro — fatores modificáveis:
 ${fatoresModificaveis}
@@ -444,20 +434,7 @@ Agudizações e fatores de risco major:
 ----------------------------------------
 O — OBJETIVO
 ----------------------------------------
-Provas Funcionais Respiratórias:
-  • FEV1: ${dados.fase3.fev1Percentagem ?? '—'}% do previsto
-  • FVC: ${dados.fase3.fvcPercentagem ?? '—'}% do previsto
-  • FEV1/FVC: ${dados.fase3.fev1FvcRacio?.toFixed(2) ?? '—'}
-
-Limitação ao fluxo expiratório:
-  • Padrão obstrutivo (FEV1/FVC): ${estado(r3.obstrutivo)}
-
-Confirmação da variabilidade ao fluxo expiratório:
-  • Reversibilidade broncodilatadora: ${estado(r3.reversibilidade)}
-  • Variabilidade diária do PEF: ${dados.fase3.variabilidadePef ?? '—'}% — ${estado(r3.pefPositivo)}
-  • Variabilidade documentada: ${estado(r3.variabilidadeConfirmada)}
-
-  ${textoConfirmacao}
+${dados.tipoConsulta === 'seguimento' ? oSeguimento : oProvas}
 
 Controlo dos sintomas (últimas 4 semanas):
   • Sintomas diurnos > 2x/semana (sibilância, tosse por exercício, opressão torácica ou tosse após alergénios/poluentes): ${sim(dados.fase4.sintomasDiurnos)}
@@ -473,7 +450,7 @@ A — AVALIAÇÃO
 ----------------------------------------
   • Diagnóstico: Asma confirmada
   • Nível de controlo: ${controloTexto}${blocoDivergencia}
-  • ${r6.degrauInicial ? 'Degrau terapêutico proposto' : 'Degrau terapêutico após ajuste'}: ${degrauTerapiaTexto} (${r6.esquema === 'pediatrico' ? 'esquema dos 6 aos 11 anos' : `Percurso ${r6.percurso}`})${r6.degrauInicial ? ' — seleção inicial' : ` — o doente fazia Degrau ${dados.fase6.degrauAtual}`}
+  • ${r6.degrauInicial ? 'Degrau terapêutico proposto' : 'Degrau terapêutico após ajuste'}: ${degrauTerapiaTexto} (${r6.esquema === 'pediatrico' ? 'esquema dos 6 aos 11 anos' : `Percurso ${r6.percurso}`})${r6.degrauInicial ? ' — seleção inicial' : ` — o doente fazia Degrau ${dados.fase6.degrauAtual}${dados.fase6.percursoAtual !== null && r6.esquema !== 'pediatrico' ? ` (Percurso ${dados.fase6.percursoAtual})` : ''}`}
 
 Fatores de risco de agudização:
 ${blocoFatoresRisco}
@@ -490,7 +467,8 @@ P — PLANO
 ----------------------------------------
   • Terapêutica sugerida: ${degrauTerapiaTexto} — ${r6.medicacaoPreferencial}
   • Alternativa terapêutica: ${r6.medicacaoAlternativa}
-  • ${r6.degrauInicial ? 'Seguimento' : 'Ajuste terapêutico sugerido'}: ${r6.degrauInicial ? 'Iniciar no degrau proposto e reavaliar a resposta em 2 a 3 meses' : r6.ajuste === 'subir' ? 'Verificar técnica/adesão/fatores modificáveis e considerar subir degrau' : r6.ajuste === 'descer' ? 'Considerar descer degrau apenas se controlo ≥ 3 meses' : 'Manter terapêutica atual'}
+  • ${r6.degrauInicial ? 'Seguimento' : 'Ajuste terapêutico sugerido'}: ${r6.degrauInicial ? 'Iniciar no degrau proposto e reavaliar a resposta em 2 a 3 meses' : r6.ajuste === 'subir' ? 'Verificar técnica/adesão/fatores modificáveis e considerar subir degrau' : r6.ajuste === 'descer' ? 'Considerar descer degrau apenas se controlo ≥ 3 meses' : 'Manter terapêutica atual'}${r6.avisos.map(a => `
+  ⚠ ${a}`).join('')}
   • ${r6.esquema === 'pediatrico' ? 'Esquema dos 6 aos 11 anos (GRESP 2022, Imagem 8; degrau inicial segundo a GINA 2025, Box 4-11): SABA como alívio; ICS-formoterol só em manutenção e alívio nos Degraus 3 e 4' : 'Percurso preferencial GINA 2025: Percurso 1 (ICS-formoterol)'}
   • Vacinação antigripal: Recomendar anualmente
   • Técnica inalatória: Rever na consulta

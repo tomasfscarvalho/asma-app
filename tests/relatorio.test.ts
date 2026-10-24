@@ -201,6 +201,27 @@ describe('As duas variantes do relatório', () => {
   })
 })
 
+// ============================================================ seguimento e FEV1
+describe('O relatório não inventa dados', () => {
+  it('no seguimento, as Fases 1 a 3 aparecem como não realizadas, e não como «Não»', () => {
+    const r = relatorio({ tipoConsulta: 'seguimento' })
+    expect(r).toContain('não realizada nesta consulta')
+    expect(r).toContain('Provas de diagnóstico não repetidas nesta consulta')
+    expect(r).not.toContain('Sibilância:')
+    expect(r).not.toContain('Confirmação funcional incompleta')
+  })
+
+  it('o FEV1 < 60% sai do valor medido, mesmo com a caixa por marcar', () => {
+    const r = relatorio({ fase3: dadosFase3({ fev1Percentagem: 55 }), fase5: dadosFase5({ fev1Baixo: false }) })
+    expect(r).toContain('FEV1 55% do previsto (< 60%)')
+  })
+
+  it('a agudização ligeira ou moderada aparece numa só classe', () => {
+    const r = relatorio({ fase8: dadosFase8({ spo2: 95 }) })
+    expect(r).toContain('Gravidade: Ligeira ou moderada')
+  })
+})
+
 // ============================================================ sem decisão
 // Numa primeira consulta, passar à agudização antes da decisão diagnóstica
 // não pode gerar um relatório de asma confirmada, com controlo e terapêutica

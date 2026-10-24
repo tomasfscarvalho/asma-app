@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { calcularIdade } from '../domain/idade'
 import { ECRA } from '../domain/fases'
 import { useAsmaStore } from '../store/useAsmaStore'
-import { calcularFase3 } from '../domain/fase3-provas'
+import { calcularFase3, descreverCriterio } from '../domain/fase3-provas'
 import Layout from '../components/Layout'
 import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
@@ -36,6 +36,11 @@ export default function Fase3Page() {
   const classificacaoEtaria = pacientePediatrico ? 'pediátrico' : 'adulto/adolescente'
   const limiarObstrucao = pacientePediatrico ? '0,90' : '0,75'
   const criterioReversibilidade = pacientePediatrico ? '> 12% do previsto' : '> 12% e > 200 ml'
+
+  // Um critério sem os dados de que precisa é "não avaliado", e não negativo:
+  // no adulto, o aumento em % sem o aumento em ml não chega para o aplicar.
+  const textoCriterio = (valor: boolean | null) =>
+    valor === null ? descreverCriterio(valor) : valor ? '✓ Critério positivo' : '✗ Critério negativo'
   const criterioPef = pacientePediatrico ? '> 13%' : '> 10%'
 
   function handleProximo() {
@@ -56,7 +61,7 @@ export default function Fase3Page() {
       badge="Cálculo automático"
       resumo={[
         { key: 'Obstrução', val: racio !== null ? (resultado.obstrutivo ? '✓ Confirmada' : '✗ Não confirmada') : '—' },
-        { key: 'Reversibilidade', val: fase3.aumentoFev1Percentagem !== null ? (resultado.reversibilidade ? '✓ Positiva' : '✗ Negativa') : '—' },
+        { key: 'Reversibilidade', val: resultado.reversibilidade === null ? '—' : resultado.reversibilidade ? '✓ Positiva' : '✗ Negativa' },
         { key: 'Confirmação', val: rotuloConfirmacao[resultado.confirmacaoFuncional] },
       ]}
     >
@@ -171,7 +176,8 @@ export default function Fase3Page() {
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11, color: '#BA7517' }}>
                   <span>• Períodos de suspensão recomendados antes da espirometria:</span>
-                  <span style={{ paddingLeft: 12 }}>SABA: ≥ 4 horas | LABA: 24 horas | Formoterol/Salmeterol: 24 horas</span>
+                  <span style={{ paddingLeft: 12 }}>SABA: ≥ 4 horas | Formoterol, salmeterol: 24 horas | Indacaterol, vilanterol: 36 horas</span>
+                  <span style={{ paddingLeft: 12 }}>Tiotrópio, umeclidínio, aclidínio, glicopirrónio: 36 a 48 horas (GINA 2025, Box 1-2)</span>
                   <span>• A ausência de obstrução não exclui o diagnóstico de asma.</span>
                   <span>• Considere variabilidade entre visitas como critério adicional.</span>
                 </div>
@@ -290,7 +296,9 @@ export default function Fase3Page() {
             {(fase3.aumentoFev1Percentagem !== null || fase3.aumentoFev1ml !== null) && (
               <ResultBox
                 label={`Reversibilidade broncodilatadora — critério ${criterioReversibilidade}`}
-                valor={resultado.reversibilidade ? 'Critério positivo — reversibilidade confirmada' : 'Critério negativo — reversibilidade não confirmada'}
+                valor={resultado.reversibilidade === null
+                  ? 'Não avaliado — o critério exige o aumento em % e em ml'
+                  : resultado.reversibilidade ? 'Critério positivo — reversibilidade confirmada' : 'Critério negativo — reversibilidade não confirmada'}
                 tipo={resultado.reversibilidade ? 'ok' : 'neutro'}
               />
             )}
@@ -337,24 +345,18 @@ export default function Fase3Page() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
               <ResultBox
                 label="Limitação ao fluxo expiratório (FEV1/FVC)"
-                valor={racio !== null
-                  ? (resultado.obstrutivo ? '✓ Critério positivo' : '✗ Critério negativo')
-                  : 'Não avaliado'}
-                tipo={racio !== null ? (resultado.obstrutivo ? 'ok' : 'neutro') : 'neutro'}
+                valor={textoCriterio(resultado.obstrutivo)}
+                tipo={resultado.obstrutivo ? 'ok' : 'neutro'}
               />
               <ResultBox
                 label="Reversibilidade broncodilatadora"
-                valor={fase3.aumentoFev1Percentagem !== null
-                  ? (resultado.reversibilidade ? '✓ Critério positivo' : '✗ Critério negativo')
-                  : 'Não avaliado'}
-                tipo={fase3.aumentoFev1Percentagem !== null ? (resultado.reversibilidade ? 'ok' : 'neutro') : 'neutro'}
+                valor={textoCriterio(resultado.reversibilidade)}
+                tipo={resultado.reversibilidade ? 'ok' : 'neutro'}
               />
               <ResultBox
                 label={`Variabilidade diária do PEF (limiar ${criterioPef})`}
-                valor={fase3.variabilidadePef !== null
-                  ? (resultado.pefPositivo ? '✓ Critério positivo' : '✗ Critério negativo')
-                  : 'Não avaliado'}
-                tipo={fase3.variabilidadePef !== null ? (resultado.pefPositivo ? 'ok' : 'neutro') : 'neutro'}
+                valor={textoCriterio(resultado.pefPositivo)}
+                tipo={resultado.pefPositivo ? 'ok' : 'neutro'}
               />
               <ResultBox
                 label="Variabilidade documentada (reversibilidade ou PEF)"

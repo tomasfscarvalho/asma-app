@@ -20,6 +20,11 @@ import type { Fase8Dados, ResultadoFase8, GravidadeAgudizacao } from './types'
 //     agudizações e recursos disponíveis".
 //  3. As bandas pediátricas de frequência cardíaca são duas, não uma:
 //     > 180 bpm dos 0 aos 3 anos e > 150 bpm dos 4 aos 5.
+//
+// A Tabela 7 do GRESP (e a Box 9-4 da GINA 2025) junta a agudização ligeira e
+// a moderada numa só classe. A resposta ao tratamento inicial não cria uma
+// classe própria: é avaliada ao fim de 1 hora (Imagem 11) e, sem boa resposta,
+// leva a reavaliar o destino.
 
 interface Criterio {
   nome: string
@@ -90,13 +95,10 @@ export function calcularFase8(dados: Fase8Dados, idade: number | null = null): R
     gravidade = 'critica'
   } else if (criteriosPresentes.length > 0) {
     gravidade = 'grave'
-  } else if (dados.respostaIncompletaAoAlivio) {
-    // O guia distingue ligeira de moderada; a moderada corresponde ao doente
-    // que não responde bem à intensificação inicial do alívio.
-    gravidade = 'moderada'
   } else {
-    gravidade = 'ligeira'
+    gravidade = 'ligeira-moderada'
   }
+  const reavaliar = gravidade === 'ligeira-moderada' && dados.respostaIncompletaAoAlivio
 
   // --- DESTINO ---
   let nivelCuidados: string
@@ -104,12 +106,13 @@ export function calcularFase8(dados: Fase8Dados, idade: number | null = null): R
     nivelCuidados = 'Transferir para UCI imediatamente'
   } else if (gravidade === 'grave') {
     nivelCuidados = 'Transferir para urgência hospitalar'
-  } else if (gravidade === 'moderada' || fatoresMauPrognostico.length > 0) {
-    nivelCuidados = fatoresMauPrognostico.length > 0
-      ? 'Tratar em Cuidados de Saúde Primários e ponderar referência hospitalar — fatores de mau prognóstico presentes'
-      : 'Tratar em Cuidados de Saúde Primários e reavaliar a resposta; ponderar referência hospitalar se não houver melhoria'
+  } else if (reavaliar) {
+    nivelCuidados = 'Sem boa resposta ao fim de 1 hora: ponderar referência hospitalar; se houver deterioração, tratar como agudização grave'
+      + (fatoresMauPrognostico.length > 0 ? ' — fatores de mau prognóstico presentes' : '')
+  } else if (fatoresMauPrognostico.length > 0) {
+    nivelCuidados = 'Tratar em Cuidados de Saúde Primários e ponderar referência hospitalar — fatores de mau prognóstico presentes'
   } else {
-    nivelCuidados = 'Tratar em Cuidados de Saúde Primários'
+    nivelCuidados = 'Tratar em Cuidados de Saúde Primários e avaliar a resposta ao fim de 1 hora'
   }
 
   const avaliacaoIncompleta = criteriosPorAvaliar.length > 0
@@ -132,6 +135,7 @@ export function calcularFase8(dados: Fase8Dados, idade: number | null = null): R
     avaliacaoIncompleta,
     avaliada,
     fatoresMauPrognostico,
+    reavaliar,
     tratamento: tratamentoAgudizacao(gravidade, tratamentoPediatrico),
   }
 }
@@ -173,8 +177,14 @@ export function tratamentoAgudizacao(
       'Considerar brometo de ipratrópio',
     ]
   }
-  if (gravidade === 'moderada') {
-    return ['Considerar brometo de ipratrópio nas crises moderadas a graves', ...base]
-  }
-  return base
+  // Ligeira ou moderada (Imagem 11): o ipratrópio é opção nas moderadas, e a
+  // resposta avalia-se ao fim de 1 hora.
+  return [
+    base[0],
+    'Nas crises moderadas, pode considerar-se brometo de ipratrópio',
+    base[1],
+    base[2],
+    'Avaliar a resposta ao fim de 1 hora',
+    base[3],
+  ]
 }

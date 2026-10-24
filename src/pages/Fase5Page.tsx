@@ -6,6 +6,7 @@ import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
 import CheckItem from '../components/CheckItem'
 import { avaliarFev1Baixo, divergenciaFev1 } from '../domain/fase5-risco'
+import { calcularControlo } from '../domain/fase4-controlo'
 
 const steps = ['Medicação / Função', 'Exposição', 'Comorbilidades']
 
@@ -16,6 +17,8 @@ export default function Fase5Page() {
   const fatoresMajor = fase5.intubacaoOuUciPrevia || fase5.agudizacaoGraveUltimoAno
   const fev1 = avaliarFev1Baixo(fase3, fase4, fase5)
   const avisoFev1 = divergenciaFev1(fase3, fase4, fase5)
+  // Vem da classificação da Fase 4, e não de uma caixa à parte.
+  const sintomasNaoControlados = calcularControlo(fase4) !== 'controlada'
 
   return (
     <Layout
@@ -42,7 +45,7 @@ export default function Fase5Page() {
               Medicação e função pulmonar
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 20 }}>
-              <CheckItem label="Sintomas não controlados" checked={fase5.sintomasNaoControlados} onChange={v => setFase5({ sintomasNaoControlados: v })} />
+              <CheckItem label="Sintomas não controlados — da Fase 4" checked={sintomasNaoControlados} onChange={() => {}} bloqueado />
               <CheckItem label="Não cumprimento de ICS" checked={fase5.naoCumprimentoIcs} onChange={v => setFase5({ naoCumprimentoIcs: v })} />
               <CheckItem label="Má adesão à terapêutica" checked={fase5.maAdesao} onChange={v => setFase5({ maAdesao: v })} />
               <CheckItem label="Técnica inalatória incorreta" checked={fase5.tecnicaInalatoriaIncorreta} onChange={v => setFase5({ tecnicaInalatoriaIncorreta: v })} />
@@ -53,6 +56,7 @@ export default function Fase5Page() {
                   : 'FEV1 < 60% do previsto'}
                 checked={fev1.valor}
                 onChange={v => setFase5({ fev1Baixo: v })}
+                bloqueado={fev1.origem === 'medido'}
                 alerta
               />
             </div>

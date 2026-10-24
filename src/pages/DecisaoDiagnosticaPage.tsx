@@ -1,6 +1,7 @@
 import { useAsmaStore } from '../store/useAsmaStore'
 import { ECRA } from '../domain/fases'
 import Layout from '../components/Layout'
+import { descreverCriterio } from '../domain/fase3-provas'
 
 const rotuloConfirmacao = {
   'confirmada': 'Confirmada',
@@ -9,7 +10,9 @@ const rotuloConfirmacao = {
 }
 
 export default function DecisaoDiagnosticaPage() {
-  const { setDecisaoDiagnostica, navegarPara, resultadoFase3, paciente } = useAsmaStore()
+  const { setDecisaoDiagnostica, navegarPara, resultadoFase3, paciente, fase3 } = useAsmaStore()
+  // GINA 2025, Box 1-4: num doente já em ICS, o passo seguinte depende do FEV1.
+  const fev1 = fase3.fev1Percentagem
 
   function confirmar() {
     setDecisaoDiagnostica('confirmado')
@@ -44,7 +47,12 @@ export default function DecisaoDiagnosticaPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11, color: '#BA7517' }}>
               <span>{'\u2022 A normalidade das provas funcionais n\u00e3o exclui o diagn\u00f3stico de asma'}</span>
               <span>{'\u2022 Sintomas t\u00edpicos com variabilidade + resposta ao ICS suportam o diagn\u00f3stico'}</span>
-              <span>{'\u2022 Se as provas s\u00e3o negativas, considerar repetir ap\u00f3s suspens\u00e3o do ICS'}</span>
+              {(fev1 === null || fev1 > 70) && (
+                <span>{'\u2022 Se as provas s\u00e3o negativas e o FEV1 > 70% do previsto: considerar reduzir gradualmente o ICS e repetir as provas 2 a 4 semanas depois (GINA 2025, Box 1-4 e 1-5)'}</span>
+              )}
+              {(fev1 === null || fev1 < 70) && (
+                <span>{'\u2022 Se o FEV1 < 70% do previsto: considerar iniciar ou intensificar o ICS durante 3 meses e reavaliar os sintomas e a fun\u00e7\u00e3o respirat\u00f3ria'}</span>
+              )}
               <span>{'\u2022 Em caso de d\u00favida, referenciar para especialidade'}</span>
             </div>
           </div>
@@ -70,10 +78,11 @@ export default function DecisaoDiagnosticaPage() {
                       fontSize: 11,
                       fontWeight: 500,
                       background: c.positivo ? '#0F6E5620' : '#33333a',
-                      color: c.positivo ? '#5DCAA5' : '#666',
+                      color: c.positivo ? '#5DCAA5' : c.positivo === null ? '#888' : '#666',
+                      fontStyle: c.positivo === null ? 'italic' : 'normal',
                     }}
                   >
-                    {c.positivo ? 'Positivo' : 'Negativo'}
+                    {descreverCriterio(c.positivo)}
                   </span>
                 </div>
               ))}
