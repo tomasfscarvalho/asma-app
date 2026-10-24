@@ -8,6 +8,7 @@ import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
 import ResultBox from '../components/ResultBox'
 import CheckItem from '../components/CheckItem'
+import { calcularIdade } from '../domain/idade'
 
 const steps = ['Percurso e degrau', 'Detalhe do degrau']
 
@@ -35,10 +36,21 @@ const tabelaAdultos = {
   ],
 }
 
+// Imagem 8 do GRESP — crianças dos 6 aos 11 anos (um só percurso, SABA como alívio).
+const tabelaPediatrica = [
+  { degrau: 'Degrau 1', preferencial: 'ICS de dose baixa sempre que for usado SABA' },
+  { degrau: 'Degrau 2', preferencial: 'ICS diário em dose baixa' },
+  { degrau: 'Degrau 3', preferencial: 'ICS-LABA dose baixa, ou ICS dose média, ou MART com dose muito baixa de ICS-formoterol' },
+  { degrau: 'Degrau 4', preferencial: 'ICS-LABA dose média, ou MART com dose baixa de ICS-formoterol; aconselhamento especializado' },
+  { degrau: 'Degrau 5', preferencial: 'Referenciar para avaliação fenotípica' },
+]
+
 export default function Fase6Page() {
-  const { fase3, fase4, fase5, fase6, setFase6, setResultadoFase6, navegarPara, tipoConsulta } = useAsmaStore()
+  const { fase3, fase4, fase5, fase6, setFase6, setResultadoFase6, navegarPara, tipoConsulta, paciente } = useAsmaStore()
   const [step, setStep] = useState(0)
-  const resultado = calcularFase6(fase4, fase6, fase5, fase3)
+  const idade = calcularIdade(paciente.dataNascimento)
+  const resultado = calcularFase6(fase4, fase6, fase5, fase3, idade)
+  const pediatrico = resultado.esquema === 'pediatrico'
   const degrauTexto = obterDescricaoDegrau(resultado)
 
   const ajusteTextoPorTipo: Record<NonNullable<ResultadoFase6['ajuste']>, string> = {
@@ -73,10 +85,10 @@ export default function Fase6Page() {
     <Layout
       faseNumero={6}
       faseTitulo="Recomendação terapêutica"
-      badge="Decisão automática"
+      badge="Cálculo automático"
       resumo={[
         { key: 'Degrau', val: degrauTexto },
-        { key: 'Percurso', val: `Percurso ${resultado.percurso}` },
+        { key: pediatrico ? 'Esquema' : 'Percurso', val: pediatrico ? '6–11 anos' : `Percurso ${resultado.percurso}` },
         { key: 'Ajuste', val: ajusteResumo },
       ]}
     >
@@ -86,7 +98,9 @@ export default function Fase6Page() {
         {step === 0 && (
           <>
             <p style={{ fontSize: 12, color: '#888', marginBottom: 20 }}>
-              Selecione o percurso terapêutico. O Percurso 1 é o preferencial segundo a GINA/GRESP.
+              {pediatrico
+                ? `Criança com ${idade} anos: esquema terapêutico dos 6 aos 11 anos (GRESP 2022, Imagem 8). Há um só percurso, com SABA como alívio; o ICS-formoterol só entra em manutenção e alívio nos Degraus 3 e 4. O degrau inicial segue a GINA 2025 (Box 4-11).`
+                : 'Selecione o percurso terapêutico. O Percurso 1 é o preferencial segundo a GINA/GRESP.'}
             </p>
 
             {tipoConsulta === 'seguimento' && (
@@ -121,7 +135,7 @@ export default function Fase6Page() {
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
+            {!pediatrico && <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
               {[1, 2].map((percurso) => (
                 <div
                   key={percurso}
@@ -151,13 +165,16 @@ export default function Fase6Page() {
                   </p>
                 </div>
               ))}
-            </div>
+            </div>}
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
               Sugestão automática
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <ResultBox label="Degrau terapêutico sugerido" valor={degrauTexto} tipo="ok" />
+              {resultado.avisos.map(aviso => (
+                <ResultBox key={aviso} label="Dados em falta" valor={aviso} tipo="alerta" />
+              ))}
               <ResultBox
                 label="Ajuste sugerido"
                 valor={ajusteTexto}
@@ -166,7 +183,9 @@ export default function Fase6Page() {
               {resultado.referenciarEspecialidade && (
                 <ResultBox
                   label="Critério de referenciação"
-                  valor="Se persistir sem controlo 3-6 meses com degrau ≥ 3, técnica correta e boa adesão, referenciar"
+                  valor={pediatrico
+                    ? 'Criança sem controlo com dose média de ICS (Degrau 3 ou superior): o GRESP recomenda referenciar para especialista'
+                    : 'Se persistir sem controlo 3-6 meses com degrau ≥ 3, técnica correta e boa adesão, referenciar'}
                   tipo="alerta"
                 />
               )}
@@ -184,7 +203,9 @@ export default function Fase6Page() {
               <ResultBox label="Alternativa disponível" valor={resultado.medicacaoAlternativa} tipo="neutro" />
               <ResultBox
                 label="Nota GRESP"
-                valor="O uso de SABA isolado em adultos e adolescentes não é recomendado por questões de segurança."
+                valor={pediatrico
+                  ? 'Em crianças dos 6 aos 11 anos, aumentar a dose baixa de ICS para média é menos eficaz do que adicionar um LABA; a teofilina não é recomendada.'
+                  : 'O uso de SABA isolado em adultos e adolescentes não é recomendado por questões de segurança.'}
                 tipo="alerta"
               />
             </div>
@@ -208,10 +229,10 @@ export default function Fase6Page() {
             )}
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-              Esquema adultos/adolescentes - Percurso {resultado.percurso}
+              {pediatrico ? 'Esquema crianças dos 6 aos 11 anos (GRESP, Imagem 8)' : `Esquema adultos/adolescentes - Percurso ${resultado.percurso}`}
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8, marginBottom: 20 }}>
-              {tabelaAdultos[resultado.percurso].map((linha) => {
+              {(pediatrico ? tabelaPediatrica : tabelaAdultos[resultado.percurso]).map((linha) => {
                 const ativo = linha.degrau === degrauTexto
                 return (
                   <div

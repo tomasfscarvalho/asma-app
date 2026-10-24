@@ -3,6 +3,7 @@ import type {
 } from './types'
 import { calcularControlo } from './fase4-controlo'
 import { avaliarFev1Baixo, fatoresDeRisco, temRiscoAgudizacoes } from './fase5-risco'
+import { aplicaLimiaresPediatricos } from './idade'
 
 // ============================================
 // FASE 6 — Recomendação Terapêutica
@@ -72,6 +73,58 @@ const medicacaoPercurso2: Record<DegrauTerapeutico, { preferencial: string; alte
   },
 }
 
+// Crianças dos 6 aos 11 anos — Imagem 8 do Guia prático do GRESP.
+// Um só percurso, com SABA como alívio; o ICS-formoterol só entra em
+// manutenção e alívio (MART), nos Degraus 3 e 4, e em doses próprias.
+// Não há ICS-formoterol apenas em SOS nesta idade (a GINA 2025 refere que os
+// estudos estão em curso). A alternativa do Degrau 3 segue a GINA 2025
+// (Box 4-10): na Imagem 8 essa célula repete a opção preferencial.
+const medicacaoPediatrica: Record<DegrauTerapeutico, { preferencial: string; alternativa: string }> = {
+  1: {
+    preferencial: 'ICS de dose baixa sempre que for usado SABA',
+    alternativa: 'Considerar ICS diário em dose baixa',
+  },
+  2: {
+    preferencial: 'ICS diário em dose baixa, com SABA como alívio',
+    alternativa: 'Antagonista dos recetores dos leucotrienos (LTRA) diário, ou ICS de dose baixa sempre que for usado SABA',
+  },
+  3: {
+    preferencial: 'Dose baixa de ICS-LABA, ou dose média de ICS, ou dose muito baixa de ICS-formoterol (BUD-FORM 100/6 µg) em manutenção e alívio',
+    alternativa: 'Dose baixa de ICS diário associada a LTRA, com SABA como alívio',
+  },
+  4: {
+    preferencial: 'Dose média de ICS-LABA, ou dose baixa de ICS-formoterol (BUD-FORM 200/6 µg) em manutenção e alívio; pedir aconselhamento especializado',
+    alternativa: 'Adicionar tiotrópio ou LTRA',
+  },
+  5: {
+    preferencial: 'Referenciar para avaliação fenotípica ± dose mais alta de ICS-LABA ou tratamento adicional (por exemplo, anti-IgE, anti-IL4R)',
+    alternativa: 'Adicionar anti-IL5; como último recurso, OCS de baixa dose, considerando os efeitos secundários',
+  },
+}
+
+/** Seleção do degrau inicial nas crianças dos 6 aos 11 anos (GINA 2025, Box 4-11). */
+function selecionarDegrauInicialPediatrico(
+  fase3: Fase3Dados,
+  fase4: Fase4Dados,
+  fase5: Fase5Dados,
+  avisos: string[],
+): DegrauTerapeutico {
+  const maioriaDosDias = fase4.frequenciaSintomasPediatrica === 'maioria-dias'
+  const despertar = fase4.despertarSemanal
+  const funcaoBaixa = avaliarFev1Baixo(fase3, fase4, fase5).valor
+
+  // Sintomas na maioria dos dias, despertares semanais e função baixa: Degrau 4.
+  if (maioriaDosDias && despertar && funcaoBaixa) return 4
+  // Sintomas na maioria dos dias ou despertares semanais: Degrau 3.
+  if (maioriaDosDias || despertar) return 3
+  if (fase4.frequenciaSintomasPediatrica === '2-5-dias-semana') return 2
+  if (fase4.frequenciaSintomasPediatrica === 'menos-2-dias-semana') return 1
+
+  // Sem a frequência, não há base para escolher entre os Degraus 1 e 2.
+  avisos.push('Frequência dos sintomas por indicar: a sugestão assume o Degrau 2 até ser preenchida (Fase 4).')
+  return 2
+}
+
 function sintomasRelevantes(fase4: Fase4Dados): boolean {
   return fase4.frequenciaSintomas === 'maioria-dias' || fase4.despertarSemanal
 }
@@ -112,8 +165,8 @@ function calcularAjuste(
   return null
 }
 
-export function obterDescricaoDegrau(resultado: Pick<ResultadoFase6, 'percurso' | 'degrau' | 'degrauInicial'>): string {
-  if (resultado.percurso === 1 && resultado.degrau === 2 && resultado.degrauInicial) {
+export function obterDescricaoDegrau(resultado: Pick<ResultadoFase6, 'percurso' | 'degrau' | 'degrauInicial'> & { esquema?: ResultadoFase6['esquema'] }): string {
+  if (resultado.esquema !== 'pediatrico' && resultado.percurso === 1 && resultado.degrau === 2 && resultado.degrauInicial) {
     return 'Degrau 1-2'
   }
   return `Degrau ${resultado.degrau}`
@@ -124,11 +177,15 @@ export function calcularFase6(
   fase6: Fase6Dados,
   fase5: Fase5Dados,
   fase3: Fase3Dados,
+  idade: number | null = null,
 ): ResultadoFase6 {
   const controlo = calcularControlo(fase4)
-  const percurso = fase6.percursoSelecionado
+  const pediatrico = aplicaLimiaresPediatricos(idade)
+  // Nas crianças dos 6 aos 11 anos há um só percurso, com SABA como alívio.
+  const percurso = pediatrico ? 2 : fase6.percursoSelecionado
   const degrauAtual = fase6.degrauAtual
   const degrauInicial = degrauAtual === null
+  const avisos: string[] = []
 
   // Sem degrau atual não há nada para ajustar: o doente ainda não faz o que
   // se propõe. Subir, manter ou descer só fazem sentido face a um tratamento
@@ -136,13 +193,24 @@ export function calcularFase6(
   const ajuste = degrauInicial ? null : calcularAjuste(controlo, fase6)
   const passo = ajuste === 'subir' ? 1 : ajuste === 'descer' ? -1 : 0
   const degrau = degrauAtual === null
-    ? selecionarDegrauInicial(fase3, fase4, fase5, percurso)
+    ? (pediatrico
+        ? selecionarDegrauInicialPediatrico(fase3, fase4, fase5, avisos)
+        : selecionarDegrauInicial(fase3, fase4, fase5, percurso))
     : limitar(degrauAtual + passo)
 
-  const medicamentos = percurso === 1 ? medicacaoPercurso1[degrau] : medicacaoPercurso2[degrau]
-  const referenciarEspecialidade = !degrauInicial && controlo !== 'controlada' && degrau >= 3
+  const medicamentos = pediatrico
+    ? medicacaoPediatrica[degrau]
+    : percurso === 1 ? medicacaoPercurso1[degrau] : medicacaoPercurso2[degrau]
+  // Crianças dos 6 aos 11 anos: o GRESP manda referenciar quando não há bom
+  // controlo com doses médias de ICS, o que corresponde a estar já no Degrau 3
+  // ou acima — por isso conta o degrau que a criança faz, e não o proposto.
+  const referenciarEspecialidade = pediatrico
+    ? !degrauInicial && controlo !== 'controlada' && (degrauAtual ?? 0) >= 3
+    : !degrauInicial && controlo !== 'controlada' && degrau >= 3
 
   return {
+    esquema: pediatrico ? 'pediatrico' : 'adulto',
+    avisos,
     degrau,
     degrauInicial,
     percurso,

@@ -1,13 +1,22 @@
 import { useAsmaStore } from '../store/useAsmaStore'
 import { ECRA } from '../domain/fases'
 import type { TipoConsulta } from '../domain/types'
+import { calcularIdade, dentroDoAmbitoCronico, MOTIVO_FORA_DE_AMBITO } from '../domain/idade'
 
 export default function PacientePage() {
-  const { paciente, setPaciente, tipoConsulta, setTipoConsulta, navegarPara } = useAsmaStore()
+  const { paciente, setPaciente, tipoConsulta, setTipoConsulta, navegarPara, ativarFase8 } = useAsmaStore()
+  const idade = calcularIdade(paciente.dataNascimento)
+  const foraDoAmbito = idade !== null && !dentroDoAmbitoCronico(idade)
 
   function handleSubmit() {
     if (!paciente.nome || !paciente.dataNascimento || !paciente.numeroUtente) {
       alert('Por favor, preencha o nome, a data de nascimento e o número de utente.')
+      return
+    }
+
+    // Abaixo dos 6 anos a ferramenta só cobre a avaliação de agudização.
+    if (foraDoAmbito) {
+      ativarFase8()
       return
     }
 
@@ -136,12 +145,18 @@ export default function PacientePage() {
             </div>
           </div>
 
+          {foraDoAmbito && (
+            <div style={{ marginBottom: '1rem', background: '#FAEEDA20', border: '1px solid #FAC77550', borderRadius: 8, padding: '12px 14px' }}>
+              <p style={{ color: '#FAC775', fontSize: 13, fontWeight: 500, margin: '0 0 6px' }}>{`⚠ Doente com ${idade} anos — apenas avaliação de agudização`}</p>
+              <p style={{ color: '#FAC775', fontSize: 12, margin: 0, lineHeight: 1.6 }}>{MOTIVO_FORA_DE_AMBITO}</p>
+            </div>
+          )}
 
         <button
             onClick={handleSubmit}
             style={{ width: '100%', background: '#0F6E56', color: 'white', border: 'none', borderRadius: 8, padding: '12px', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}
           >
-            {'Iniciar avaliação →'}
+            {foraDoAmbito ? 'Avaliar agudização →' : 'Iniciar avaliação →'}
           </button>
         </div>
       </div>

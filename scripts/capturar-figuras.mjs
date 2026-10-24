@@ -10,7 +10,7 @@ import { join } from 'node:path'
 import { TRANSFORMAR_PARA_CLARO } from './tema-claro-figuras.mjs'
 
 const DESTINO = process.argv[2] ?? 'figuras'
-const URL = 'http://localhost:5173/'
+const URL = process.env.URL_APP ?? 'http://localhost:5173/'
 const LARGURA = 1180
 
 mkdirSync(DESTINO, { recursive: true })

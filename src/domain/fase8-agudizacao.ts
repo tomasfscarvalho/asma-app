@@ -38,9 +38,14 @@ function limiteFreqCardiaca(idade: number | null): number {
 }
 
 export function calcularFase8(dados: Fase8Dados, idade: number | null = null): ResultadoFase8 {
-  const menorDeSeis = idade !== null && idade < 6
-  const preEscolar = menorDeSeis || dados.idadeMenorCinco
-  const pediatrico = preEscolar || dados.pacientePediatrico
+  // Quando a idade é conhecida, é ela que manda; a caixa "≤ 5 anos" só serve
+  // quando a data de nascimento não foi introduzida.
+  // - Limiares de gravidade próprios (Tabela 7): crianças até aos 5 anos.
+  // - Tratamento pediátrico (Imagem 11: prednisolona 1–2 mg/kg até 40 mg,
+  //   SpO₂ 94–98%): todas as crianças, até aos 11 anos.
+  const preEscolar = idade !== null ? idade < 6 : dados.idadeMenorCinco
+  const pediatrico = preEscolar
+  const tratamentoPediatrico = idade !== null ? idade < 12 : (dados.idadeMenorCinco || dados.pacientePediatrico)
 
   // --- CRITÉRIOS DE GRAVIDADE (Tabela 7) ---
   const criterios: Criterio[] = [
@@ -127,7 +132,7 @@ export function calcularFase8(dados: Fase8Dados, idade: number | null = null): R
     avaliacaoIncompleta,
     avaliada,
     fatoresMauPrognostico,
-    tratamento: tratamentoAgudizacao(gravidade, pediatrico),
+    tratamento: tratamentoAgudizacao(gravidade, tratamentoPediatrico),
   }
 }
 

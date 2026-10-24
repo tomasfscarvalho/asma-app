@@ -19,7 +19,7 @@ export default function Fase7Page() {
     <Layout
       faseNumero={7}
       faseTitulo="Critérios de referenciação"
-      badge="Decisão automática"
+      badge="Cálculo automático"
       resumo={[
         { key: 'Referenciar', val: resultado.referenciar ? '⚠ Sim' : 'Não' },
         { key: 'Critérios', val: `${resultado.criteriosPresentes.length}` },

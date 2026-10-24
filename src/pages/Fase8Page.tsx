@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ECRA } from '../domain/fases'
 import { useAsmaStore } from '../store/useAsmaStore'
 import { calcularFase8 } from '../domain/fase8-agudizacao'
-import { calcularIdade } from '../domain/idade'
+import { calcularIdade, dentroDoAmbitoCronico } from '../domain/idade'
 import Layout from '../components/Layout'
 import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
@@ -45,7 +45,7 @@ export default function Fase8Page() {
     <Layout
       faseNumero={8}
       faseTitulo="Sinalização de agudização"
-      badge="Decisão automática"
+      badge="Cálculo automático"
       resumo={[
         { key: 'Gravidade', val: gravidadeTexto },
         { key: 'UCI', val: resultado.transferirUci ? '⚠ Sim' : 'Não' },
@@ -62,11 +62,21 @@ export default function Fase8Page() {
             </p>
 
             <div style={{ marginBottom: 16 }}>
-              <CheckItem
-                label="Doente pediátrico (≤ 5 anos)"
-                checked={fase8.idadeMenorCinco}
-                onChange={v => setFase8({ idadeMenorCinco: v, pacientePediatrico: v })}
-              />
+              {idade === null ? (
+                <CheckItem
+                  label="Doente pediátrico (≤ 5 anos)"
+                  checked={fase8.idadeMenorCinco}
+                  onChange={v => setFase8({ idadeMenorCinco: v, pacientePediatrico: v })}
+                />
+              ) : (
+                <p style={{ fontSize: 12, color: '#9FE1CB', margin: '0 0 10px' }}>
+                  {idade <= 5
+                    ? `Doente com ${idade} anos: limiares de gravidade e tratamento pediátricos (≤ 5 anos).`
+                    : idade <= 11
+                      ? `Doente com ${idade} anos: limiares de gravidade do adulto e tratamento pediátrico (6–11 anos).`
+                      : `Doente com ${idade} anos: limiares e tratamento do adulto.`}
+                </p>
+              )}
               <CheckItem
                 label="Sonolência, confusão mental ou tórax silencioso"
                 checked={fase8.sonolenciaConfusaoToraxSilencioso}
@@ -135,7 +145,7 @@ export default function Fase8Page() {
                   type="number"
                   value={fase8.spo2 ?? ''}
                   onChange={e => setFase8({ spo2: e.target.value ? Number(e.target.value) : null })}
-                  placeholder={(idade !== null ? idade < 12 : fase8.pacientePediatrico) ? 'Normal ≥ 92' : 'Normal 90-95'}
+                  placeholder={(idade !== null ? idade < 6 : fase8.idadeMenorCinco) ? 'Normal ≥ 92' : 'Normal 90-95'}
                   style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
                 />
               </div>
@@ -254,7 +264,7 @@ export default function Fase8Page() {
       <NavFooter
         stepAtual={step}
         totalSteps={steps.length}
-        onAnterior={() => step > 0 ? setStep(step - 1) : navegarPara(ECRA.FASE_7_REFERENCIACAO)}
+        onAnterior={() => step > 0 ? setStep(step - 1) : navegarPara(idade !== null && !dentroDoAmbitoCronico(idade) ? ECRA.DADOS_DOENTE : ECRA.FASE_7_REFERENCIACAO)}
         onProximo={handleProximo}
         labelProximo={step === steps.length - 1 ? 'Ver relatório →' : 'Próximo →'}
       />

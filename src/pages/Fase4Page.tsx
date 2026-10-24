@@ -65,12 +65,23 @@ const frequenciaSintomasOpcoes: Array<{ label: string; value: Fase4Dados['freque
   { label: 'Maioria dos dias', value: 'maioria-dias' },
 ]
 
+// Crianças dos 6 aos 11 anos: bandas de frequência da GINA 2025 (Box 4-10 e 4-11),
+// que servem a seleção do degrau inicial no esquema pediátrico.
+const frequenciaPediatricaOpcoes: Array<{ label: string; value: NonNullable<Fase4Dados['frequenciaSintomasPediatrica']> }> = [
+  { label: '< 2 dias/semana', value: 'menos-2-dias-semana' },
+  { label: '2 a 5 dias/semana', value: '2-5-dias-semana' },
+  { label: 'Maioria dos dias', value: 'maioria-dias' },
+]
+
 export default function Fase4Page() {
   const { fase4, setFase4, setResultadoFase4, navegarPara, tipoConsulta, paciente } = useAsmaStore()
   const [step, setStep] = useState(0)
 
   const idade = calcularIdade(paciente.dataNascimento)
   const caratAplicavel = idade === null || idade >= 18
+  // O ACT está validado a partir dos 12 anos; a versão infantil (c-ACT) não está implementada.
+  const actAplicavel = idade === null || idade >= 12
+  const pediatrico = idade !== null && idade >= 6 && idade <= 11
   const resultado = calcularFase4(fase4)
   const scoreCaratRinite = calcularCaratRinite(fase4)
   const scoreCaratAsma = calcularCaratAsma(fase4)
@@ -92,10 +103,10 @@ export default function Fase4Page() {
     <Layout
       faseNumero={4}
       faseTitulo="Controlo dos sintomas"
-      badge="Decisão automática"
+      badge="Cálculo automático"
       resumo={[
         { key: 'Controlo', val: controloTexto[resultado.nivelControlo] },
-        { key: fase4.questionarioUsado === 'carat' ? 'CARAT' : 'ACT', val: resumoQuestionario },
+        { key: actAplicavel ? (fase4.questionarioUsado === 'carat' ? 'CARAT' : 'ACT') : 'Questionário', val: actAplicavel ? resumoQuestionario : 'Não aplicável (< 12 anos)' },
       ]}
     >
       <SubstepNav steps={steps} atual={step} onChange={setStep} />
@@ -133,25 +144,30 @@ export default function Fase4Page() {
               Frequência para seleção terapêutica
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8, marginBottom: 12 }}>
-              {frequenciaSintomasOpcoes.map(opcao => (
-                <button
-                  key={opcao.value}
-                  onClick={() => setFase4({ frequenciaSintomas: opcao.value })}
-                  style={{
-                    minHeight: 48,
-                    padding: '8px 10px',
-                    borderRadius: 6,
-                    fontSize: 12,
-                    cursor: 'pointer',
-                    border: fase4.frequenciaSintomas === opcao.value ? '1px solid #5DCAA5' : '1px solid #444',
-                    background: fase4.frequenciaSintomas === opcao.value ? '#0F6E56' : '#111',
-                    color: fase4.frequenciaSintomas === opcao.value ? 'white' : '#bbb',
-                    fontWeight: fase4.frequenciaSintomas === opcao.value ? 500 : 400,
-                  }}
-                >
-                  {opcao.label}
-                </button>
-              ))}
+              {(pediatrico ? frequenciaPediatricaOpcoes : frequenciaSintomasOpcoes).map(opcao => {
+                const ativo = pediatrico ? fase4.frequenciaSintomasPediatrica === opcao.value : fase4.frequenciaSintomas === opcao.value
+                return (
+                  <button
+                    key={opcao.value}
+                    onClick={() => pediatrico
+                      ? setFase4({ frequenciaSintomasPediatrica: opcao.value as NonNullable<Fase4Dados['frequenciaSintomasPediatrica']> })
+                      : setFase4({ frequenciaSintomas: opcao.value as Fase4Dados['frequenciaSintomas'] })}
+                    style={{
+                      minHeight: 48,
+                      padding: '8px 10px',
+                      borderRadius: 6,
+                      fontSize: 12,
+                      cursor: 'pointer',
+                      border: ativo ? '1px solid #5DCAA5' : '1px solid #444',
+                      background: ativo ? '#0F6E56' : '#111',
+                      color: ativo ? 'white' : '#bbb',
+                      fontWeight: ativo ? 500 : 400,
+                    }}
+                  >
+                    {opcao.label}
+                  </button>
+                )
+              })}
             </div>
 
             <div style={{ marginBottom: 20 }}>
@@ -202,12 +218,13 @@ export default function Fase4Page() {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
               <button
-                onClick={() => setFase4({ questionarioUsado: 'act' })}
+                onClick={() => actAplicavel && setFase4({ questionarioUsado: 'act' })}
                 style={{
                   padding: '12px 14px',
                   borderRadius: 8,
                   textAlign: 'left',
-                  cursor: 'pointer',
+                  cursor: actAplicavel ? 'pointer' : 'not-allowed',
+                  opacity: actAplicavel ? 1 : 0.45,
                   border: fase4.questionarioUsado === 'act' ? '1px solid #5DCAA5' : '1px solid #333',
                   background: fase4.questionarioUsado === 'act' ? '#0F6E5620' : 'transparent',
                   color: fase4.questionarioUsado === 'act' ? '#9FE1CB' : '#ccc',
@@ -237,7 +254,9 @@ export default function Fase4Page() {
             {!caratAplicavel && (
               <div style={{ marginBottom: 16, background: '#FAEEDA20', border: '1px solid #FAC77550', borderRadius: 6, padding: '10px 12px' }}>
                 <p style={{ color: '#FAC775', fontSize: 11, margin: 0, lineHeight: 1.6 }}>
-                  O CARAT está validado em Portugal para adultos com diagnóstico médico anterior, pelo que não está disponível para este doente ({idade} anos). O ACT aplica-se a partir dos 12 anos.
+                  {actAplicavel
+                    ? `O CARAT está validado em Portugal para adultos com diagnóstico médico anterior, pelo que não está disponível para este doente (${idade} anos). O ACT aplica-se a partir dos 12 anos.`
+                    : `Nenhum dos questionários está disponível para este doente (${idade} anos): o ACT está validado a partir dos 12 anos e o CARAT para adultos. A versão infantil do ACT (c-ACT) não está implementada. O controlo é avaliado pelos quatro domínios acima.`}
                 </p>
               </div>
             )}
@@ -251,7 +270,7 @@ export default function Fase4Page() {
               </div>
             )}
 
-            {fase4.questionarioUsado === 'act' && (
+            {fase4.questionarioUsado === 'act' && actAplicavel && (
               <>
                 <p style={{ fontSize: 11, color: '#555', marginBottom: 16 }}>
                   Asthma Control Test (ACT) — escala de 1 (pior) a 5 (melhor) por pergunta.

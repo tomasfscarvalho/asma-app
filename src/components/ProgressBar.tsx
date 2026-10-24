@@ -1,4 +1,5 @@
 import { useAsmaStore } from '../store/useAsmaStore'
+import { calcularIdade, dentroDoAmbitoCronico } from '../domain/idade'
 
 const fases = [
   { label: 'Avaliação' },
@@ -12,7 +13,19 @@ const fases = [
 ]
 
 export default function ProgressBar() {
-  const { faseAtual, navegarPara } = useAsmaStore()
+  const { faseAtual, navegarPara, paciente } = useAsmaStore()
+  const idade = calcularIdade(paciente.dataNascimento)
+
+  // Abaixo dos 6 anos só existe a avaliação de agudização: mostrar as fases
+  // do percurso crónico como "feitas" seria falso.
+  if (idade !== null && !dentroDoAmbitoCronico(idade)) {
+    return (
+      <div style={{ background: '#0F6E56', borderRadius: 8, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+        <span style={{ color: '#9FE1CB', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', marginRight: 12, minWidth: 100 }}>AsthmaGuide</span>
+        <span style={{ color: '#E1F5EE', fontSize: 12 }}>{`Doente com ${idade} anos — apenas avaliação de agudização`}</span>
+      </div>
+    )
+  }
 
   return (
     <div style={{ background: '#0F6E56', borderRadius: 8, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>

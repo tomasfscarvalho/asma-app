@@ -1,5 +1,6 @@
 import { useAsmaStore } from './store/useAsmaStore'
 import { ECRA } from './domain/fases'
+import { calcularIdade, dentroDoAmbitoCronico } from './domain/idade'
 import PacientePage from './pages/PacientePage'
 import Fase1Page from './pages/Fase1Page'
 import Fase2Page from './pages/Fase2Page'
@@ -13,10 +14,15 @@ import Fase8Page from './pages/Fase8Page'
 import RelatorioPage from './pages/RelatorioPage'
 
 export default function App() {
-  const { faseAtual, tipoConsulta } = useAsmaStore()
+  const { faseAtual, tipoConsulta, paciente } = useAsmaStore()
+  const idade = calcularIdade(paciente.dataNascimento)
 
   if (faseAtual === ECRA.DADOS_DOENTE) return <PacientePage />
   if (faseAtual === ECRA.RELATORIO) return <RelatorioPage />
+
+  // Abaixo dos 6 anos só existe a avaliação de agudização: qualquer outro ecrã
+  // do percurso crónico (incluindo saltos pela barra de progresso) cai nela.
+  if (idade !== null && !dentroDoAmbitoCronico(idade)) return <Fase8Page />
   if (faseAtual === ECRA.DECISAO_DIAGNOSTICA) return <DecisaoDiagnosticaPage />
 
   if (tipoConsulta === 'primeira-consulta') {

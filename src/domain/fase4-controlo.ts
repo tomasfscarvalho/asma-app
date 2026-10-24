@@ -162,7 +162,7 @@ export function detetarDivergencia(
 // impossíveis, e são essas que a função sinaliza. A banda intermédia é
 // compatível com qualquer valor do domínio e não gera aviso.
 export function detetarIncoerenciaSintomas(dados: Fase4Dados): string | null {
-  if (dados.frequenciaSintomas === 'maioria-dias' && !dados.sintomasDiurnos) {
+  if ((dados.frequenciaSintomas === 'maioria-dias' || dados.frequenciaSintomasPediatrica === 'maioria-dias') && !dados.sintomasDiurnos) {
     return 'Sintomas na maioria dos dias implicam sintomas diurnos mais de duas vezes por semana, mas o domínio de controlo não está assinalado.'
   }
   if (dados.frequenciaSintomas === 'menos-2x-mes' && dados.sintomasDiurnos) {

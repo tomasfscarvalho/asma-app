@@ -53,7 +53,7 @@ export default function Fase3Page() {
     <Layout
       faseNumero={3}
       faseTitulo="Provas de função respiratória"
-      badge="Decisão automática"
+      badge="Cálculo automático"
       resumo={[
         { key: 'Obstrução', val: racio !== null ? (resultado.obstrutivo ? '✓ Confirmada' : '✗ Não confirmada') : '—' },
         { key: 'Reversibilidade', val: fase3.aumentoFev1Percentagem !== null ? (resultado.reversibilidade ? '✓ Positiva' : '✗ Negativa') : '—' },

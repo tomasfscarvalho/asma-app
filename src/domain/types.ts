@@ -90,6 +90,8 @@ export interface Fase4Dados {
   necessidadeAlivio: boolean
   /** null enquanto o médico não escolher: um valor pré-selecionado não é uma resposta. */
   frequenciaSintomas: FrequenciaSintomas | null
+  /** Frequência dos sintomas nas crianças dos 6 aos 11 anos (GINA 2025, Box 4-10 e 4-11). */
+  frequenciaSintomasPediatrica: FrequenciaSintomasPediatrica | null
   despertarSemanal: boolean
 
   // ACT
@@ -215,6 +217,7 @@ export type NivelControlo = 'controlada' | 'parcialmente-controlada' | 'nao-cont
 export type GravidadeAgudizacao = 'ligeira' | 'moderada' | 'grave' | 'critica'
 export type DegrauTerapeutico = 1 | 2 | 3 | 4 | 5
 export type FrequenciaSintomas = 'menos-2x-mes' | 'mais-2x-mes' | 'maioria-dias'
+export type FrequenciaSintomasPediatrica = 'menos-2-dias-semana' | '2-5-dias-semana' | 'maioria-dias'
 
 export interface ResultadoFase3 {
   /** Bloco 1 da Imagem 2: limitação ao fluxo expiratório. */
@@ -240,6 +243,10 @@ export interface ResultadoFase4 {
 }
 
 export interface ResultadoFase6 {
+  /** Esquema usado: adultos e adolescentes (Imagem 7) ou crianças dos 6 aos 11 anos (Imagem 8). */
+  esquema: 'adulto' | 'pediatrico'
+  /** Avisos sobre dados em falta que condicionam a sugestão. */
+  avisos: string[]
   degrau: DegrauTerapeutico
   /** A recomendação veio da seleção inicial, e não de um ajuste. */
   degrauInicial: boolean

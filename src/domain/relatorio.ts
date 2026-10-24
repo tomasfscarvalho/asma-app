@@ -49,9 +49,9 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
   const p0 = dados.paciente
   const r3 = calcularFase3(dados.fase3)
   const r4 = calcularFase4(dados.fase4)
-  const r6 = calcularFase6(dados.fase4, dados.fase6, dados.fase5, dados.fase3)
-  const r7 = calcularFase7(dados.fase4, dados.fase6, dados.fase7, dados.fase5, dados.fase3)
   const idadeNum = calcularIdade(p0.dataNascimento)
+  const r6 = calcularFase6(dados.fase4, dados.fase6, dados.fase5, dados.fase3, idadeNum)
+  const r7 = calcularFase7(dados.fase4, dados.fase6, dados.fase7, dados.fase5, dados.fase3)
   const r8 = calcularFase8(dados.fase8, idadeNum)
   const caratRinite = calcularCaratRinite(dados.fase4)
   const caratAsma = calcularCaratAsma(dados.fase4)
@@ -71,19 +71,29 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
     f1.agravamComAlergenios || f1.agravamComInfecoes
   )
 
-  const linhaQuestionario = dados.fase4.questionarioUsado === 'carat'
+  const linhaQuestionario = idadeNum !== null && idadeNum < 12
+    ? '  • Questionário de controlo: não aplicável (ACT validado a partir dos 12 anos; CARAT para adultos)'
+    : dados.fase4.questionarioUsado === 'carat'
     ? `  • Score CARAT: ${r4.scoreCarat ?? 'Não preenchido'}/30 (rinite: ${caratRinite ?? '—'}/12; asma: ${caratAsma ?? '—'}/18)`
     : `  • ACT: ${r4.scoreAct !== null ? interpretarAct(r4.scoreAct) : 'Não preenchido'}`
 
   // A frequência de sintomas é o critério que escolhe o degrau inicial, pelo
   // que tem de constar do relatório.
-  const linhaFrequencia = dados.fase4.frequenciaSintomas !== null
-    ? '  • Frequência dos sintomas: ' + {
-        'menos-2x-mes': 'menos de 2x por mês',
-        'mais-2x-mes': '2x por mês ou mais, mas não na maioria dos dias',
-        'maioria-dias': 'na maioria dos dias',
-      }[dados.fase4.frequenciaSintomas]
-    : '  • Frequência dos sintomas: Não registada'
+  const linhaFrequencia = r6.esquema === 'pediatrico'
+    ? (dados.fase4.frequenciaSintomasPediatrica !== null
+        ? '  • Frequência dos sintomas: ' + {
+            'menos-2-dias-semana': 'menos de 2 dias por semana',
+            '2-5-dias-semana': '2 a 5 dias por semana',
+            'maioria-dias': 'na maioria dos dias',
+          }[dados.fase4.frequenciaSintomasPediatrica]
+        : '  • Frequência dos sintomas: Não registada')
+    : dados.fase4.frequenciaSintomas !== null
+      ? '  • Frequência dos sintomas: ' + {
+          'menos-2x-mes': 'menos de 2x por mês',
+          'mais-2x-mes': '2x por mês ou mais, mas não na maioria dos dias',
+          'maioria-dias': 'na maioria dos dias',
+        }[dados.fase4.frequenciaSintomas]
+      : '  • Frequência dos sintomas: Não registada'
 
   const linhaFev1Atual = r4.fev1Atual !== null
     ? `  • FEV1 atual: ${r4.fev1Atual}% do previsto`
@@ -409,7 +419,7 @@ A — AVALIAÇÃO
 ----------------------------------------
   • Diagnóstico: Asma confirmada
   • Nível de controlo: ${controloTexto}${blocoDivergencia}
-  • ${r6.degrauInicial ? 'Degrau terapêutico proposto' : 'Degrau terapêutico após ajuste'}: ${degrauTerapiaTexto} (Percurso ${r6.percurso})${r6.degrauInicial ? ' — seleção inicial' : ` — o doente fazia Degrau ${dados.fase6.degrauAtual}`}
+  • ${r6.degrauInicial ? 'Degrau terapêutico proposto' : 'Degrau terapêutico após ajuste'}: ${degrauTerapiaTexto} (${r6.esquema === 'pediatrico' ? 'esquema dos 6 aos 11 anos' : `Percurso ${r6.percurso}`})${r6.degrauInicial ? ' — seleção inicial' : ` — o doente fazia Degrau ${dados.fase6.degrauAtual}`}
 
 Fatores de risco de agudização:
 ${blocoFatoresRisco}
@@ -427,7 +437,7 @@ P — PLANO
   • Terapêutica sugerida: ${degrauTerapiaTexto} — ${r6.medicacaoPreferencial}
   • Alternativa terapêutica: ${r6.medicacaoAlternativa}
   • ${r6.degrauInicial ? 'Seguimento' : 'Ajuste terapêutico sugerido'}: ${r6.degrauInicial ? 'Iniciar no degrau proposto e reavaliar a resposta em 2 a 3 meses' : r6.ajuste === 'subir' ? 'Verificar técnica/adesão/fatores modificáveis e considerar subir degrau' : r6.ajuste === 'descer' ? 'Considerar descer degrau apenas se controlo ≥ 3 meses' : 'Manter terapêutica atual'}
-  • Percurso preferencial GINA 2025: Percurso 1 (ICS-formoterol)
+  • ${r6.esquema === 'pediatrico' ? 'Esquema dos 6 aos 11 anos (GRESP 2022, Imagem 8; degrau inicial segundo a GINA 2025, Box 4-11): SABA como alívio; ICS-formoterol só em manutenção e alívio nos Degraus 3 e 4' : 'Percurso preferencial GINA 2025: Percurso 1 (ICS-formoterol)'}
   • Vacinação antigripal: Recomendar anualmente
   • Técnica inalatória: Rever na consulta
   • Plano de ação escrito: A elaborar com o doente${r7.perguntarDegrau3 && !dados.fase7.semControloDegrau3 ? '\n  ⚠ Verificar: o doente está há 3-6 meses sem controlo em degrau ≥ 3, com técnica inalatória correta e boa adesão? Em caso afirmativo, referenciar.' : ''}

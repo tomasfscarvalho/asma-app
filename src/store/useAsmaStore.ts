@@ -78,6 +78,7 @@ const fase4Inicial: Fase4Dados = {
   limitacaoAtividades: false,
   necessidadeAlivio: false,
   frequenciaSintomas: null,
+  frequenciaSintomasPediatrica: null,
   despertarSemanal: false,
   actLimitacaoAtividades: null,
   actFaltaAr: null,
