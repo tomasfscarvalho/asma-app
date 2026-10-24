@@ -125,7 +125,9 @@ await clicar('Sim — diagnóstico confirmado')
 for (const s of ['Sintomas diurnos', 'Sintomas noturnos', 'Necessidade de medicação de alívio']) {
   await marcar(s).catch(() => {})
 }
-await marcar('Maioria dos dias').catch(() => {})
+// O botão da banda de frequência, e não o primeiro texto que contenha a frase.
+await pagina.locator('button', { hasText: /^Maioria dos dias$/ }).first().click()
+await pagina.waitForTimeout(80)
 await capturar('figura-3-6', 'Fase 4: classificação automática do controlo')
 await proximo()
 await clicar('ACT')
