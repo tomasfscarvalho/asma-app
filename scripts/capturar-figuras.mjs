@@ -181,6 +181,21 @@ await pagina.evaluate(() => {
       el.style.setProperty('max-height', '980px', 'important')
     }
   }
+  // O início do relatório (dados do doente e S) já aparece noutras figuras: a
+  // 3.10 mostra a avaliação e o plano. Posição medida com um Range, porque há
+  // linhas que quebram e a altura de linha não chega para a calcular.
+  const pre = document.querySelector('pre')
+  const texto = pre?.firstChild
+  if (pre && texto && texto.nodeType === Node.TEXT_NODE) {
+    const alvo = texto.textContent.indexOf('A — AVALIAÇÃO')
+    const inicio = texto.textContent.lastIndexOf('-----', alvo)
+    const linha = texto.textContent.lastIndexOf('\n', inicio) + 1
+    const intervalo = document.createRange()
+    intervalo.setStart(texto, linha)
+    intervalo.setEnd(texto, linha + 1)
+    const topo = intervalo.getBoundingClientRect().top - pre.getBoundingClientRect().top
+    pre.scrollTop += topo - parseFloat(getComputedStyle(pre).paddingTop)
+  }
 })
 await capturar('figura-3-10', 'Relatório SOAP gerado automaticamente')
 

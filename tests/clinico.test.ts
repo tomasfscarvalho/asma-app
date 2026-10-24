@@ -10,7 +10,7 @@ import { calcularFase4, detetarDivergencia } from '../src/domain/fase4-controlo'
 import {
   faixaEtaria, dentroDoAmbitoCronico, aplicaLimiaresPediatricos,
 } from '../src/domain/idade'
-import { dadosFase3, dadosFase4, dadosFase5, dadosFase6, dadosFase7, dadosFase8 } from './_fixtures'
+import { dadosFase4, dadosFase6, dadosFase7, dadosFase8 } from './_fixtures'
 
 // ============================================================ âmbito etário
 describe('Âmbito etário (GRESP 2022, §4.2)', () => {
@@ -156,18 +156,23 @@ describe('Referenciação — a app pergunta, não conclui (GRESP 2022, §3.2.3)
 
   // O critério pressupõe tratamento em curso: sem degrau atual não há pergunta.
   it('sem controlo em degrau >= 3, a app levanta a questão', () => {
-    const r = calcularFase7(naoControlada, dadosFase6({ degrauAtual: 3 }), dadosFase7(), dadosFase5(), dadosFase3())
+    const r = calcularFase7(naoControlada, dadosFase6({ degrauAtual: 3 }), dadosFase7())
     expect(r.perguntarDegrau3).toBe(true)
   })
 
+  it('no Degrau 2 não pergunta: quem sobe para o 3 ainda não está sem controlo nele', () => {
+    const r = calcularFase7(naoControlada, dadosFase6({ degrauAtual: 2 }), dadosFase7())
+    expect(r.perguntarDegrau3).toBe(false)
+  })
+
   it('mas não acrescenta o critério sozinha', () => {
-    const r = calcularFase7(naoControlada, dadosFase6({ degrauAtual: 3 }), dadosFase7(), dadosFase5(), dadosFase3())
+    const r = calcularFase7(naoControlada, dadosFase6({ degrauAtual: 3 }), dadosFase7())
     expect(r.criteriosPresentes.join(' ')).not.toContain('3-6 meses')
   })
 
   it('só a confirmação do médico ativa o critério', () => {
     const r = calcularFase7(
-      naoControlada, dadosFase6({ degrauAtual: 3 }), dadosFase7({ semControloDegrau3: true }), dadosFase5(), dadosFase3(),
+      naoControlada, dadosFase6({ degrauAtual: 3 }), dadosFase7({ semControloDegrau3: true }),
     )
     expect(r.criteriosPresentes.join(' ')).toContain('3-6 meses')
     expect(r.referenciar).toBe(true)
@@ -180,7 +185,7 @@ describe('Referenciação — a app pergunta, não conclui (GRESP 2022, §3.2.3)
       duasOuMaisHospitalizacoes: true, asmaGrave: true,
       fatoresMauPrognostico: true, riscoEfeitosSecundarios: true,
     })
-    const r = calcularFase7(dadosFase4(), dadosFase6({ degrauAtual: 3 }), todos, dadosFase5(), dadosFase3())
+    const r = calcularFase7(dadosFase4(), dadosFase6({ degrauAtual: 3 }), todos)
     expect(r.criteriosPresentes).toHaveLength(8)
   })
 })

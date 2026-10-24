@@ -201,6 +201,61 @@ describe('As duas variantes do relatório', () => {
   })
 })
 
+// ============================================================ sem decisão
+// Numa primeira consulta, passar à agudização antes da decisão diagnóstica
+// não pode gerar um relatório de asma confirmada, com controlo e terapêutica
+// calculados sobre fases que não foram preenchidas.
+describe('Primeira consulta sem decisão diagnóstica', () => {
+  const agudizacao = dadosFase8({
+    exprimePorFrases: false, freqRespiratoria: 32, freqCardiaca: 124, spo2: 91, pefPercentagem: 45,
+  })
+  const r = relatorio({ decisaoDiagnostica: null, tipoConsulta: 'primeira-consulta', fase8: agudizacao })
+
+  it('dá o diagnóstico como por decidir', () => {
+    expect(r).toContain('DIAGNÓSTICO POR DECIDIR')
+    expect(r).toContain('Diagnóstico de asma: por decidir')
+  })
+
+  it('não afirma o diagnóstico nem calcula controlo, degrau ou referenciação', () => {
+    expect(r).not.toContain('Asma confirmada')
+    expect(r).not.toContain('Nível de controlo')
+    expect(r).not.toContain('Terapêutica sugerida')
+    expect(r).not.toContain('Referenciação para consulta')
+  })
+
+  it('mantém a avaliação de agudização e o que foi registado nas Fases 1 a 3', () => {
+    expect(r).toContain('AVALIAÇÃO DE AGUDIZAÇÃO')
+    expect(r).toContain('Gravidade: Grave')
+    expect(r).toContain('S — SUBJETIVO')
+    expect(r).toContain('Confirmação da variabilidade ao fluxo expiratório')
+  })
+
+  it('no seguimento, sem decisão, o diagnóstico já vem confirmado de trás', () => {
+    const seguimento = relatorio({ decisaoDiagnostica: null, tipoConsulta: 'seguimento' })
+    expect(seguimento).toContain('Diagnóstico: Asma confirmada')
+  })
+
+  it('a decisão de não confirmar continua a dar o relatório de exclusão', () => {
+    const exclusao = relatorio({ decisaoDiagnostica: 'nao-confirmado', tipoConsulta: 'primeira-consulta' })
+    expect(exclusao).toContain('EXCLUSÃO DE ASMA')
+  })
+})
+
+// ============================================================ alívio
+describe('O relatório distingue o tipo de alívio (GINA 2025, Box 2-2A)', () => {
+  it('com SABA, o domínio conta para o controlo', () => {
+    const r = relatorio({ fase4: dadosFase4({ necessidadeAlivio: true }) })
+    expect(r).toContain('Necessidade de alívio (SABA) > 2x/semana: Sim')
+    expect(r).toContain('Nível de controlo: Parcialmente controlada')
+  })
+
+  it('com ICS-formoterol, regista o uso mas não o conta', () => {
+    const r = relatorio({ fase4: dadosFase4({ necessidadeAlivio: true, tipoAlivio: 'ics-formoterol' }) })
+    expect(r).toContain('Uso de ICS-formoterol de alívio > 2x/semana: Sim (não conta para o nível de controlo')
+    expect(r).toContain('Nível de controlo: Controlada')
+  })
+})
+
 // ============================================================ formatação
 describe('Formatação do relatório', () => {
   it('não deixa linhas em branco seguidas', () => {

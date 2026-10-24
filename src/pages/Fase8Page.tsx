@@ -12,11 +12,17 @@ import ResultBox from '../components/ResultBox'
 const steps = ['Parâmetros', 'Gravidade']
 
 export default function Fase8Page() {
-  const { fase8, setFase8, setResultadoFase8, navegarPara, paciente } = useAsmaStore()
+  const { fase8, setFase8, setResultadoFase8, navegarPara, paciente, faseOrigemAgudizacao } = useAsmaStore()
   const [step, setStep] = useState(0)
 
   const idade = calcularIdade(paciente.dataNascimento)
   const resultado = calcularFase8(fase8, idade)
+
+  // "Anterior" volta ao ecrã de onde se abriu a agudização pelo atalho; no
+  // percurso normal, à Fase 7. Abaixo dos 6 anos, ao ecrã inicial.
+  const ecraAnterior = idade !== null && !dentroDoAmbitoCronico(idade)
+    ? ECRA.DADOS_DOENTE
+    : faseOrigemAgudizacao ?? ECRA.FASE_7_REFERENCIACAO
 
   function handleProximo() {
     if (step < steps.length - 1) {
@@ -264,7 +270,7 @@ export default function Fase8Page() {
       <NavFooter
         stepAtual={step}
         totalSteps={steps.length}
-        onAnterior={() => step > 0 ? setStep(step - 1) : navegarPara(idade !== null && !dentroDoAmbitoCronico(idade) ? ECRA.DADOS_DOENTE : ECRA.FASE_7_REFERENCIACAO)}
+        onAnterior={() => step > 0 ? setStep(step - 1) : navegarPara(ecraAnterior)}
         onProximo={handleProximo}
         labelProximo={step === steps.length - 1 ? 'Ver relatório →' : 'Próximo →'}
       />

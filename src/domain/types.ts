@@ -88,6 +88,9 @@ export interface Fase4Dados {
   sintomasNoturnos: boolean
   limitacaoAtividades: boolean
   necessidadeAlivio: boolean
+  /** Medicação de alívio que o doente usa. Com ICS-formoterol, o uso > 2x/semana
+   *  não conta para o controlo (GINA 2025, Box 2-2A, nota †). */
+  tipoAlivio: TipoAlivio
   /** null enquanto o médico não escolher: um valor pré-selecionado não é uma resposta. */
   frequenciaSintomas: FrequenciaSintomas | null
   /** Frequência dos sintomas nas crianças dos 6 aos 11 anos (GINA 2025, Box 4-10 e 4-11). */
@@ -218,6 +221,7 @@ export type GravidadeAgudizacao = 'ligeira' | 'moderada' | 'grave' | 'critica'
 export type DegrauTerapeutico = 1 | 2 | 3 | 4 | 5
 export type FrequenciaSintomas = 'menos-2x-mes' | 'mais-2x-mes' | 'maioria-dias'
 export type FrequenciaSintomasPediatrica = 'menos-2-dias-semana' | '2-5-dias-semana' | 'maioria-dias'
+export type TipoAlivio = 'saba' | 'ics-formoterol'
 
 export interface ResultadoFase3 {
   /** Bloco 1 da Imagem 2: limitação ao fluxo expiratório. */

@@ -77,6 +77,7 @@ const fase4Inicial: Fase4Dados = {
   sintomasNoturnos: false,
   limitacaoAtividades: false,
   necessidadeAlivio: false,
+  tipoAlivio: 'saba',
   frequenciaSintomas: null,
   frequenciaSintomasPediatrica: null,
   despertarSemanal: false,
@@ -185,6 +186,8 @@ interface AsmaState {
   tipoConsulta: TipoConsulta | null
   decisaoDiagnostica: DecisaoDiagnostica
   fase8Ativa: boolean
+  /** Ecrã de onde se passou à agudização pelo atalho, para o "Anterior" lá voltar. */
+  faseOrigemAgudizacao: number | null
 
   setTipoConsulta: (t: TipoConsulta) => void
   setDecisaoDiagnostica: (d: DecisaoDiagnostica) => void
@@ -232,6 +235,7 @@ export const useAsmaStore = create<AsmaState>((set) => ({
   tipoConsulta: null,
   decisaoDiagnostica: null,
   fase8Ativa: false,
+  faseOrigemAgudizacao: null,
 
   setPaciente: (dados) => set((s) => ({ paciente: { ...s.paciente, ...dados } })),
   setFase1: (dados) => set((s) => ({ fase1: { ...s.fase1, ...dados } })),
@@ -249,10 +253,14 @@ export const useAsmaStore = create<AsmaState>((set) => ({
   setResultadoFase7: (r) => set({ resultadoFase7: r }),
   setResultadoFase8: (r) => set({ resultadoFase8: r }),
 
-  navegarPara: (fase, substep = 0) => set({ faseAtual: fase, substepAtual: substep }),
+  navegarPara: (fase, substep = 0) => set({ faseAtual: fase, substepAtual: substep, faseOrigemAgudizacao: null }),
   setTipoConsulta: (t) => set({ tipoConsulta: t }),
   setDecisaoDiagnostica: (d) => set({ decisaoDiagnostica: d }),
-  ativarFase8: () => set({ fase8Ativa: true, faseAtual: ECRA.FASE_8_AGUDIZACAO }),
+  ativarFase8: () => set((s) => ({
+    fase8Ativa: true,
+    faseAtual: ECRA.FASE_8_AGUDIZACAO,
+    faseOrigemAgudizacao: s.faseAtual === ECRA.FASE_8_AGUDIZACAO ? s.faseOrigemAgudizacao : s.faseAtual,
+  })),
 
   resetarSessao: () => set({
     paciente: pacienteInicial,
@@ -274,5 +282,6 @@ export const useAsmaStore = create<AsmaState>((set) => ({
     tipoConsulta: null,
     decisaoDiagnostica: null,
     fase8Ativa: false,
+    faseOrigemAgudizacao: null,
   }),
 }))

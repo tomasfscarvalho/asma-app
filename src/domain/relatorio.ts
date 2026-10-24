@@ -1,10 +1,10 @@
 import type {
   Paciente, Fase1Dados, Fase2Dados, Fase3Dados, Fase4Dados,
-  Fase5Dados, Fase6Dados, Fase7Dados, Fase8Dados, DecisaoDiagnostica,
+  Fase5Dados, Fase6Dados, Fase7Dados, Fase8Dados, DecisaoDiagnostica, TipoConsulta,
 } from './types'
 import { calcularIdade, dentroDoAmbitoCronico } from './idade'
 import { calcularFase3 } from './fase3-provas'
-import { calcularFase4, calcularCaratRinite, calcularCaratAsma, interpretarAct } from './fase4-controlo'
+import { alivioContaParaControlo, calcularFase4, calcularCaratRinite, calcularCaratAsma, interpretarAct } from './fase4-controlo'
 import { calcularFase6, obterDescricaoDegrau } from './fase6-terapeutica'
 import { calcularFase7 } from './fase7-referenciacao'
 import { calcularFase8 } from './fase8-agudizacao'
@@ -20,6 +20,8 @@ interface DadosRelatorio {
   fase7: Fase7Dados
   fase8: Fase8Dados
   decisaoDiagnostica: DecisaoDiagnostica
+  /** Numa primeira consulta, sem decisão diagnóstica o diagnóstico está por decidir. */
+  tipoConsulta?: TipoConsulta | null
 }
 
 function formatarData(): string {
@@ -51,7 +53,7 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
   const r4 = calcularFase4(dados.fase4)
   const idadeNum = calcularIdade(p0.dataNascimento)
   const r6 = calcularFase6(dados.fase4, dados.fase6, dados.fase5, dados.fase3, idadeNum)
-  const r7 = calcularFase7(dados.fase4, dados.fase6, dados.fase7, dados.fase5, dados.fase3)
+  const r7 = calcularFase7(dados.fase4, dados.fase6, dados.fase7)
   const r8 = calcularFase8(dados.fase8, idadeNum)
   const caratRinite = calcularCaratRinite(dados.fase4)
   const caratAsma = calcularCaratAsma(dados.fase4)
@@ -94,6 +96,10 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
           'maioria-dias': 'na maioria dos dias',
         }[dados.fase4.frequenciaSintomas]
       : '  • Frequência dos sintomas: Não registada'
+
+  const linhaAlivio = alivioContaParaControlo(dados.fase4)
+    ? `  • Necessidade de alívio (SABA) > 2x/semana: ${sim(dados.fase4.necessidadeAlivio)}`
+    : `  • Uso de ICS-formoterol de alívio > 2x/semana: ${sim(dados.fase4.necessidadeAlivio)} (não conta para o nível de controlo — GINA 2025; considerar ao rever a dose de manutenção)`
 
   const linhaFev1Atual = r4.fev1Atual !== null
     ? `  • FEV1 atual: ${r4.fev1Atual}% do previsto`
@@ -209,55 +215,9 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
     ? f2.diferenciaisExcluidos.map(dd => `  • ${dd}`).join('\n')
     : '  • Não foram registados diagnósticos diferenciais excluídos.'
 
-  // Doente fora do âmbito do percurso crónico: só a avaliação de agudização,
-  // que é o único domínio coberto pela fonte nacional abaixo dos 6 anos.
-  if (idade !== '—' && !dentroDoAmbitoCronico(idade)) {
-    return limpar(`
-========================================
-RELATÓRIO CLÍNICO — AVALIAÇÃO DE AGUDIZAÇÃO
-Data: ${formatarData()}
-========================================
-
-DADOS DO PACIENTE
-Nome: ${p.nome || '—'}
-Data de Nascimento: ${p.dataNascimento || '—'} (${idade} anos)
-Sexo: ${p.sexo}
-Nº Utente SNS: ${p.numeroUtente || '—'}
-
-----------------------------------------
-ÂMBITO
-----------------------------------------
-  • Doente com ${idade} anos. A ferramenta não cobre o diagnóstico nem a gestão
-    crónica da asma abaixo dos 6 anos: nesta faixa etária as recomendações
-    estabelecem que o diagnóstico assente na história clínica e no exame físico,
-    que seja evitado um diagnóstico definitivo, e que a avaliação da função
-    respiratória, quando necessária, motive orientação para centro de referência.
-  • Este relatório cobre exclusivamente a avaliação da agudização.
-${blocoAgudizacao}
-========================================
-Gerado pelo Sistema de Apoio à Decisão
-Clínica ASMA — GRESP 2022 / GINA 2025
-Este relatório é de apoio à decisão.
-A responsabilidade clínica é do médico.
-========================================
-`)
-  }
-
-  if (dados.decisaoDiagnostica === 'nao-confirmado') {
-    return limpar(`
-========================================
-RELATÓRIO CLÍNICO — EXCLUSÃO DE ASMA
-Data: ${formatarData()}
-========================================
-
-DADOS DO PACIENTE
-Nome: ${p.nome || '—'}
-Data de Nascimento: ${p.dataNascimento || '—'} (${idade} anos)
-Sexo: ${p.sexo}
-Nº Utente SNS: ${p.numeroUtente || '—'}
-Cartão de Cidadão: ${p.cartaoCidadao || '—'}
-
-----------------------------------------
+  // Secções S e O dos relatórios sem diagnóstico confirmado: o que foi
+  // registado nas Fases 1 a 3, sem controlo, risco nem terapêutica.
+  const secoesSO = `----------------------------------------
 S — SUBJETIVO
 ----------------------------------------
 Sintomas respiratórios presentes:
@@ -302,7 +262,101 @@ Confirmação da variabilidade ao fluxo expiratório:
   • Variabilidade diária do PEF: ${dados.fase3.variabilidadePef ?? '—'}% — ${estado(r3.pefPositivo)}
   • Variabilidade documentada: ${estado(r3.variabilidadeConfirmada)}
 
-  ${textoConfirmacao}
+  ${textoConfirmacao}`
+
+  // Doente fora do âmbito do percurso crónico: só a avaliação de agudização,
+  // que é o único domínio coberto pela fonte nacional abaixo dos 6 anos.
+  if (idade !== '—' && !dentroDoAmbitoCronico(idade)) {
+    return limpar(`
+========================================
+RELATÓRIO CLÍNICO — AVALIAÇÃO DE AGUDIZAÇÃO
+Data: ${formatarData()}
+========================================
+
+DADOS DO PACIENTE
+Nome: ${p.nome || '—'}
+Data de Nascimento: ${p.dataNascimento || '—'} (${idade} anos)
+Sexo: ${p.sexo}
+Nº Utente SNS: ${p.numeroUtente || '—'}
+
+----------------------------------------
+ÂMBITO
+----------------------------------------
+  • Doente com ${idade} anos. A ferramenta não cobre o diagnóstico nem a gestão
+    crónica da asma abaixo dos 6 anos: nesta faixa etária as recomendações
+    estabelecem que o diagnóstico assente na história clínica e no exame físico,
+    que seja evitado um diagnóstico definitivo, e que a avaliação da função
+    respiratória, quando necessária, motive orientação para centro de referência.
+  • Este relatório cobre exclusivamente a avaliação da agudização.
+${blocoAgudizacao}
+========================================
+Gerado pelo Sistema de Apoio à Decisão
+Clínica ASMA — GRESP 2022 / GINA 2025
+Este relatório é de apoio à decisão.
+A responsabilidade clínica é do médico.
+========================================
+`)
+  }
+
+  // Primeira consulta sem decisão diagnóstica (por exemplo, quando se passa à
+  // agudização antes de concluir as Fases 1 a 3): o diagnóstico de asma ainda
+  // não foi tomado pelo médico, e o relatório não o pode afirmar nem propor
+  // terapêutica de controlo. A agudização pode ser o episódio inaugural da
+  // doença (GRESP 2022, §3.3), pelo que o seu bloco se mantém.
+  if (dados.tipoConsulta === 'primeira-consulta' && dados.decisaoDiagnostica === null) {
+    return limpar(`
+========================================
+RELATÓRIO CLÍNICO — DIAGNÓSTICO POR DECIDIR
+Data: ${formatarData()}
+========================================
+
+DADOS DO PACIENTE
+Nome: ${p.nome || '—'}
+Data de Nascimento: ${p.dataNascimento || '—'} (${idade} anos)
+Sexo: ${p.sexo}
+Nº Utente SNS: ${p.numeroUtente || '—'}
+Cartão de Cidadão: ${p.cartaoCidadao || '—'}
+
+${secoesSO}
+
+Diagnósticos diferenciais excluídos:
+${diagnosticosDiferenciais}
+
+----------------------------------------
+A — AVALIAÇÃO
+----------------------------------------
+  • Diagnóstico de asma: por decidir — a decisão diagnóstica ainda não foi registada pelo médico.
+
+----------------------------------------
+P — PLANO
+----------------------------------------
+  • Concluir a avaliação diagnóstica e registar a decisão.
+  • A avaliação do controlo e a proposta terapêutica só são geradas depois de confirmado o diagnóstico.
+${blocoAgudizacao}
+========================================
+Gerado pelo Sistema de Apoio à Decisão
+Clínica ASMA — GRESP 2022 / GINA 2025
+Este relatório é de apoio à decisão.
+A responsabilidade clínica é do médico.
+========================================
+`)
+  }
+
+  if (dados.decisaoDiagnostica === 'nao-confirmado') {
+    return limpar(`
+========================================
+RELATÓRIO CLÍNICO — EXCLUSÃO DE ASMA
+Data: ${formatarData()}
+========================================
+
+DADOS DO PACIENTE
+Nome: ${p.nome || '—'}
+Data de Nascimento: ${p.dataNascimento || '—'} (${idade} anos)
+Sexo: ${p.sexo}
+Nº Utente SNS: ${p.numeroUtente || '—'}
+Cartão de Cidadão: ${p.cartaoCidadao || '—'}
+
+${secoesSO}
 
 Diagnósticos diferenciais excluídos:
 ${diagnosticosDiferenciais}
@@ -409,7 +463,7 @@ Controlo dos sintomas (últimas 4 semanas):
   • Sintomas diurnos > 2x/semana (sibilância, tosse por exercício, opressão torácica ou tosse após alergénios/poluentes): ${sim(dados.fase4.sintomasDiurnos)}
   • Sintomas noturnos e/ou ao despertar, com perturbação do sono incluindo tosse: ${sim(dados.fase4.sintomasNoturnos)}
   • Limitação das atividades diárias: ${sim(dados.fase4.limitacaoAtividades)}
-  • Necessidade de alívio > 2x/semana: ${sim(dados.fase4.necessidadeAlivio)}
+${linhaAlivio}
 ${linhaFrequencia}
 ${linhaQuestionario}
 ${linhaFev1Atual}

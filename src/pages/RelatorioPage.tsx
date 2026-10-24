@@ -15,6 +15,7 @@ export default function RelatorioPage() {
     fase7: store.fase7,
     fase8: store.fase8,
     decisaoDiagnostica: store.decisaoDiagnostica,
+    tipoConsulta: store.tipoConsulta,
   })
 
   function copiar() {

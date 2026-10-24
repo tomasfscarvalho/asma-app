@@ -14,7 +14,7 @@ import Fase8Page from './pages/Fase8Page'
 import RelatorioPage from './pages/RelatorioPage'
 
 export default function App() {
-  const { faseAtual, tipoConsulta, paciente } = useAsmaStore()
+  const { faseAtual, tipoConsulta, paciente, decisaoDiagnostica } = useAsmaStore()
   const idade = calcularIdade(paciente.dataNascimento)
 
   if (faseAtual === ECRA.DADOS_DOENTE) return <PacientePage />
@@ -26,6 +26,12 @@ export default function App() {
   if (faseAtual === ECRA.DECISAO_DIAGNOSTICA) return <DecisaoDiagnosticaPage />
 
   if (tipoConsulta === 'primeira-consulta') {
+    // As Fases 4 a 7 pressupõem o diagnóstico confirmado pelo médico: sem essa
+    // decisão, qualquer salto para elas cai no ecrã da decisão diagnóstica.
+    if (decisaoDiagnostica !== 'confirmado'
+      && faseAtual >= ECRA.FASE_4_CONTROLO && faseAtual <= ECRA.FASE_7_REFERENCIACAO) {
+      return <DecisaoDiagnosticaPage />
+    }
     if (faseAtual === ECRA.FASE_1_AVALIACAO) return <Fase1Page />
     if (faseAtual === ECRA.FASE_2_DIFERENCIAIS) return <Fase2Page />
     if (faseAtual === ECRA.FASE_3_PROVAS) return <Fase3Page />

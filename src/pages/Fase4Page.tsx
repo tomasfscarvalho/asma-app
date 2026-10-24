@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ECRA } from '../domain/fases'
 import type { Fase4Dados } from '../domain/types'
 import { useAsmaStore } from '../store/useAsmaStore'
-import { calcularFase4, calcularCaratRinite, calcularCaratAsma, interpretarCarat, interpretarAct } from '../domain/fase4-controlo'
+import { alivioContaParaControlo, calcularFase4, calcularCaratRinite, calcularCaratAsma, interpretarCarat, interpretarAct } from '../domain/fase4-controlo'
 import { calcularIdade } from '../domain/idade'
 import Layout from '../components/Layout'
 import SubstepNav from '../components/SubstepNav'
@@ -63,6 +63,11 @@ const frequenciaSintomasOpcoes: Array<{ label: string; value: Fase4Dados['freque
   { label: '< 2x/mês', value: 'menos-2x-mes' },
   { label: '≥ 2x/mês, mas não na maioria dos dias', value: 'mais-2x-mes' },
   { label: 'Maioria dos dias', value: 'maioria-dias' },
+]
+
+const alivioOpcoes: Array<{ label: string; value: Fase4Dados['tipoAlivio'] }> = [
+  { label: 'SABA', value: 'saba' },
+  { label: 'ICS-formoterol', value: 'ics-formoterol' },
 ]
 
 // Crianças dos 6 aos 11 anos: bandas de frequência da GINA 2025 (Box 4-10 e 4-11),
@@ -133,8 +138,34 @@ export default function Fase4Page() {
                 checked={fase4.limitacaoAtividades}
                 onChange={v => setFase4({ limitacaoAtividades: v })}
               />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
+                <span style={{ fontSize: 12, color: '#888' }}>Medicação de alívio:</span>
+                {alivioOpcoes.map(opcao => {
+                  const ativo = fase4.tipoAlivio === opcao.value
+                  return (
+                    <button
+                      key={opcao.value}
+                      onClick={() => setFase4({ tipoAlivio: opcao.value })}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: 6,
+                        fontSize: 12,
+                        cursor: 'pointer',
+                        border: ativo ? '1px solid #5DCAA5' : '1px solid #444',
+                        background: ativo ? '#0F6E56' : '#111',
+                        color: ativo ? 'white' : '#bbb',
+                        fontWeight: ativo ? 500 : 400,
+                      }}
+                    >
+                      {opcao.label}
+                    </button>
+                  )
+                })}
+              </div>
               <CheckItem
-                label="Necessidade de medicação de alívio > 2x/semana"
+                label={alivioContaParaControlo(fase4)
+                  ? 'Necessidade de medicação de alívio (SABA) > 2x/semana'
+                  : 'Uso de ICS-formoterol de alívio > 2x/semana — registado, não conta para o controlo (GINA 2025); considerar ao rever a dose de manutenção'}
                 checked={fase4.necessidadeAlivio}
                 onChange={v => setFase4({ necessidadeAlivio: v })}
               />

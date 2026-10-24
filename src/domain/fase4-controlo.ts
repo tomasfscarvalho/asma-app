@@ -5,12 +5,21 @@ import type { Fase4Dados, ResultadoFase4, NivelControlo } from './types'
 // GRESP 2022 / GINA 2025
 // ============================================
 
+// O domínio do alívio > 2x/semana conta só quando o alívio é um SABA. A GINA
+// 2025 (Box 2-2A, nota †) exclui o ICS-formoterol de alívio: usá-lo mais vezes
+// já é tratamento anti-inflamatório adicional, e a sua frequência serve para
+// rever a dose de manutenção, não para classificar o controlo. O GRESP não
+// distingue o tipo de alívio.
+export function alivioContaParaControlo(dados: Fase4Dados): boolean {
+  return dados.tipoAlivio !== 'ics-formoterol'
+}
+
 export function calcularControlo(dados: Fase4Dados): NivelControlo {
   const criterios = [
     dados.sintomasDiurnos,
     dados.sintomasNoturnos,
     dados.limitacaoAtividades,
-    dados.necessidadeAlivio,
+    dados.necessidadeAlivio && alivioContaParaControlo(dados),
   ].filter(Boolean).length
 
   if (criterios === 0) return 'controlada'

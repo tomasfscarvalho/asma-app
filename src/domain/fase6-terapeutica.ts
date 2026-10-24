@@ -201,12 +201,13 @@ export function calcularFase6(
   const medicamentos = pediatrico
     ? medicacaoPediatrica[degrau]
     : percurso === 1 ? medicacaoPercurso1[degrau] : medicacaoPercurso2[degrau]
-  // Crianças dos 6 aos 11 anos: o GRESP manda referenciar quando não há bom
-  // controlo com doses médias de ICS, o que corresponde a estar já no Degrau 3
-  // ou acima — por isso conta o degrau que a criança faz, e não o proposto.
-  const referenciarEspecialidade = pediatrico
-    ? !degrauInicial && controlo !== 'controlada' && (degrauAtual ?? 0) >= 3
-    : !degrauInicial && controlo !== 'controlada' && degrau >= 3
+  // Conta o degrau que o doente já faz, e não o proposto depois do ajuste: um
+  // doente no Degrau 2 sem controlo sobe para o 3, mas não está sem controlo
+  // "em degrau >= 3". Abaixo do Degrau 3, a Imagem 9 do GRESP manda rever o
+  // diagnóstico e os fatores associados; a partir dele, referenciar. Nas
+  // crianças dos 6 aos 11 anos o GRESP refere doses médias de ICS, que
+  // correspondem também ao Degrau 3.
+  const referenciarEspecialidade = !degrauInicial && controlo !== 'controlada' && (degrauAtual ?? 0) >= 3
 
   return {
     esquema: pediatrico ? 'pediatrico' : 'adulto',

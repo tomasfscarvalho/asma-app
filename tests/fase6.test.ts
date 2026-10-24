@@ -158,6 +158,44 @@ describe('Fase 6 — ajuste ao degrau que o doente já faz', () => {
   })
 })
 
+// Imagem 9 do GRESP: sem controlo abaixo do Degrau 3, rever o diagnóstico e os
+// fatores associados; a partir do Degrau 3, referenciar. Conta o degrau que o
+// doente já faz, e não o proposto depois de subir.
+describe('Fase 6 — referenciação pelo degrau atual (GRESP 2022, Imagem 9)', () => {
+  const naoControlada = dadosFase4({
+    sintomasDiurnos: true, sintomasNoturnos: true, limitacaoAtividades: true,
+  })
+
+  it('Degrau 2 sem controlo: sobe para o 3, sem referenciar', () => {
+    const r = calcularFase6(naoControlada, dadosFase6({ degrauAtual: 2 }), semRisco, f3)
+    expect(r.degrau).toBe(3)
+    expect(r.referenciarEspecialidade).toBe(false)
+  })
+
+  it('Degrau 3 sem controlo: referenciar', () => {
+    const r = calcularFase6(naoControlada, dadosFase6({ degrauAtual: 3 }), semRisco, f3)
+    expect(r.referenciarEspecialidade).toBe(true)
+  })
+})
+
+// O domínio do alívio > 2x/semana é só para SABA (GINA 2025, Box 2-2A, nota †).
+describe('Fase 6 — o alívio com ICS-formoterol não faz subir nem referenciar', () => {
+  const soAlivio = { necessidadeAlivio: true, tipoAlivio: 'ics-formoterol' as const }
+
+  it('Percurso 1, Degrau 3, só com uso frequente de ICS-formoterol: mantém', () => {
+    const r = calcularFase6(dadosFase4(soAlivio), dadosFase6({ percursoSelecionado: 1, degrauAtual: 3 }), semRisco, f3)
+    expect(r.ajuste).toBe('manter')
+    expect(r.degrau).toBe(3)
+    expect(r.referenciarEspecialidade).toBe(false)
+  })
+
+  it('com SABA, o mesmo domínio continua a contar', () => {
+    const r = calcularFase6(dadosFase4({ ...soAlivio, tipoAlivio: 'saba' }), dadosFase6({ percursoSelecionado: 2, degrauAtual: 3 }), semRisco, f3)
+    expect(r.ajuste).toBe('subir')
+    expect(r.referenciarEspecialidade).toBe(true)
+  })
+})
+
 describe('Fase 6 — descer degrau exige estabilidade', () => {
   it('asma controlada sem os 3 meses: manter, não descer', () => {
     const r = calcularFase6(dadosFase4(), dadosFase6({ degrauAtual: 3 }), semRisco, f3)
