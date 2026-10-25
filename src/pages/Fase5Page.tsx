@@ -7,6 +7,7 @@ import NavFooter from '../components/NavFooter'
 import CheckItem from '../components/CheckItem'
 import { avaliarFev1Baixo, divergenciaFev1 } from '../domain/fase5-risco'
 import { calcularControlo } from '../domain/fase4-controlo'
+import { calcularFase3 } from '../domain/fase3-provas'
 
 const steps = ['Medicação / Função', 'Exposição', 'Comorbilidades']
 
@@ -19,6 +20,14 @@ export default function Fase5Page() {
   const avisoFev1 = divergenciaFev1(fase3, fase4, fase5)
   // Vem da classificação da Fase 4, e não de uma caixa à parte.
   const sintomasNaoControlados = calcularControlo(fase4) !== 'controlada'
+  // A reversibilidade elevada não tem limiar nas fontes: o médico decide, com o
+  // aumento medido na Fase 3 à vista. A caixa não fica bloqueada sem prova
+  // positiva, porque a reversibilidade pode vir de uma espirometria anterior.
+  const { aumentoFev1Percentagem: aumentoPct, aumentoFev1ml: aumentoMl } = fase3
+  const provaFase3 = aumentoPct === null
+    ? 'sem prova de broncodilatação registada'
+    : `aumento medido: ${aumentoPct}%${aumentoMl !== null ? ` / ${aumentoMl} ml` : ''}`
+      + (calcularFase3(fase3).reversibilidade === false ? ' (prova negativa)' : '')
 
   return (
     <Layout
@@ -57,6 +66,12 @@ export default function Fase5Page() {
                 checked={fev1.valor}
                 onChange={v => setFase5({ fev1Baixo: v })}
                 bloqueado={fev1.origem === 'medido'}
+                alerta
+              />
+              <CheckItem
+                label={`Reversibilidade broncodilatadora elevada — ${provaFase3}`}
+                checked={fase5.reversibilidadeElevada}
+                onChange={v => setFase5({ reversibilidadeElevada: v })}
                 alerta
               />
             </div>

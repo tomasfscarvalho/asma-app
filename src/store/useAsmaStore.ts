@@ -106,6 +106,7 @@ const fase5Inicial: Fase5Dados = {
   tecnicaInalatoriaIncorreta: false,
   abusoDeSaba: false,
   fev1Baixo: false,
+  reversibilidadeElevada: false,
   fumoTabaco: false,
   biomassa: false,
   alergenios: false,

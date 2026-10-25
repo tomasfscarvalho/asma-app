@@ -147,21 +147,25 @@ describe('Fase 6 — o FEV1 baixo vem do valor medido, não da caixa', () => {
   })
 })
 
+// Nem o GRESP (Imagem 4) nem a GINA 2025 (Box 2-2B) definem a partir de que
+// valor a reversibilidade é elevada: conta só a marcação do médico na Fase 5.
 describe('Fase 6 — reversibilidade elevada como fator de risco', () => {
-  const elevada = dadosFase3({ aumentoFev1Percentagem: 22, aumentoFev1ml: 480 })
+  const marcada = dadosFase5({ reversibilidadeElevada: true })
 
-  it('conta a partir de 20%, e só se a reversibilidade for positiva', () => {
-    expect(reversibilidadeElevada(elevada)).toBe(true)
-    expect(reversibilidadeElevada(dadosFase3({ aumentoFev1Percentagem: 14, aumentoFev1ml: 260 }))).toBe(false)
-  })
-
-  it('não conta se o critério em mililitros não for cumprido', () => {
-    expect(reversibilidadeElevada(dadosFase3({ aumentoFev1Percentagem: 25, aumentoFev1ml: 150 }))).toBe(false)
-  })
-
-  it('entra na lista de fatores de risco', () => {
-    const r = calcularFase6(dadosFase4(), p1, semRisco, elevada)
+  it('assinalada pelo médico, entra na lista de fatores de risco', () => {
+    expect(reversibilidadeElevada(marcada)).toBe(true)
+    const r = calcularFase6(dadosFase4(), p1, marcada, f3)
     expect(r.fatoresDeRiscoPresentes.join(' ')).toContain('Reversibilidade broncodilatadora elevada')
+  })
+
+  it('por assinalar não conta', () => {
+    expect(reversibilidadeElevada(semRisco)).toBe(false)
+  })
+
+  it('um aumento de 25% sem a marcação também não conta', () => {
+    const aumento25 = dadosFase3({ aumentoFev1Percentagem: 25, aumentoFev1ml: 480 })
+    const r = calcularFase6(dadosFase4(), p1, semRisco, aumento25)
+    expect(r.fatoresDeRiscoPresentes.join(' ')).not.toContain('Reversibilidade')
   })
 })
 

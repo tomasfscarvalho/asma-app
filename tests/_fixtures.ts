@@ -32,7 +32,7 @@ export function dadosFase4(o: Partial<Fase4Dados> = {}): Fase4Dados {
 export function dadosFase5(o: Partial<Fase5Dados> = {}): Fase5Dados {
   return {
     naoCumprimentoIcs: false, maAdesao: false,
-    tecnicaInalatoriaIncorreta: false, abusoDeSaba: false, fev1Baixo: false,
+    tecnicaInalatoriaIncorreta: false, abusoDeSaba: false, fev1Baixo: false, reversibilidadeElevada: false,
     fumoTabaco: false, biomassa: false, alergenios: false,
     problemasPsicologicos: false, fatoresSocioeconomicos: false,
     obesidade: false, rinossinusite: false, alergiaAlimentar: false,

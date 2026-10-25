@@ -130,6 +130,7 @@ export interface Fase5Dados {
   tecnicaInalatoriaIncorreta: boolean
   abusoDeSaba: boolean
   fev1Baixo: boolean
+  reversibilidadeElevada: boolean
 
   // Exposição
   fumoTabaco: boolean

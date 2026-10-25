@@ -1,5 +1,4 @@
 import type { Fase3Dados, Fase4Dados, Fase5Dados } from './types'
-import { calcularFase3 } from './fase3-provas'
 import { calcularControlo } from './fase4-controlo'
 
 // ============================================
@@ -20,8 +19,10 @@ import { calcularControlo } from './fase4-controlo'
 //     decidia o degrau terapêutico. Passa a ser derivado, com a marcação
 //     manual a servir de recurso quando não há valor introduzido.
 //  2. A "reversibilidade broncodilatadora elevada" consta da mesma lista do
-//     guia, ao lado do FEV1 baixo, e era calculada na Fase 3 sem nunca ser
-//     usada como fator de risco.
+//     guia, ao lado do FEV1 baixo, e nunca era usada como fator de risco.
+//     Nem o guia (Imagem 4) nem a GINA 2025 (Box 2-2B) dizem a partir de que
+//     valor a reversibilidade é elevada, por isso é o médico que a assinala,
+//     com o aumento medido na Fase 3 à vista.
 //  3. A lista só tinha parte dos fatores da Imagem 4 (GINA 2025, Box 2-2B):
 //     a Fase 5 recolhia o contexto clínico, a exposição e as comorbilidades,
 //     mas não os contava no risco que decide entre os Degraus 1 e 2. Os
@@ -68,12 +69,11 @@ export function divergenciaFev1(
 }
 
 /**
- * Reversibilidade elevada: o guia lista-a como fator de risco de agudização.
- * O limiar corresponde ao dobro do critério de positividade.
+ * Reversibilidade elevada: o guia lista-a como fator de risco de agudização,
+ * mas nenhuma das fontes define um limiar. Conta só a marcação do médico.
  */
-export function reversibilidadeElevada(fase3: Fase3Dados): boolean {
-  return calcularFase3(fase3).reversibilidade === true
-    && (fase3.aumentoFev1Percentagem ?? 0) >= 20
+export function reversibilidadeElevada(fase5: Fase5Dados): boolean {
+  return fase5.reversibilidadeElevada
 }
 
 export function fatoresDeRisco(
@@ -92,7 +92,7 @@ export function fatoresDeRisco(
     fev1.valor && (fev1.origem === 'medido'
       ? `FEV1 ${fev1.percentagem}% do previsto (< ${LIMIAR_FEV1_BAIXO}%)`
       : `FEV1 < ${LIMIAR_FEV1_BAIXO}% do previsto`),
-    reversibilidadeElevada(fase3) && 'Reversibilidade broncodilatadora elevada',
+    reversibilidadeElevada(fase5) && 'Reversibilidade broncodilatadora elevada',
     // Contexto clínico e exposição
     fase5.problemasPsicologicos && 'Problemas psicológicos',
     fase5.fatoresSocioeconomicos && 'Fatores socioeconómicos',
