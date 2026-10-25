@@ -9,8 +9,11 @@ export default function PacientePage() {
   const foraDoAmbito = idade !== null && !dentroDoAmbitoCronico(idade)
 
   function handleSubmit() {
-    if (!paciente.nome || !paciente.dataNascimento || !paciente.numeroUtente) {
-      alert('Por favor, preencha o nome, a data de nascimento e o número de utente.')
+    // Só a data de nascimento é necessária: decide o âmbito etário, os limiares
+    // e o esquema terapêutico. Os identificadores são facultativos, para que a
+    // ferramenta possa ser usada sem recolher dados que identifiquem o doente.
+    if (!paciente.dataNascimento) {
+      alert('Por favor, preencha a data de nascimento.')
       return
     }
 
@@ -44,7 +47,7 @@ export default function PacientePage() {
           <p style={{ color: '#666', fontSize: 12, marginBottom: '1.5rem' }}>{'Os campos assinalados com * são obrigatórios.'}</p>
 
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>Nome completo *</label>
+            <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>Nome completo</label>
             <input
               type="text"
               value={paciente.nome}
@@ -80,7 +83,7 @@ export default function PacientePage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: '1rem' }}>
             <div>
-              <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>Número de utente SNS *</label>
+              <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>Número de utente SNS</label>
               <input
                 type="text"
                 value={paciente.numeroUtente}
