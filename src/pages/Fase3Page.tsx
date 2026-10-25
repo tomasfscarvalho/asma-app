@@ -366,7 +366,7 @@ export default function Fase3Page() {
                 tipo={resultado.variabilidadeConfirmada === true ? 'ok' : 'neutro'}
               />
               <ResultBox
-                label="Confirmação funcional — exige obstrução E variabilidade"
+                label="Confirmação funcional — exige variabilidade (reversibilidade ou PEF)"
                 valor={rotuloConfirmacao[resultado.confirmacaoFuncional]}
                 tipo={resultado.confirmacaoFuncional === 'confirmada' ? 'ok' : 'neutro'}
               />

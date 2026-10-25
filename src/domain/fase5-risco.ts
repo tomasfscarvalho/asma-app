@@ -52,18 +52,19 @@ export function avaliarFev1Baixo(
   return { valor: fase5.fev1Baixo, origem: 'assinalado', percentagem: null }
 }
 
-/** Divergência entre o valor medido e a caixa marcada, para sinalizar ao médico. */
+/**
+ * Caixa marcada à mão que o valor medido, introduzido depois, não confirma.
+ * Com valor medido a caixa fica bloqueada e mostra esse valor, pelo que é a
+ * única divergência que o médico pode ter criado.
+ */
 export function divergenciaFev1(
   fase3: Fase3Dados,
   fase4: Fase4Dados,
   fase5: Fase5Dados,
 ): string | null {
   const { origem, valor, percentagem } = avaliarFev1Baixo(fase3, fase4, fase5)
-  if (origem !== 'medido' || valor === fase5.fev1Baixo) return null
-
-  return valor
-    ? `O FEV1 registado é ${percentagem}% do previsto, abaixo do limiar de ${LIMIAR_FEV1_BAIXO}%, mas a caixa não está assinalada. O valor medido prevalece.`
-    : `O FEV1 registado é ${percentagem}% do previsto, acima do limiar de ${LIMIAR_FEV1_BAIXO}%, mas a caixa está assinalada. O valor medido prevalece.`
+  if (origem !== 'medido' || !fase5.fev1Baixo || valor) return null
+  return `O FEV1 registado é ${percentagem}% do previsto, acima do limiar de ${LIMIAR_FEV1_BAIXO}%, mas a caixa tinha sido assinalada. O valor medido prevalece.`
 }
 
 /**

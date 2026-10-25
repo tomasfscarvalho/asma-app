@@ -5,11 +5,13 @@ import type { Fase3Dados, ResultadoFase3 } from './types'
 // GRESP 2022 / GINA 2025
 // ============================================
 //
-// A Imagem 2 do Guia prático do GRESP organiza a confirmação funcional em dois
-// blocos sequenciais e nomeados — "Limitação ao fluxo expiratório" e
-// "Confirmação da variabilidade ao fluxo expiratório" — e não numa contagem de
-// critérios intermutáveis. Uma reversibilidade positiva sem obstrução
-// documentada não confirma o diagnóstico, e o resultado reflete isso.
+// A confirmação funcional assenta na variabilidade excessiva do fluxo
+// expiratório, por reversibilidade broncodilatadora ou por variabilidade do
+// PEF. A limitação ao fluxo (FEV1/FVC) é calculada e mostrada, mas não é
+// condição: a GINA 2025 substituiu "variable expiratory airflow limitation"
+// por "variable expiratory airflow" e esclarece que a limitação não tem de
+// estar presente no momento da avaliação; o GRESP chama à variabilidade "um
+// componente essencial" do diagnóstico.
 //
 // Um critério cujos dados não foram introduzidos fica `null`, e não `false`:
 // "não avaliado" e "negativo" são estados distintos e ambos visíveis.
@@ -57,10 +59,10 @@ export function calcularFase3(dados: Fase3Dados): ResultadoFase3 {
     : false
 
   // --- SÍNTESE ---
-  // Confirmação funcional exige os dois blocos documentados.
+  // A variabilidade decide; a obstrução fica como informação.
   const confirmacaoFuncional =
-    obstrutivo === true && variabilidadeConfirmada === true ? 'confirmada'
-    : obstrutivo === null || variabilidadeConfirmada === null ? 'incompleta'
+    variabilidadeConfirmada === true ? 'confirmada'
+    : variabilidadeConfirmada === null ? 'incompleta'
     : 'nao-confirmada'
 
   const criteriosPorAvaliar = [

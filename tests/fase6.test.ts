@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { calcularFase6, obterDescricaoDegrau } from '../src/domain/fase6-terapeutica'
-import { temRiscoAgudizacoes, avaliarFev1Baixo, reversibilidadeElevada } from '../src/domain/fase5-risco'
+import { temRiscoAgudizacoes, avaliarFev1Baixo, reversibilidadeElevada, divergenciaFev1 } from '../src/domain/fase5-risco'
 import { dadosFase3, dadosFase4, dadosFase5, dadosFase6 } from './_fixtures'
 
 const f3 = dadosFase3()
@@ -117,6 +117,11 @@ describe('Fase 6 — o FEV1 baixo vem do valor medido, não da caixa', () => {
     expect(avaliarFev1Baixo(f3baixo, dadosFase4(), semRisco))
       .toMatchObject({ valor: true, origem: 'medido', percentagem: 55 })
     expect(calcularFase6(dadosFase4(), p1, semRisco, f3baixo).degrau).toBe(3)
+  })
+
+  it('com valor medido, só avisa se a caixa foi marcada e o valor não a confirma', () => {
+    expect(divergenciaFev1(dadosFase3({ fev1Percentagem: 55 }), dadosFase4(), semRisco)).toBeNull()
+    expect(divergenciaFev1(dadosFase3({ fev1Percentagem: 82 }), dadosFase4(), comFev1Baixo)).toContain('82%')
   })
 
   it('um FEV1 medido acima de 60% prevalece sobre a caixa marcada', () => {

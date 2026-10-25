@@ -200,10 +200,10 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
 
   const textoConfirmacao =
     r3.confirmacaoFuncional === 'confirmada'
-      ? 'Confirmação funcional: obstrução e variabilidade ambas documentadas.'
+      ? 'Confirmação funcional: variabilidade ao fluxo expiratório documentada.'
       : r3.confirmacaoFuncional === 'incompleta'
         ? `Confirmação funcional incompleta — por avaliar: ${r3.criteriosPorAvaliar.join('; ')}.`
-        : 'Confirmação funcional não obtida: a limitação ao fluxo expiratório e a variabilidade não estão ambas documentadas.'
+        : 'Confirmação funcional não obtida: a variabilidade ao fluxo expiratório não foi documentada.'
 
   const blocoDivergencia = [
     r4.divergenciaQuestionario,

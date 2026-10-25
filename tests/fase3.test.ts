@@ -70,7 +70,9 @@ describe('Fase 3 — confirmação da variabilidade', () => {
   })
 })
 
-describe('Fase 3 — a confirmação exige os dois blocos', () => {
+// GINA 2025: "variable expiratory airflow"; a limitação ao fluxo não tem de
+// estar presente no momento da avaliação. A variabilidade decide.
+describe('Fase 3 — a confirmação depende da variabilidade', () => {
   const obstrucao = { fev1Litros: 2.1, fvcLitros: 3 }
   const variabilidade = { aumentoFev1Percentagem: 14, aumentoFev1ml: 250 }
 
@@ -79,10 +81,16 @@ describe('Fase 3 — a confirmação exige os dois blocos', () => {
     expect(r.confirmacaoFuncional).toBe('confirmada')
   })
 
-  it('reversibilidade positiva sem obstrução documentada NÃO confirma', () => {
-    const r = calcularFase3(dadosFase3({ ...variabilidade, fev1Litros: 2.4, fvcLitros: 3 }))
+  it('variabilidade sem obstrução também confirma (rácio 0,80, +15% e +300 ml)', () => {
+    const r = calcularFase3(dadosFase3({ fev1Litros: 2.4, fvcLitros: 3, aumentoFev1Percentagem: 15, aumentoFev1ml: 300 }))
     expect(r.obstrutivo).toBe(false)
     expect(r.variabilidadeConfirmada).toBe(true)
+    expect(r.confirmacaoFuncional).toBe('confirmada')
+  })
+
+  it('obstrução sem variabilidade documentada não confirma', () => {
+    const r = calcularFase3(dadosFase3({ ...obstrucao, aumentoFev1Percentagem: 5, aumentoFev1ml: 100, variabilidadePef: 6 }))
+    expect(r.obstrutivo).toBe(true)
     expect(r.confirmacaoFuncional).toBe('nao-confirmada')
   })
 

@@ -226,13 +226,13 @@ export type FrequenciaSintomasPediatrica = 'menos-2-dias-semana' | '2-5-dias-sem
 export type TipoAlivio = 'saba' | 'ics-formoterol'
 
 export interface ResultadoFase3 {
-  /** Bloco 1 da Imagem 2: limitação ao fluxo expiratório. */
+  /** Limitação ao fluxo expiratório (FEV1/FVC): informativa, não é condição. */
   obstrutivo: boolean | null
   /** Bloco 2 da Imagem 2, por qualquer das duas vias. */
   reversibilidade: boolean | null
   pefPositivo: boolean | null
   variabilidadeConfirmada: boolean | null
-  /** Exige os dois blocos documentados. */
+  /** Depende da variabilidade (reversibilidade ou PEF). */
   confirmacaoFuncional: 'confirmada' | 'nao-confirmada' | 'incompleta'
   criteriosPorAvaliar: string[]
 }

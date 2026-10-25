@@ -110,12 +110,12 @@ describe('O relatório apresenta a confirmação funcional em dois blocos', () =
     expect(r).toContain('Confirmação funcional incompleta')
   })
 
-  it('declara a confirmação quando os dois blocos estão documentados', () => {
+  it('declara a confirmação quando a variabilidade está documentada', () => {
     const f3 = dadosFase3({
       fev1Litros: 2.1, fvcLitros: 3,
       aumentoFev1Percentagem: 15, aumentoFev1ml: 320, variabilidadePef: 14,
     })
-    expect(relatorio({ fase3: f3 })).toContain('obstrução e variabilidade ambas documentadas')
+    expect(relatorio({ fase3: f3 })).toContain('variabilidade ao fluxo expiratório documentada')
   })
 })
 
