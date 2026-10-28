@@ -8,7 +8,7 @@ import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
 import ResultBox from '../components/ResultBox'
 
-const steps = ['Contexto', 'Espirometria', 'Reversibilidade', 'PEF + Output']
+const steps = ['Contexto', 'Espirometria', 'Reversibilidade', 'PEF e resultados']
 
 const rotuloConfirmacao = {
   'confirmada': 'Confirmada',

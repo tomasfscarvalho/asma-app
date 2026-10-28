@@ -75,7 +75,7 @@ export default function RelatorioPage() {
 
         <div style={{ background: '#0F6E5615', border: '1px solid #1D9E7530', borderRadius: 8, padding: '10px 16px', marginBottom: 16 }}>
           <p style={{ color: '#5DCAA5', fontSize: 12, margin: 0 }}>
-            {'Este relatório é um instrumento de apoio à decisão clínica. A responsabilidade diagnóstica e terapêutica é do médico assistente. Os dados são eliminados ao fechar o browser.'}
+            {'Este relatório é um instrumento de apoio à decisão clínica. A responsabilidade diagnóstica e terapêutica é do médico assistente. Os dados são eliminados ao fechar o navegador.'}
           </p>
         </div>
 

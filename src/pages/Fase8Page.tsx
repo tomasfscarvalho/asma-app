@@ -218,7 +218,7 @@ export default function Fase8Page() {
             {resultado.avaliacaoIncompleta && (
               <div style={{ marginBottom: 16, background: '#FAEEDA20', border: '1px solid #FAC77550', borderRadius: 6, padding: '10px 12px' }}>
                 <p style={{ color: '#FAC775', fontSize: 12, fontWeight: 500, margin: '0 0 6px' }}>
-                  ⚠ Avaliação incompleta — {resultado.criteriosPorAvaliar.length} critérios por medir
+                  ⚠ Avaliação incompleta — {resultado.criteriosPorAvaliar.length} {resultado.criteriosPorAvaliar.length === 1 ? 'critério' : 'critérios'} por medir
                 </p>
                 <p style={{ color: '#FAC775', fontSize: 11, margin: '0 0 6px' }}>
                   {resultado.criteriosPorAvaliar.join('; ')}.

@@ -287,7 +287,7 @@ RELATÓRIO CLÍNICO — AVALIAÇÃO DE AGUDIZAÇÃO
 Data: ${formatarData()}
 ========================================
 
-DADOS DO PACIENTE
+DADOS DO DOENTE
 Nome: ${p.nome || '—'}
 Data de Nascimento: ${p.dataNascimento || '—'} (${idade} anos)
 Sexo: ${p.sexo}
@@ -324,7 +324,7 @@ RELATÓRIO CLÍNICO — DIAGNÓSTICO POR DECIDIR
 Data: ${formatarData()}
 ========================================
 
-DADOS DO PACIENTE
+DADOS DO DOENTE
 Nome: ${p.nome || '—'}
 Data de Nascimento: ${p.dataNascimento || '—'} (${idade} anos)
 Sexo: ${p.sexo}
@@ -363,7 +363,7 @@ RELATÓRIO CLÍNICO — EXCLUSÃO DE ASMA
 Data: ${formatarData()}
 ========================================
 
-DADOS DO PACIENTE
+DADOS DO DOENTE
 Nome: ${p.nome || '—'}
 Data de Nascimento: ${p.dataNascimento || '—'} (${idade} anos)
 Sexo: ${p.sexo}
@@ -404,7 +404,7 @@ RELATÓRIO CLÍNICO — ASMA
 Data: ${formatarData()}
 ========================================
 
-DADOS DO PACIENTE
+DADOS DO DOENTE
 Nome: ${p.nome || '—'}
 Data de Nascimento: ${p.dataNascimento || '—'} (${idade} anos)
 Sexo: ${p.sexo}
