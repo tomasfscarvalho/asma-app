@@ -137,6 +137,8 @@ describe('Agudização — três níveis e tratamento (Imagens 10 e 11)', () => 
     expect(r.reavaliar).toBe(false)
     expect(r.nivelCuidados).toContain('Cuidados de Saúde Primários')
     expect(r.tratamento).toContain('Avaliar a resposta ao fim de 1 hora')
+    expect(r.tratamento.join(' ')).toContain('melhor valor anterior')
+    expect(r.tratamento.join(' ')).toContain('Na alta')
   })
 
   it('o tratamento traz as doses do guia', () => {

@@ -185,6 +185,8 @@ export function tratamentoAgudizacao(
     base[1],
     base[2],
     'Avaliar a resposta ao fim de 1 hora',
+    'Boa resposta: melhoria dos sintomas, exame físico normal, PEF > 60–80% do previsto ou do melhor valor anterior e SpO₂ > 94%',
+    'Na alta: medicação de alívio só quando necessária; manter ICS em dose mais alta durante 1–2 semanas a 3 meses, conforme a evolução',
     base[3],
   ]
 }

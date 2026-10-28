@@ -1,5 +1,5 @@
 import { useAsmaStore } from '../store/useAsmaStore'
-import { calcularIdade } from '../domain/idade'
+import { calcularIdade, faixaEtaria, rotuloFaixa } from '../domain/idade'
 import { ECRA } from '../domain/fases'
 import Layout from '../components/Layout'
 import NavFooter from '../components/NavFooter'
@@ -113,11 +113,11 @@ const diferenciaisPorFaixa = {
   ],
 }
 
-function calcularFaixa(dataNascimento: string): 'crianca' | 'jovem' | 'adulto' {
-  const idade = calcularIdade(dataNascimento)
-  if (idade === null) return 'adulto'
-  if (idade <= 11) return 'crianca'
-  if (idade <= 39) return 'jovem'
+// Os diferenciais estão em três listas; até aos 11 anos usa-se a pediátrica.
+function grupoDeDiferenciais(idade: number | null): 'crianca' | 'jovem' | 'adulto' {
+  const faixa = faixaEtaria(idade)
+  if (faixa === 'pre-escolar' || faixa === 'crianca') return 'crianca'
+  if (faixa === 'jovem-adulto') return 'jovem'
   return 'adulto'
 }
 
@@ -125,26 +125,23 @@ function calcularFaixa(dataNascimento: string): 'crianca' | 'jovem' | 'adulto' {
 // crianças até aos 5 anos o Guia prático do GRESP tem uma tabela própria
 // (Tabela 8), com itens diferentes, que a ferramenta ainda não cobre — daí o
 // aviso em vez de um rótulo que afirmaria uma faixa etária errada.
-function rotuloDaFaixa(faixa: 'crianca' | 'jovem' | 'adulto', idade: number | null): string {
-  if (faixa === 'crianca') {
-    return idade !== null && idade < 6 ? 'Idade pré-escolar (≤ 5 anos)' : 'Crianças (6–11 anos)'
-  }
-  return faixa === 'jovem' ? 'Jovens adultos (12–39 anos)' : 'Adultos (≥ 40 anos)'
+function rotuloDaFaixa(idade: number | null): string {
+  return rotuloFaixa[faixaEtaria(idade) ?? 'adulto']
 }
 
 export default function Fase2Page() {
   const { paciente, fase1, fase2, setFase2, navegarPara } = useAsmaStore()
 
-  const faixa = calcularFaixa(paciente.dataNascimento)
+  const idade = calcularIdade(paciente.dataNascimento)
+  const faixa = grupoDeDiferenciais(idade)
   const gruposFaixa = diferenciaisPorFaixa[faixa]
   const gruposTodos = diferenciaisPorFaixa.todos
   const todosOsGrupos = [...gruposFaixa, ...gruposTodos]
   const todosOsItems = todosOsGrupos.flatMap(g => g.items)
   const todosOsDDs = todosOsItems.map(i => i.dd)
 
-  const idade = calcularIdade(paciente.dataNascimento)
-  const idadeInferiorASeis = idade !== null && idade < 6
-  const faixaLabel = rotuloDaFaixa(faixa, idade)
+  const idadeInferiorASeis = faixaEtaria(idade) === 'pre-escolar'
+  const faixaLabel = rotuloDaFaixa(idade)
 
   function toggle(d: string) {
     const atual = fase2.diferenciaisExcluidos

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { calcularIdade } from '../domain/idade'
+import { aplicaLimiaresPediatricos, calcularIdade, faixaEtaria } from '../domain/idade'
 import { ECRA } from '../domain/fases'
 import { useAsmaStore } from '../store/useAsmaStore'
 import { calcularFase3, descreverCriterio } from '../domain/fase3-provas'
@@ -27,8 +27,8 @@ export default function Fase3Page() {
   const [step, setStep] = useState(0)
 
   const idade = calcularIdade(paciente.dataNascimento)
-  const pacientePediatrico = idade !== null && idade >= 6 && idade <= 11
-  const idadeInferiorASeis = idade !== null && idade < 6
+  const pacientePediatrico = aplicaLimiaresPediatricos(idade)
+  const idadeInferiorASeis = faixaEtaria(idade) === 'pre-escolar'
   const dadosFase3 = { ...fase3, pacientePediatrico }
   const resultado = calcularFase3(dadosFase3)
   const racio = obterRacio(fase3.fev1Litros, fase3.fvcLitros)

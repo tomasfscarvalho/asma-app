@@ -24,7 +24,7 @@ const tabelaAdultos = {
   1: [
     { degrau: 'Degrau 1-2', preferencial: 'Dose baixa ICS-formoterol conforme necessário' },
     { degrau: 'Degrau 3', preferencial: 'Dose baixa ICS-formoterol de manutenção + alívio' },
-    { degrau: 'Degrau 4', preferencial: 'Dose média ICS-formoterol de manutenção + alívio. Adicionar LAMA se insuficiente' },
+    { degrau: 'Degrau 4', preferencial: 'Dose média ICS-formoterol de manutenção + alívio' },
     { degrau: 'Degrau 5', preferencial: 'Referenciar para avaliação fenotípica' },
   ],
   2: [
@@ -257,7 +257,9 @@ export default function Fase6Page() {
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8, marginBottom: 20 }}>
               {(pediatrico ? tabelaPediatrica : tabelaAdultos[resultado.percurso]).map((linha) => {
+                // No Percurso 1, os Degraus 1 e 2 são uma só linha («Degrau 1-2»).
                 const ativo = linha.degrau === degrauTexto
+                  || (!pediatrico && resultado.percurso === 1 && resultado.degrau <= 2 && linha.degrau === 'Degrau 1-2')
                 return (
                   <div
                     key={linha.degrau}

@@ -3,7 +3,7 @@ import { ECRA } from '../domain/fases'
 import type { Fase4Dados } from '../domain/types'
 import { useAsmaStore } from '../store/useAsmaStore'
 import { alivioContaParaControlo, calcularFase4, calcularCaratRinite, calcularCaratAsma, interpretarCarat, interpretarAct } from '../domain/fase4-controlo'
-import { calcularIdade } from '../domain/idade'
+import { aplicaLimiaresPediatricos, calcularIdade } from '../domain/idade'
 import Layout from '../components/Layout'
 import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
@@ -86,7 +86,7 @@ export default function Fase4Page() {
   const caratAplicavel = idade === null || idade >= 18
   // O ACT está validado a partir dos 12 anos; a versão infantil (c-ACT) não está implementada.
   const actAplicavel = idade === null || idade >= 12
-  const pediatrico = idade !== null && idade >= 6 && idade <= 11
+  const pediatrico = aplicaLimiaresPediatricos(idade)
   const resultado = calcularFase4(fase4)
   const scoreCaratRinite = calcularCaratRinite(fase4)
   const scoreCaratAsma = calcularCaratAsma(fase4)

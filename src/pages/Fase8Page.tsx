@@ -156,7 +156,7 @@ export default function Fase8Page() {
               </div>
               <div>
                 <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>
-                  PEF (% previsto)
+                  PEF (% do previsto ou do melhor valor anterior)
                 </label>
                 <input
                   type="number"
