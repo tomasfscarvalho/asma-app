@@ -88,7 +88,7 @@ export function fatoresDeRisco(
     fase5.naoCumprimentoIcs && 'Não cumprimento da terapêutica com ICS',
     fase5.maAdesao && 'Má adesão à terapêutica',
     fase5.tecnicaInalatoriaIncorreta && 'Técnica inalatória incorreta',
-    fase5.abusoDeSaba && 'Abuso de SABA (≥ 3 embalagens/ano)',
+    fase5.abusoDeSaba && 'Utilização excessiva de SABA (≥ 3 embalagens/ano)',
     fev1.valor && (fev1.origem === 'medido'
       ? `FEV1 ${fev1.percentagem}% do previsto (< ${LIMIAR_FEV1_BAIXO}%)`
       : `FEV1 < ${LIMIAR_FEV1_BAIXO}% do previsto`),

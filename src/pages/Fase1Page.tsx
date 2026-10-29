@@ -41,9 +41,9 @@ export default function Fase1Page() {
       faseTitulo="Avaliação clínica inicial"
       badge="Apresentação ao médico"
       resumo={[
-        { key: 'Sintomas típicos', val: sintomasCount > 0 ? `${sintomasCount} assinalados` : '—' },
-        { key: 'Fatores ↑', val: fatoresAumentamCount > 0 ? `${fatoresAumentamCount} presentes` : '—' },
-        { key: 'Fatores ↓', val: fatoresDiminuemCount > 0 ? `${fatoresDiminuemCount} presentes` : '—' },
+        { key: 'Sintomas típicos', val: sintomasCount > 0 ? `${sintomasCount} ${sintomasCount === 1 ? 'assinalado' : 'assinalados'}` : '—' },
+        { key: 'Fatores ↑', val: fatoresAumentamCount > 0 ? `${fatoresAumentamCount} ${fatoresAumentamCount === 1 ? 'presente' : 'presentes'}` : '—' },
+        { key: 'Fatores ↓', val: fatoresDiminuemCount > 0 ? `${fatoresDiminuemCount} ${fatoresDiminuemCount === 1 ? 'presente' : 'presentes'}` : '—' },
       ]}
     >
       <SubstepNav steps={steps} atual={step} onChange={setStep} />
@@ -135,7 +135,9 @@ export default function Fase1Page() {
             {fatoresAumentamCount > 0 && (
               <div style={{ background: '#0F6E5615', border: '1px solid #1D9E7530', borderRadius: 6, padding: '8px 12px', marginBottom: 16 }}>
                 <p style={{ color: '#5DCAA5', fontSize: 12, margin: 0 }}>
-                  {fatoresAumentamCount} fator(es) que aumentam a probabilidade de asma presentes.
+                  {fatoresAumentamCount === 1
+                    ? '1 fator que aumenta a probabilidade de asma presente.'
+                    : `${fatoresAumentamCount} fatores que aumentam a probabilidade de asma presentes.`}
                 </p>
               </div>
             )}
@@ -179,7 +181,9 @@ export default function Fase1Page() {
             {fatoresDiminuemCount > 0 && (
               <div style={{ marginTop: 12, background: '#E24B4A15', border: '1px solid #E24B4A50', borderRadius: 6, padding: '8px 12px' }}>
                 <p style={{ color: '#F09595', fontSize: 12, margin: 0 }}>
-                  {fatoresDiminuemCount} fator(es) que diminuem a probabilidade de asma presentes — considerar diagnósticos diferenciais.
+                  {fatoresDiminuemCount === 1
+                    ? '1 fator que diminui a probabilidade de asma presente — considerar diagnósticos diferenciais.'
+                    : `${fatoresDiminuemCount} fatores que diminuem a probabilidade de asma presentes — considerar diagnósticos diferenciais.`}
                 </p>
               </div>
             )}
@@ -247,7 +251,7 @@ export default function Fase1Page() {
                 onChange={v => setFase1({ exameFisicoNormal: v })}
               />
               <CheckItem
-                label="Silêncio respiratório — sinal de obstrução brônquica muito grave"
+                label="Tórax silencioso — sinal de obstrução brônquica muito grave"
                 checked={fase1.silencioRespiratorio}
                 onChange={v => setFase1({ silencioRespiratorio: v })}
                 alerta
@@ -258,7 +262,7 @@ export default function Fase1Page() {
               <div style={{ marginTop: 16, background: '#E24B4A15', border: '1px solid #E24B4A50', borderRadius: 6, padding: '12px' }}>
                 <p style={{ color: '#F09595', fontSize: 13, fontWeight: 500, margin: '0 0 4px' }}>⚠ Alerta clínico</p>
                 <p style={{ color: '#F09595', fontSize: 12, margin: 0 }}>
-                  Silêncio respiratório — sinal de obstrução brônquica muito grave. Nas agudizações os sibilos podem estar ausentes. Sinalizar imediatamente.
+                  Tórax silencioso — sinal de obstrução brônquica muito grave. Nas agudizações os sibilos podem estar ausentes. Sinalizar imediatamente.
                 </p>
               </div>
             )}
@@ -273,11 +277,11 @@ export default function Fase1Page() {
                   <span style={{ color: sintomasCount > 0 ? '#5DCAA5' : '#555' }}>{sintomasCount} / 4</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-                  <span style={{ color: '#888' }}>Fatores que aumentam probabilidade</span>
+                  <span style={{ color: '#888' }}>Fatores que aumentam a probabilidade</span>
                   <span style={{ color: fatoresAumentamCount > 0 ? '#5DCAA5' : '#555' }}>{fatoresAumentamCount} / 8</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-                  <span style={{ color: '#888' }}>Fatores que diminuem probabilidade</span>
+                  <span style={{ color: '#888' }}>Fatores que diminuem a probabilidade</span>
                   <span style={{ color: fatoresDiminuemCount > 0 ? '#F09595' : '#555' }}>{fatoresDiminuemCount} / 5</span>
                 </div>
               </div>

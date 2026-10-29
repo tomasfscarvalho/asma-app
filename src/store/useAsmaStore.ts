@@ -22,7 +22,7 @@ import type {
 const pacienteInicial: Paciente = {
   nome: '',
   dataNascimento: '',
-  sexo: 'masculino',
+  sexo: '',
   numeroUtente: '',
   cartaoCidadao: '',
   contacto: '',
@@ -98,6 +98,7 @@ const fase4Inicial: Fase4Dados = {
   caratChestTightness: null,
   caratActivityLimitation: null,
   caratMedicationIncrease: null,
+  caratSemMedicacao: false,
 }
 
 const fase5Inicial: Fase5Dados = {

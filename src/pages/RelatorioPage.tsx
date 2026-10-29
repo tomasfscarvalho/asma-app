@@ -41,7 +41,7 @@ export default function RelatorioPage() {
           <div style={{ background: '#E24B4A15', border: '1px solid #E24B4A50', borderRadius: 8, padding: '12px 16px', marginBottom: 16 }}>
             <p style={{ color: '#F09595', fontSize: 13, fontWeight: 500, marginBottom: 6 }}>{'\u26a0 Alertas clínicos'}</p>
             {store.fase1.silencioRespiratorio && (
-              <p style={{ color: '#F09595', fontSize: 12, margin: '2px 0' }}>{'\u2022 Silêncio respiratório — sinal de obstrução grave'}</p>
+              <p style={{ color: '#F09595', fontSize: 12, margin: '2px 0' }}>{'\u2022 Tórax silencioso — sinal de obstrução brônquica muito grave'}</p>
             )}
             {store.fase5.intubacaoOuUciPrevia && (
               <p style={{ color: '#F09595', fontSize: 12, margin: '2px 0' }}>{'\u2022 Internamento prévio em UCI por asma'}</p>
@@ -75,7 +75,7 @@ export default function RelatorioPage() {
 
         <div style={{ background: '#0F6E5615', border: '1px solid #1D9E7530', borderRadius: 8, padding: '10px 16px', marginBottom: 16 }}>
           <p style={{ color: '#5DCAA5', fontSize: 12, margin: 0 }}>
-            {'Este relatório é um instrumento de apoio à decisão clínica. A responsabilidade diagnóstica e terapêutica é do médico assistente. Os dados são eliminados ao fechar o navegador.'}
+            {'Este relatório é um instrumento de apoio à decisão clínica. A responsabilidade diagnóstica e terapêutica é do médico assistente. Os dados são eliminados ao fechar ou recarregar a página e ao iniciar nova consulta.'}
           </p>
         </div>
 

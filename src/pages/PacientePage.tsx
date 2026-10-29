@@ -2,6 +2,15 @@ import { useAsmaStore } from '../store/useAsmaStore'
 import { ECRA } from '../domain/fases'
 import type { TipoConsulta } from '../domain/types'
 import { calcularIdade, dentroDoAmbitoCronico, MOTIVO_FORA_DE_AMBITO } from '../domain/idade'
+import { anos } from '../domain/formato'
+
+// Acima disto, a data só pode ser um erro de introdução.
+const IDADE_MAXIMA = 120
+
+function hojeIso(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
 
 export default function PacientePage() {
   const { paciente, setPaciente, tipoConsulta, setTipoConsulta, navegarPara, ativarFase8 } = useAsmaStore()
@@ -14,6 +23,13 @@ export default function PacientePage() {
     // ferramenta possa ser usada sem recolher dados que identifiquem o doente.
     if (!paciente.dataNascimento) {
       alert('Por favor, preencha a data de nascimento.')
+      return
+    }
+
+    // Uma data no futuro deixava a idade por calcular, e cada fase aplicava
+    // então limiares e listas de outra faixa etária.
+    if (idade === null || idade > IDADE_MAXIMA) {
+      alert(`A data de nascimento não é válida: não pode ser posterior a hoje nem corresponder a mais de ${IDADE_MAXIMA} anos.`)
       return
     }
 
@@ -62,6 +78,7 @@ export default function PacientePage() {
               <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>Data de nascimento *</label>
               <input
                 type="date"
+                max={hojeIso()}
                 value={paciente.dataNascimento}
                 onChange={e => setPaciente({ dataNascimento: e.target.value })}
                 style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff', boxSizing: 'border-box' }}
@@ -71,9 +88,10 @@ export default function PacientePage() {
               <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>Sexo</label>
               <select
                 value={paciente.sexo}
-                onChange={e => setPaciente({ sexo: e.target.value as 'masculino' | 'feminino' | 'outro' })}
+                onChange={e => setPaciente({ sexo: e.target.value as '' | 'masculino' | 'feminino' | 'outro' })}
                 style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff', boxSizing: 'border-box' }}
               >
+                <option value="">Não indicado</option>
                 <option value="masculino">Masculino</option>
                 <option value="feminino">Feminino</option>
                 <option value="outro">Outro</option>
@@ -148,9 +166,9 @@ export default function PacientePage() {
             </div>
           </div>
 
-          {foraDoAmbito && (
+          {foraDoAmbito && idade !== null && (
             <div style={{ marginBottom: '1rem', background: '#FAEEDA20', border: '1px solid #FAC77550', borderRadius: 8, padding: '12px 14px' }}>
-              <p style={{ color: '#FAC775', fontSize: 13, fontWeight: 500, margin: '0 0 6px' }}>{`⚠ Doente com ${idade} anos — apenas avaliação de agudização`}</p>
+              <p style={{ color: '#FAC775', fontSize: 13, fontWeight: 500, margin: '0 0 6px' }}>{`⚠ Doente com ${anos(idade)} — apenas avaliação de agudização`}</p>
               <p style={{ color: '#FAC775', fontSize: 12, margin: 0, lineHeight: 1.6 }}>{MOTIVO_FORA_DE_AMBITO}</p>
             </div>
           )}

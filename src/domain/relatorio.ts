@@ -9,6 +9,7 @@ import { calcularFase6, obterDescricaoDegrau } from './fase6-terapeutica'
 import { calcularFase7 } from './fase7-referenciacao'
 import { calcularFase8 } from './fase8-agudizacao'
 import { avaliarFev1Baixo, LIMIAR_FEV1_BAIXO } from './fase5-risco'
+import { anos, dataPortuguesa, formatarRacio, numero } from './formato'
 
 interface DadosRelatorio {
   paciente: Paciente
@@ -27,6 +28,18 @@ interface DadosRelatorio {
 
 function formatarData(): string {
   return new Date().toLocaleDateString('pt-PT')
+}
+
+const RODAPE = `========================================
+Gerado pelo AsthmaGuide
+GRESP 2022 / GINA 2025
+Este relatório é de apoio à decisão.
+A responsabilidade clínica é do médico.
+========================================`
+
+/** Percentagem medida, ou "Não avaliado" sem o "%" solto de um valor em falta. */
+function percentagem(valor: number | null, sufixo = ''): string {
+  return valor === null ? 'Não avaliado' : `${numero(valor)}%${sufixo}`
 }
 
 function sim(valor: boolean): string {
@@ -62,6 +75,10 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
   const { paciente: p, fase1: f1, fase2: f2, fase5: f5 } = dados
 
   const idade = calcularIdade(p.dataNascimento) ?? '—'
+  const dadosDoente = `Nome: ${p.nome || '—'}
+Data de nascimento: ${p.dataNascimento ? dataPortuguesa(p.dataNascimento) : '—'} (${idade === '—' ? '—' : anos(idade)})
+Sexo: ${p.sexo || 'não indicado'}
+N.º de utente do SNS: ${p.numeroUtente || '—'}`
 
   const controloTexto = {
     'controlada': 'Controlada',
@@ -77,7 +94,7 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
   const linhaQuestionario = idadeNum !== null && idadeNum < 12
     ? '  • Questionário de controlo: não aplicável (ACT validado a partir dos 12 anos; CARAT para adultos)'
     : dados.fase4.questionarioUsado === 'carat'
-    ? `  • Score CARAT: ${r4.scoreCarat ?? 'Não preenchido'}/30 (rinite: ${caratRinite ?? '—'}/12; asma: ${caratAsma ?? '—'}/18)`
+    ? `  • CARAT: ${r4.scoreCarat !== null ? `${r4.scoreCarat}/30 (rinite: ${caratRinite ?? '—'}/12; asma: ${caratAsma ?? '—'}/18)` : 'Não preenchido'}`
     : `  • ACT: ${r4.scoreAct !== null ? interpretarAct(r4.scoreAct) : 'Não preenchido'}`
 
   // A frequência de sintomas é o critério que escolhe o degrau inicial, pelo
@@ -103,7 +120,7 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
     : `  • Uso de ICS-formoterol de alívio > 2x/semana: ${sim(dados.fase4.necessidadeAlivio)} (não conta para o nível de controlo — GINA 2025; considerar ao rever a dose de manutenção)`
 
   const linhaFev1Atual = r4.fev1Atual !== null
-    ? `  • FEV1 atual: ${r4.fev1Atual}% do previsto`
+    ? `  • FEV1 atual: ${numero(r4.fev1Atual)}% do previsto`
     : ''
 
   const listaOuNenhum = (itens: string[], vazio: string): string =>
@@ -123,7 +140,7 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
     [
       f1.sibilosNaExpiracao && 'Sibilos na expiração',
       f1.exameFisicoNormal && 'Exame físico normal',
-      f1.silencioRespiratorio && '⚠ SILÊNCIO RESPIRATÓRIO — sinal de obstrução brônquica muito grave',
+      f1.silencioRespiratorio && '⚠ Tórax silencioso — sinal de obstrução brônquica muito grave',
     ].filter(Boolean) as string[],
     'Sem alterações registadas.'
   )
@@ -158,7 +175,7 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
       f5.naoCumprimentoIcs && 'Não cumprimento da terapêutica com ICS',
       f5.maAdesao && 'Má adesão à terapêutica',
       f5.tecnicaInalatoriaIncorreta && 'Técnica inalatória incorreta',
-      f5.abusoDeSaba && 'Abuso de SABA (≥ 3 embalagens/ano)',
+      f5.abusoDeSaba && 'Utilização excessiva de SABA (≥ 3 embalagens/ano)',
       fev1.valor && (fev1.origem === 'medido'
         ? `FEV1 ${fev1.percentagem}% do previsto (< ${LIMIAR_FEV1_BAIXO}%)`
         : `FEV1 < ${LIMIAR_FEV1_BAIXO}% do previsto`),
@@ -228,19 +245,19 @@ export function gerarRelatorioSOAP(dados: DadosRelatorio): string {
   • Tosse: ${sim(f1.tosse)}
   • Opressão torácica: ${sim(f1.opressaoToracica)}
 
-Fatores que aumentam probabilidade de asma:
+Fatores que aumentam a probabilidade de asma:
   • Mais do que 1 tipo de sintoma: ${sim(f1.maisDe1Sintoma)}
   • Sintomas variáveis ao longo do tempo: ${sim(f1.sintomasVariaveis)}
   • Agravam com exposição: ${sim(agravamComExposicao)}
   • Sintomas > 1x por semana: ${sim(f1.sintomasMaisde1xSemana)}
   • Sintomas noturnos ou matinais: ${sim(f1.sintomasNoturnosOuManha)}
 
-Fatores que diminuem probabilidade de asma:
+Fatores que diminuem a probabilidade de asma:
   • Tosse isolada: ${sim(f1.tosseIsolada)}
   • Tosse produtiva crónica: ${sim(f1.tosseProdutivaCronica)}
   • Dor torácica: ${sim(f1.dorToracica)}
   • Dispneia com tonturas ou parestesias: ${sim(f1.dispneiaTonturasParestesias)}
-  • Dispneia de esforço com inspiração ruídosa: ${sim(f1.dispneiaPorExercicioComInspiracao)}
+  • Dispneia de esforço com inspiração ruidosa: ${sim(f1.dispneiaPorExercicioComInspiracao)}
 
 História clínica e familiar:
 ${historiaClinica}
@@ -248,17 +265,21 @@ ${historiaClinica}
 Exame físico:
 ${exameFisico}`
 
-  const oProvas = `Provas Funcionais Respiratórias:
-  • FEV1: ${dados.fase3.fev1Percentagem ?? '—'}% do previsto
-  • FVC: ${dados.fase3.fvcPercentagem ?? '—'}% do previsto
-  • FEV1/FVC: ${dados.fase3.fev1FvcRacio?.toFixed(2) ?? '—'}
+  // O rácio guardado na Fase 3 ou, na falta dele, o calculado a partir dos
+  // litros, como em calcularFase3: o valor impresso é o que decidiu o critério.
+  const { fev1FvcRacio, fev1Litros, fvcLitros } = dados.fase3
+  const racio = fev1FvcRacio ?? (fev1Litros !== null && fvcLitros !== null && fvcLitros > 0 ? fev1Litros / fvcLitros : null)
+  const oProvas = `Provas de função respiratória:
+  • FEV1: ${percentagem(dados.fase3.fev1Percentagem, ' do previsto')}
+  • FVC: ${percentagem(dados.fase3.fvcPercentagem, ' do previsto')}
+  • FEV1/FVC: ${racio !== null ? formatarRacio(racio) : 'Não avaliado'}
 
 Limitação ao fluxo expiratório:
   • Padrão obstrutivo (FEV1/FVC): ${estado(r3.obstrutivo)}
 
 Confirmação da variabilidade ao fluxo expiratório:
   • Reversibilidade broncodilatadora: ${estado(r3.reversibilidade)}
-  • Variabilidade diária do PEF: ${dados.fase3.variabilidadePef ?? '—'}% — ${estado(r3.pefPositivo)}
+  • Variabilidade diária do PEF: ${dados.fase3.variabilidadePef !== null ? `${numero(dados.fase3.variabilidadePef)}% — ` : ''}${estado(r3.pefPositivo)}
   • Variabilidade documentada: ${estado(r3.variabilidadeConfirmada)}
 
   ${textoConfirmacao}`
@@ -288,27 +309,19 @@ Data: ${formatarData()}
 ========================================
 
 DADOS DO DOENTE
-Nome: ${p.nome || '—'}
-Data de Nascimento: ${p.dataNascimento || '—'} (${idade} anos)
-Sexo: ${p.sexo}
-Nº Utente SNS: ${p.numeroUtente || '—'}
+${dadosDoente}
 
 ----------------------------------------
 ÂMBITO
 ----------------------------------------
-  • Doente com ${idade} anos. A ferramenta não cobre o diagnóstico nem a gestão
+  • Doente com ${anos(idade)}. A ferramenta não cobre o diagnóstico nem a gestão
     crónica da asma abaixo dos 6 anos: nesta faixa etária as recomendações
     estabelecem que o diagnóstico assente na história clínica e no exame físico,
     que seja evitado um diagnóstico definitivo, e que a avaliação da função
     respiratória, quando necessária, motive orientação para centro de referência.
   • Este relatório cobre exclusivamente a avaliação da agudização.
 ${blocoAgudizacao}
-========================================
-Gerado pelo Sistema de Apoio à Decisão
-Clínica ASMA — GRESP 2022 / GINA 2025
-Este relatório é de apoio à decisão.
-A responsabilidade clínica é do médico.
-========================================
+${RODAPE}
 `)
   }
 
@@ -325,10 +338,7 @@ Data: ${formatarData()}
 ========================================
 
 DADOS DO DOENTE
-Nome: ${p.nome || '—'}
-Data de Nascimento: ${p.dataNascimento || '—'} (${idade} anos)
-Sexo: ${p.sexo}
-Nº Utente SNS: ${p.numeroUtente || '—'}
+${dadosDoente}
 Cartão de Cidadão: ${p.cartaoCidadao || '—'}
 
 ${secoesSO}
@@ -347,12 +357,7 @@ P — PLANO
   • Concluir a avaliação diagnóstica e registar a decisão.
   • A avaliação do controlo e a proposta terapêutica só são geradas depois de confirmado o diagnóstico.
 ${blocoAgudizacao}
-========================================
-Gerado pelo Sistema de Apoio à Decisão
-Clínica ASMA — GRESP 2022 / GINA 2025
-Este relatório é de apoio à decisão.
-A responsabilidade clínica é do médico.
-========================================
+${RODAPE}
 `)
   }
 
@@ -364,10 +369,7 @@ Data: ${formatarData()}
 ========================================
 
 DADOS DO DOENTE
-Nome: ${p.nome || '—'}
-Data de Nascimento: ${p.dataNascimento || '—'} (${idade} anos)
-Sexo: ${p.sexo}
-Nº Utente SNS: ${p.numeroUtente || '—'}
+${dadosDoente}
 Cartão de Cidadão: ${p.cartaoCidadao || '—'}
 
 ${secoesSO}
@@ -389,12 +391,7 @@ P — PLANO
   • Considerar investigação complementar ou repetição de provas funcionais, se clinicamente indicado.
   • Prosseguir a avaliação dos diagnósticos diferenciais não excluídos.
 
-========================================
-Gerado pelo Sistema de Apoio à Decisão
-Clínica ASMA — GRESP 2022 / GINA 2025
-Este relatório é de apoio à decisão.
-A responsabilidade clínica é do médico.
-========================================
+${RODAPE}
 `)
   }
 
@@ -405,10 +402,7 @@ Data: ${formatarData()}
 ========================================
 
 DADOS DO DOENTE
-Nome: ${p.nome || '—'}
-Data de Nascimento: ${p.dataNascimento || '—'} (${idade} anos)
-Sexo: ${p.sexo}
-Nº Utente SNS: ${p.numeroUtente || '—'}
+${dadosDoente}
 Cartão de Cidadão: ${p.cartaoCidadao || '—'}
 
 ----------------------------------------
@@ -428,8 +422,8 @@ ${comorbilidades}
 Agudizações e fatores de risco major:
   • Internamento em UCI ou intubação prévia: ${sim(f5.intubacaoOuUciPrevia)}
   • Agudização grave no último ano: ${sim(f5.agudizacaoGraveUltimoAno)}
-  • Nº de agudizações no último ano: ${f5.agudizacoesUltimoAno ?? '—'}
-  • Nº de internamentos por asma no último ano: ${f5.internamentosUltimoAno ?? '—'}
+  • N.º de agudizações no último ano: ${f5.agudizacoesUltimoAno ?? '—'}
+  • N.º de internamentos por asma no último ano: ${f5.internamentosUltimoAno ?? '—'}
 
 ----------------------------------------
 O — OBJETIVO
@@ -469,16 +463,11 @@ P — PLANO
   • Alternativa terapêutica: ${r6.medicacaoAlternativa}
   • ${r6.degrauInicial ? 'Seguimento' : 'Ajuste terapêutico sugerido'}: ${r6.degrauInicial ? 'Iniciar no degrau proposto e reavaliar a resposta em 2 a 3 meses' : r6.ajuste === 'subir' ? 'Verificar técnica/adesão/fatores modificáveis e considerar subir degrau' : r6.ajuste === 'descer' ? 'Considerar descer degrau apenas se controlo ≥ 3 meses' : 'Manter terapêutica atual'}${r6.avisos.map(a => `
   ⚠ ${a}`).join('')}
-  • ${r6.esquema === 'pediatrico' ? 'Esquema dos 6 aos 11 anos (GRESP 2022, Imagem 8; degrau inicial segundo a GINA 2025, Box 4-11): SABA como alívio; ICS-formoterol só em manutenção e alívio nos Degraus 3 e 4' : 'Percurso preferencial GINA 2025: Percurso 1 (ICS-formoterol)'}
+  • ${r6.esquema === 'pediatrico' ? 'Esquema dos 6 aos 11 anos (GRESP 2022, Imagem 8; degrau inicial segundo a GINA 2025, Quadro 4-11): SABA como alívio; ICS-formoterol só em manutenção e alívio nos Degraus 3 e 4' : 'Percurso preferencial GINA 2025: Percurso 1 (ICS-formoterol)'}
   • Vacinação antigripal: Recomendar anualmente
   • Técnica inalatória: Rever na consulta
-  • Plano de ação escrito: A elaborar com o doente${r7.perguntarDegrau3 && !dados.fase7.semControloDegrau3 ? '\n  ⚠ Verificar: o doente está há 3-6 meses sem controlo em degrau ≥ 3, com técnica inalatória correta e boa adesão? Em caso afirmativo, referenciar.' : ''}
+  • Plano de ação escrito: A elaborar com o doente${r7.perguntarDegrau3 && !dados.fase7.semControloDegrau3 ? '\n  ⚠ Verificar: o doente está há 3–6 meses sem controlo em degrau ≥ 3, com técnica inalatória correta e boa adesão? Em caso afirmativo, referenciar.' : ''}
 ${blocoAgudizacao}
-========================================
-Gerado pelo Sistema de Apoio à Decisão
-Clínica ASMA — GRESP 2022 / GINA 2025
-Este relatório é de apoio à decisão.
-A responsabilidade clínica é do médico.
-========================================
+${RODAPE}
 `)
 }

@@ -7,6 +7,8 @@ import Layout from '../components/Layout'
 import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
 import ResultBox from '../components/ResultBox'
+import CampoNumero from '../components/CampoNumero'
+import { formatarRacio } from '../domain/formato'
 
 const steps = ['Contexto', 'Espirometria', 'Reversibilidade', 'PEF e resultados']
 
@@ -18,7 +20,8 @@ const rotuloConfirmacao = {
 
 
 function obterRacio(fev1Litros: number | null, fvcLitros: number | null): number | null {
-  if (fev1Litros === null || fvcLitros === null || fvcLitros <= 0) return null
+  // O FEV1 não pode exceder a FVC: o campo recusa esse par, e o rácio fica por calcular.
+  if (fev1Litros === null || fvcLitros === null || fvcLitros <= 0 || fev1Litros > fvcLitros) return null
   return fev1Litros / fvcLitros
 }
 
@@ -35,10 +38,10 @@ export default function Fase3Page() {
 
   const classificacaoEtaria = pacientePediatrico ? 'pediátrico' : 'adulto/adolescente'
   const limiarObstrucao = pacientePediatrico ? '0,90' : '0,75'
-  const criterioReversibilidade = pacientePediatrico ? '> 12% do previsto' : '> 12% e > 200 ml'
+  const criterioReversibilidade = pacientePediatrico ? '> 12% do previsto' : '> 12% e > 200 mL'
 
   // Um critério sem os dados de que precisa é "não avaliado", e não negativo:
-  // no adulto, o aumento em % sem o aumento em ml não chega para o aplicar.
+  // no adulto, o aumento em % sem o aumento em mL não chega para o aplicar.
   const textoCriterio = (valor: boolean | null) =>
     valor === null ? descreverCriterio(valor) : valor ? '✓ Critério positivo' : '✗ Critério negativo'
   const criterioPef = pacientePediatrico ? '> 13%' : '> 10%'
@@ -177,7 +180,7 @@ export default function Fase3Page() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11, color: '#BA7517' }}>
                   <span>• Períodos de suspensão recomendados antes da espirometria:</span>
                   <span style={{ paddingLeft: 12 }}>SABA: ≥ 4 horas | Formoterol, salmeterol: 24 horas | Indacaterol, vilanterol: 36 horas</span>
-                  <span style={{ paddingLeft: 12 }}>Tiotrópio, umeclidínio, aclidínio, glicopirrónio: 36 a 48 horas (GINA 2025, Box 1-2)</span>
+                  <span style={{ paddingLeft: 12 }}>Tiotrópio, umeclidínio, aclidínio, glicopirrónio: 36 a 48 horas (GINA 2025, Quadro 1-2)</span>
                   <span>• A ausência de obstrução não exclui o diagnóstico de asma.</span>
                   <span>• Considere variabilidade entre visitas como critério adicional.</span>
                 </div>
@@ -189,57 +192,45 @@ export default function Fase3Page() {
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-              <div>
-                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>FEV1 medido (L)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={fase3.fev1Litros ?? ''}
-                  onChange={e => setFase3({ fev1Litros: e.target.value ? Number(e.target.value) : null, fev1FvcRacio: null })}
-                  placeholder="Ex: 2.10"
-                  style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>FVC medida (L)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={fase3.fvcLitros ?? ''}
-                  onChange={e => setFase3({ fvcLitros: e.target.value ? Number(e.target.value) : null, fev1FvcRacio: null })}
-                  placeholder="Ex: 3.00"
-                  style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
-                />
-              </div>
+              <CampoNumero
+                label="FEV1 medido (L)"
+                valor={fase3.fev1Litros}
+                onChange={v => setFase3({ fev1Litros: v, fev1FvcRacio: null })}
+                min={0.1} max={8} unidade="L" step="0.01"
+                validar={v => fase3.fvcLitros !== null && v > fase3.fvcLitros ? 'O FEV1 não pode ser superior à FVC: não é considerado.' : null}
+                placeholder="Ex: 2.10"
+              />
+              <CampoNumero
+                label="FVC medida (L)"
+                valor={fase3.fvcLitros}
+                onChange={v => setFase3({ fvcLitros: v, fev1FvcRacio: null })}
+                min={0.1} max={10} unidade="L" step="0.01"
+                validar={v => fase3.fev1Litros !== null && v < fase3.fev1Litros ? 'A FVC não pode ser inferior ao FEV1: não é considerada.' : null}
+                placeholder="Ex: 3.00"
+              />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-              <div>
-                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>FEV1 (% do previsto)</label>
-                <input
-                  type="number"
-                  value={fase3.fev1Percentagem ?? ''}
-                  onChange={e => setFase3({ fev1Percentagem: e.target.value ? Number(e.target.value) : null })}
-                  placeholder="Ex: 72"
-                  style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>FVC (% do previsto)</label>
-                <input
-                  type="number"
-                  value={fase3.fvcPercentagem ?? ''}
-                  onChange={e => setFase3({ fvcPercentagem: e.target.value ? Number(e.target.value) : null })}
-                  placeholder="Ex: 85"
-                  style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
-                />
-              </div>
+              <CampoNumero
+                label="FEV1 (% do previsto)"
+                valor={fase3.fev1Percentagem}
+                onChange={v => setFase3({ fev1Percentagem: v })}
+                min={10} max={200} unidade="%"
+                placeholder="Ex: 72"
+              />
+              <CampoNumero
+                label="FVC (% do previsto)"
+                valor={fase3.fvcPercentagem}
+                onChange={v => setFase3({ fvcPercentagem: v })}
+                min={10} max={200} unidade="%"
+                placeholder="Ex: 85"
+              />
             </div>
 
             <div style={{ marginBottom: 16 }}>
               <ResultBox
                 label={`FEV1/FVC calculado — limiar ${limiarObstrucao} (${classificacaoEtaria})`}
-                valor={racio !== null ? `${racio.toFixed(2)} → ${resultado.obstrutivo ? 'Obstrução confirmada' : 'Sem obstrução confirmada'}` : 'Introduza FEV1 e FVC medidos em litros.'}
+                valor={racio !== null ? `${formatarRacio(racio)} → ${resultado.obstrutivo ? 'Obstrução confirmada' : 'Sem obstrução confirmada'}` : 'Introduza FEV1 e FVC medidos em litros.'}
                 tipo={racio !== null ? (resultado.obstrutivo ? 'ok' : 'neutro') : 'neutro'}
               />
             </div>
@@ -257,39 +248,32 @@ export default function Fase3Page() {
         {step === 2 && (
           <>
             <p style={{ fontSize: 12, color: '#888', marginBottom: 16, lineHeight: 1.6 }}>
-              O teste de reversibilidade é realizado 10 a 15 minutos após administração de broncodilatador (200-400 µg de salbutamol ou equivalente). A reversibilidade brônquica favorece o diagnóstico de asma quando enquadrada no contexto clínico.
+              O teste de reversibilidade é realizado 10 a 15 minutos após administração de broncodilatador (200–400 µg de salbutamol ou equivalente). A reversibilidade brônquica favorece o diagnóstico de asma quando enquadrada no contexto clínico.
             </p>
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-              Pós-broncodilatador — 10 a 15 min após 200-400 µg de salbutamol
+              {/* A unidade fica fora das maiúsculas: em maiúsculas, «µg» passaria a «ΜG», com o M grego. */}
+              Pós-broncodilatador — 10 a 15 min após 200–400 <span style={{ textTransform: 'none' }}>µg</span> de salbutamol
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: pacientePediatrico ? '1fr' : '1fr 1fr', gap: 12, marginBottom: 16 }}>
-              <div>
-                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>
-                  Aumento do FEV1 (%)
-                </label>
-                <input
-                  type="number"
-                  value={fase3.aumentoFev1Percentagem ?? ''}
-                  onChange={e => setFase3({ aumentoFev1Percentagem: e.target.value ? Number(e.target.value) : null })}
-                  placeholder={pacientePediatrico ? 'Positivo se > 12% do previsto' : 'Positivo se > 12%'}
-                  style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
-                />
-              </div>
+              {/* Uma descida após o broncodilatador é possível (resposta paradoxal): os
+                  valores negativos são aceites e dão um critério negativo. */}
+              <CampoNumero
+                label="Aumento do FEV1 (%)"
+                valor={fase3.aumentoFev1Percentagem}
+                onChange={v => setFase3({ aumentoFev1Percentagem: v })}
+                min={-50} max={100} unidade="%"
+                placeholder={pacientePediatrico ? 'Positivo se > 12% do previsto' : 'Positivo se > 12%'}
+              />
               {!pacientePediatrico && (
-                <div>
-                  <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>
-                    Aumento do FEV1 (ml)
-                  </label>
-                  <input
-                    type="number"
-                    value={fase3.aumentoFev1ml ?? ''}
-                    onChange={e => setFase3({ aumentoFev1ml: e.target.value ? Number(e.target.value) : null })}
-                    placeholder="Positivo se > 200 ml"
-                    style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
-                  />
-                </div>
+                <CampoNumero
+                  label="Aumento do FEV1 (mL)"
+                  valor={fase3.aumentoFev1ml}
+                  onChange={v => setFase3({ aumentoFev1ml: v })}
+                  min={-1000} max={2000} unidade="mL"
+                  placeholder="Positivo se > 200 mL"
+                />
               )}
             </div>
 
@@ -297,7 +281,7 @@ export default function Fase3Page() {
               <ResultBox
                 label={`Reversibilidade broncodilatadora — critério ${criterioReversibilidade}`}
                 valor={resultado.reversibilidade === null
-                  ? 'Não avaliado — o critério exige o aumento em % e em ml'
+                  ? 'Não avaliado — o critério exige o aumento em % e em mL'
                   : resultado.reversibilidade ? 'Critério positivo — reversibilidade confirmada' : 'Critério negativo — reversibilidade não confirmada'}
                 tipo={resultado.reversibilidade ? 'ok' : 'neutro'}
               />
@@ -326,15 +310,12 @@ export default function Fase3Page() {
             </p>
 
             <div style={{ marginBottom: 20, maxWidth: 220 }}>
-              <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>
-                Variabilidade diária (%)
-              </label>
-              <input
-                type="number"
-                value={fase3.variabilidadePef ?? ''}
-                onChange={e => setFase3({ variabilidadePef: e.target.value ? Number(e.target.value) : null })}
+              <CampoNumero
+                label="Variabilidade diária (%)"
+                valor={fase3.variabilidadePef}
+                onChange={v => setFase3({ variabilidadePef: v })}
+                min={0} max={100} unidade="%"
                 placeholder={`Positivo se ${criterioPef}`}
-                style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
               />
             </div>
 

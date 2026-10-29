@@ -46,6 +46,11 @@ describe('Agudização — não medido não é normal', () => {
     expect(r.avaliacaoIncompleta).toBe(true)
     expect(r.criteriosPresentes).toHaveLength(0)
     expect(r.criteriosPorAvaliar.length).toBeGreaterThan(0)
+    expect(r.criteriosPorAvaliar).toContain('PEF')
+    // Abaixo dos 6 anos o PEF não se mede (GINA 2025, Box 9-4): não fica em falta
+    // nem decide a gravidade.
+    expect(calcularFase8(dadosFase8(), 3).criteriosPorAvaliar).not.toContain('PEF')
+    expect(calcularFase8(dadosFase8({ pefPercentagem: 30 }), 4).gravidade).toBe('ligeira-moderada')
   })
 
   it('uma saturação em branco não conta como saturação normal', () => {
@@ -118,7 +123,7 @@ describe('Agudização — os fatores de mau prognóstico mudam o destino', () =
       exprimePorFrases: true, freqRespiratoria: 18, freqCardiaca: 80, spo2: 98, pefPercentagem: 90,
     }))
     expect(sem.nivelCuidados).not.toContain('ponderar')
-    expect(com.nivelCuidados).toContain('ponderar referência hospitalar')
+    expect(com.nivelCuidados).toContain('ponderar referenciação hospitalar')
   })
 })
 
@@ -157,6 +162,8 @@ describe('Agudização — três níveis e tratamento (Imagens 10 e 11)', () => 
   it('na crítica, o tratamento é o de espera pela UCI', () => {
     const r = calcularFase8(dadosFase8({ sonolenciaConfusaoToraxSilencioso: true }))
     expect(r.tratamento[0]).toContain('UCI')
+    expect(r.tratamento.join(' ')).toContain('Oxigénio suplementar para manter SpO₂ entre 93% e 95%')
+    expect(r.tratamento.join(' ')).not.toContain('spo₂')
   })
 })
 
@@ -187,7 +194,7 @@ describe('Referenciação — a app pergunta, não conclui (GRESP 2022, §3.2.3)
     const r = calcularFase7(
       naoControlada, dadosFase6({ degrauAtual: 3 }), dadosFase7({ semControloDegrau3: true }),
     )
-    expect(r.criteriosPresentes.join(' ')).toContain('3-6 meses')
+    expect(r.criteriosPresentes.join(' ')).toContain('3–6 meses')
     expect(r.referenciar).toBe(true)
   })
 

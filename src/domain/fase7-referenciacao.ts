@@ -46,7 +46,7 @@ export function calcularFase7(
 
   if (fase7.semControloDegrau3)
     criteriosPresentes.push(
-      'Ausência de controlo durante 3-6 meses com degrau ≥ 3, apesar de técnica inalatória correta e boa adesão'
+      'Ausência de controlo durante 3–6 meses com degrau ≥ 3, apesar de técnica inalatória correta e boa adesão'
     )
 
   if (fase7.duasOuMaisHospitalizacoes)

@@ -67,7 +67,7 @@ describe('O relatório imprime o que a aplicação recolhe', () => {
   it('inclui o silêncio respiratório, que antes só existia no ecrã', () => {
     const f1 = { ...relatorioBase().fase1, silencioRespiratorio: true }
     const r = relatorio({ fase1: f1 })
-    expect(r).toContain('SILÊNCIO RESPIRATÓRIO')
+    expect(r).toContain('Tórax silencioso')
     expect(r).toContain('obstrução brônquica muito grave')
   })
 
@@ -116,6 +116,14 @@ describe('O relatório apresenta a confirmação funcional em dois blocos', () =
       aumentoFev1Percentagem: 15, aumentoFev1ml: 320, variabilidadePef: 14,
     })
     expect(relatorio({ fase3: f3 })).toContain('variabilidade ao fluxo expiratório documentada')
+    // Vírgula decimal; perto do limiar, as casas que evitam mostrar 0,75 num rácio abaixo dele.
+    expect(relatorio({ fase3: f3 })).toContain('FEV1/FVC: 0,70')
+    expect(relatorio({ fase3: dadosFase3({ fev1Litros: 2.99, fvcLitros: 4 }) })).toContain('FEV1/FVC: 0,748')
+    // Um valor em falta diz-se "Não avaliado", sem o "%" solto.
+    const vazio = relatorio({ fase3: dadosFase3() })
+    expect(vazio).toContain('FEV1: Não avaliado')
+    expect(vazio).toContain('Variabilidade diária do PEF: Não avaliado')
+    expect(vazio).not.toContain('—%')
   })
 })
 
@@ -195,9 +203,17 @@ describe('As duas variantes do relatório', () => {
     expect(relatorio()).toContain('seleção inicial')
     expect(relatorio()).toContain('reavaliar a resposta em 2 a 3 meses')
     expect(relatorio()).not.toContain('considerar subir degrau')
-    expect(relatorio()).not.toContain('há 3-6 meses sem controlo')
+    expect(relatorio()).not.toContain('há 3–6 meses sem controlo')
     const comDegrau = relatorio({ fase6: dadosFase6({ degrauAtual: 3 }) })
     expect(comDegrau).toContain('o doente fazia Degrau 3')
+    // No último degrau não se propõe subir: mantém-se, com a razão à vista.
+    const noTopo = relatorio({
+      fase4: dadosFase4({ sintomasDiurnos: true, sintomasNoturnos: true, limitacaoAtividades: true }),
+      fase6: dadosFase6({ degrauAtual: 5 }),
+    })
+    expect(noTopo).toContain('Ajuste terapêutico sugerido: Manter terapêutica atual')
+    expect(noTopo).toContain('não há degrau acima')
+    expect(noTopo).not.toContain('considerar subir degrau')
   })
 })
 
@@ -295,6 +311,9 @@ describe('Formatação do relatório', () => {
 
   it('a idade é exata e não aproximada', () => {
     expect(relatorio()).toMatch(/\(\d+ anos\)/)
+    expect(relatorio()).toContain('Data de nascimento: 14/06/1979')
+    expect(relatorio()).toContain('N.º de utente do SNS: 284517903')
+    expect(relatorio({ paciente: { ...paciente, sexo: '' } })).toContain('Sexo: não indicado')
   })
 })
 

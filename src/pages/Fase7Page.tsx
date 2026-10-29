@@ -19,7 +19,7 @@ export default function Fase7Page() {
     <Layout
       faseNumero={7}
       faseTitulo="Critérios de referenciação"
-      badge="Cálculo automático"
+      badge="Registo pelo médico"
       resumo={[
         { key: 'Referenciar', val: resultado.referenciar ? '⚠ Sim' : 'Não' },
         { key: 'Critérios', val: `${resultado.criteriosPresentes.length}` },
@@ -27,7 +27,7 @@ export default function Fase7Page() {
     >
       <div style={{ padding: 20, minHeight: 280 }}>
         <p style={{ fontSize: 12, color: '#888', marginBottom: 20 }}>
-          A ferramenta sinaliza automaticamente critérios de referenciação para consulta de especialidade, segundo o GRESP. A decisão de referenciar compete ao médico.
+          Os critérios de referenciação para consulta de especialidade, segundo o GRESP, são assinalados pelo médico; a ferramenta sugere apenas a verificação do critério do degrau ≥ 3. A decisão de referenciar compete ao médico.
         </p>
 
         {resultado.perguntarDegrau3 && (
@@ -39,7 +39,7 @@ export default function Fase7Page() {
               O doente está sem controlo em degrau ≥ 3. O critério do GRESP exige mais duas condições que a ferramenta não pode verificar, por não guardar histórico: que a situação persista há 3 a 6 meses e que a técnica inalatória e a adesão estejam corretas.
             </p>
             <CheckItem
-              label="Confirmo: sem controlo há 3-6 meses em degrau ≥ 3, com técnica inalatória correta e boa adesão"
+              label="Confirmo: sem controlo há 3–6 meses em degrau ≥ 3, com técnica inalatória correta e boa adesão"
               checked={fase7.semControloDegrau3}
               onChange={v => setFase7({ semControloDegrau3: v })}
               alerta

@@ -9,13 +9,14 @@ import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
 import CheckItem from '../components/CheckItem'
 import ResultBox from '../components/ResultBox'
+import CampoNumero from '../components/CampoNumero'
 
 const steps = ['Critérios GRESP/GINA', 'Questionário']
 
 const controloTexto = {
   'controlada': 'Controlada',
   'parcialmente-controlada': 'Parcialmente controlada',
-  'nao-controlada': 'Não Controlada',
+  'nao-controlada': 'Não controlada',
 }
 
 const controloTipo = {
@@ -36,13 +37,13 @@ const caratPerguntas: { key: keyof Fase4Dados, texto: string }[] = [
   { key: 'caratNasalCongestion', texto: 'Nariz entupido?' },
   { key: 'caratSneezing', texto: 'Espirros?' },
   { key: 'caratNasalItching', texto: 'Comichão no nariz?' },
-  { key: 'caratRunnyNose', texto: 'Corrimento nasal?' },
+  { key: 'caratRunnyNose', texto: 'Corrimento/pingo do nariz?' },
   { key: 'caratBreathlessness', texto: 'Falta de ar/dispneia?' },
   { key: 'caratWheeze', texto: 'Chiadeira no peito/pieira?' },
   { key: 'caratChestTightness', texto: 'Aperto no peito com esforço físico?' },
-  { key: 'caratActivityLimitation', texto: 'Cansaço ou dificuldade nas atividades do dia-a-dia?' },
-  { key: 'caratSleepDisturbance', texto: 'Acordou durante a noite por causa das doenças alérgicas?' },
-  { key: 'caratMedicationIncrease', texto: 'Aumentar a utilização dos seus medicamentos?' },
+  { key: 'caratActivityLimitation', texto: 'Cansaço/dificuldade em fazer as suas atividades ou tarefas do dia a dia?' },
+  { key: 'caratSleepDisturbance', texto: 'Acordou durante a noite por causa das suas doenças alérgicas respiratórias?' },
+  { key: 'caratMedicationIncrease', texto: 'Aumentar a utilização dos seus medicamentos por causa das suas doenças alérgicas respiratórias (asma/rinite/alergia)?' },
 ]
 
 const caratOpcoesFrequencia = [
@@ -52,11 +53,13 @@ const caratOpcoesFrequencia = [
   { label: 'Quase todos ou todos os dias', value: 0 },
 ]
 
+// "Não estou a tomar medicamentos" e "Nunca" valem ambos 3: a escolha fica
+// registada à parte, para o ecrã não marcar as duas opções ao mesmo tempo.
 const caratOpcoesMedicacao = [
-  { label: 'Não estou a tomar medicamentos', value: 3 },
-  { label: 'Nunca', value: 3 },
-  { label: 'Menos de 7 dias', value: 2 },
-  { label: '7 ou mais dias', value: 0 },
+  { label: 'Não estou a tomar medicamentos', value: 3, semMedicacao: true },
+  { label: 'Nunca', value: 3, semMedicacao: false },
+  { label: 'Menos de 7 dias', value: 2, semMedicacao: false },
+  { label: '7 ou mais dias', value: 0, semMedicacao: false },
 ]
 
 const frequenciaSintomasOpcoes: Array<{ label: string; value: Fase4Dados['frequenciaSintomas'] }> = [
@@ -124,7 +127,7 @@ export default function Fase4Page() {
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
               <CheckItem
-                label="Sintomas diurnos > 2x/semana — sibilância, tosse despertada pelo exercício, opressão torácica ou tosse após exposição a alergénios ou poluentes"
+                label="Sintomas diurnos > 2x/semana — sibilância, tosse desencadeada pelo exercício, opressão torácica ou tosse após exposição a alergénios ou poluentes"
                 checked={fase4.sintomasDiurnos}
                 onChange={v => setFase4({ sintomasDiurnos: v })}
               />
@@ -226,15 +229,12 @@ export default function Fase4Page() {
 
             {tipoConsulta === 'seguimento' && (
               <div style={{ marginTop: 16, maxWidth: 260 }}>
-                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>
-                  FEV1 atual (% do previsto)
-                </label>
-                <input
-                  type="number"
-                  value={fase4.fev1Atual ?? ''}
-                  onChange={e => setFase4({ fev1Atual: e.target.value ? Number(e.target.value) : null })}
+                <CampoNumero
+                  label="FEV1 atual (% do previsto)"
+                  valor={fase4.fev1Atual}
+                  onChange={v => setFase4({ fev1Atual: v })}
+                  min={10} max={200} unidade="%"
                   placeholder="Ex: 78"
-                  style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
                 />
               </div>
             )}
@@ -262,7 +262,7 @@ export default function Fase4Page() {
                 }}
               >
                 <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>ACT</div>
-                <div style={{ fontSize: 12, color: '#888' }}>5 perguntas, escala 1-5, score total 5-25.</div>
+                <div style={{ fontSize: 12, color: '#888' }}>5 perguntas, escala 1–5, pontuação total 5–25.</div>
               </button>
               <button
                 onClick={() => caratAplicavel && setFase4({ questionarioUsado: 'carat' })}
@@ -278,7 +278,7 @@ export default function Fase4Page() {
                 }}
               >
                 <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>CARAT</div>
-                <div style={{ fontSize: 12, color: '#888' }}>10 perguntas, escala 0-3, score total 0-30.</div>
+                <div style={{ fontSize: 12, color: '#888' }}>10 perguntas, escala 0–3, pontuação total 0–30.</div>
               </button>
             </div>
 
@@ -332,7 +332,7 @@ export default function Fase4Page() {
 
                 <div style={{ marginTop: 8 }}>
                   <ResultBox
-                    label="Score ACT"
+                    label="Pontuação ACT"
                     valor={interpretarAct(resultado.scoreAct)}
                     tipo={resultado.scoreAct !== null ? (resultado.scoreAct >= 20 ? 'ok' : 'alerta') : 'neutro'}
                   />
@@ -343,29 +343,47 @@ export default function Fase4Page() {
             {fase4.questionarioUsado === 'carat' && (
               <>
                 <p style={{ fontSize: 11, color: '#555', marginBottom: 16 }}>
-                  CARAT — as perguntas 1-9 avaliam a frequência nas últimas 4 semanas; a pergunta 10 avalia o aumento da medicação. As perguntas 1-4 avaliam rinite; as perguntas 5-10 avaliam asma.
+                  CARAT — as perguntas 1–9 avaliam a frequência nas últimas 4 semanas; a pergunta 10 avalia o aumento da medicação. As perguntas 1–4 avaliam rinite; as perguntas 5–10 avaliam asma.
                 </p>
 
                 {caratPerguntas.map((p, i) => (
                   <div key={p.key} style={{ marginBottom: 16 }}>
+                    {/* Enunciados do CARAT validado em Portugal. */}
+                    {i === 0 && (
+                      <p style={{ fontSize: 12, color: '#888', marginBottom: 10, lineHeight: 1.6 }}>
+                        Por causa das suas doenças alérgicas respiratórias (asma/rinite/alergia), em média nas últimas 4 semanas quantas vezes teve:
+                      </p>
+                    )}
+                    {p.key === 'caratMedicationIncrease' && (
+                      <p style={{ fontSize: 12, color: '#888', marginBottom: 10, lineHeight: 1.6 }}>
+                        Nas últimas 4 semanas, quantas vezes teve de:
+                      </p>
+                    )}
                     <p style={{ fontSize: 13, color: '#ccc', marginBottom: 8 }}>{i + 1}. {p.texto}</p>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 6 }}>
-                      {(p.key === 'caratMedicationIncrease' ? caratOpcoesMedicacao : caratOpcoesFrequencia).map(opcao => (
-                        <button
-                          key={`${p.key}-${opcao.label}`}
-                          onClick={() => setFase4({ [p.key]: opcao.value } as Partial<Fase4Dados>)}
-                          style={{
-                            minHeight: 48, borderRadius: 6, fontSize: 12, cursor: 'pointer',
-                            border: fase4[p.key] === opcao.value ? '1px solid #5DCAA5' : '1px solid #444',
-                            background: fase4[p.key] === opcao.value ? '#0F6E56' : '#111',
-                            color: fase4[p.key] === opcao.value ? 'white' : '#bbb',
-                            fontWeight: fase4[p.key] === opcao.value ? 500 : 400,
-                            padding: '6px 8px',
-                          }}
-                        >
-                          {opcao.label}
-                        </button>
-                      ))}
+                      {(p.key === 'caratMedicationIncrease' ? caratOpcoesMedicacao : caratOpcoesFrequencia).map(opcao => {
+                        const pergunta10 = 'semMedicacao' in opcao
+                        const ativo = fase4[p.key] === opcao.value
+                          && (!pergunta10 || Boolean(fase4.caratSemMedicacao) === opcao.semMedicacao)
+                        return (
+                          <button
+                            key={`${p.key}-${opcao.label}`}
+                            onClick={() => setFase4(pergunta10
+                              ? { caratMedicationIncrease: opcao.value, caratSemMedicacao: opcao.semMedicacao === true }
+                              : { [p.key]: opcao.value } as Partial<Fase4Dados>)}
+                            style={{
+                              minHeight: 48, borderRadius: 6, fontSize: 12, cursor: 'pointer',
+                              border: ativo ? '1px solid #5DCAA5' : '1px solid #444',
+                              background: ativo ? '#0F6E56' : '#111',
+                              color: ativo ? 'white' : '#bbb',
+                              fontWeight: ativo ? 500 : 400,
+                              padding: '6px 8px',
+                            }}
+                          >
+                            {opcao.label}
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
                 ))}
@@ -385,7 +403,7 @@ export default function Fase4Page() {
 
                 <div style={{ marginTop: 12 }}>
                   <ResultBox
-                    label="Score CARAT"
+                    label="Pontuação CARAT"
                     valor={interpretarCarat(resultado.scoreCarat, scoreCaratRinite, scoreCaratAsma)}
                     tipo={resultado.scoreCarat !== null ? (resultado.scoreCarat > 24 ? 'ok' : 'alerta') : 'neutro'}
                   />

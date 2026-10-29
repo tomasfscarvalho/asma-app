@@ -1,6 +1,7 @@
 import { useAsmaStore } from '../store/useAsmaStore'
 import { calcularIdade, dentroDoAmbitoCronico } from '../domain/idade'
 import { ECRA } from '../domain/fases'
+import { anos } from '../domain/formato'
 
 const fases = [
   { label: 'Avaliação' },
@@ -23,7 +24,7 @@ export default function ProgressBar() {
     return (
       <div style={{ background: '#0F6E56', borderRadius: 8, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
         <span style={{ color: '#9FE1CB', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', marginRight: 12, minWidth: 100 }}>AsthmaGuide</span>
-        <span style={{ color: '#E1F5EE', fontSize: 12 }}>{`Doente com ${idade} anos — apenas avaliação de agudização`}</span>
+        <span style={{ color: '#E1F5EE', fontSize: 12 }}>{`Doente com ${anos(idade)} — apenas avaliação de agudização`}</span>
       </div>
     )
   }

@@ -13,11 +13,19 @@ import { calcularIdade } from '../domain/idade'
 const steps = ['Percurso e degrau', 'Detalhe do degrau']
 
 const medidasNaoFarmacologicas = [
-  'Cessação tabágica - fumadores e exposição passiva',
+  'Cessação tabágica — fumadores e exposição passiva',
   'Promoção de atividade física e dieta equilibrada',
-  'Evitar exposição ocupacional - questionar em asma de início na vida adulta',
-  'Evitar AINE se agravamento associado - questionar sempre',
-  'Prevenção do broncospasmo por exercício - aquecimento antes do treino',
+  'Evitar exposição ocupacional — questionar em asma de início na vida adulta',
+  'Evitar AINE se agravamento associado — questionar sempre',
+  'Prevenção do broncospasmo por exercício — aquecimento antes do treino',
+]
+
+// Nas crianças, o tabaco é só exposição passiva, e a exposição ocupacional não se aplica.
+const medidasNaoFarmacologicasPediatricas = [
+  'Evitar a exposição ao fumo do tabaco — exposição passiva',
+  'Promoção de atividade física e dieta equilibrada',
+  'Evitar AINE se agravamento associado — questionar sempre',
+  'Prevenção do broncospasmo por exercício — aquecimento antes do treino',
 ]
 
 const tabelaAdultos = {
@@ -25,14 +33,14 @@ const tabelaAdultos = {
     { degrau: 'Degrau 1-2', preferencial: 'Dose baixa ICS-formoterol conforme necessário' },
     { degrau: 'Degrau 3', preferencial: 'Dose baixa ICS-formoterol de manutenção + alívio' },
     { degrau: 'Degrau 4', preferencial: 'Dose média ICS-formoterol de manutenção + alívio' },
-    { degrau: 'Degrau 5', preferencial: 'Referenciar para avaliação fenotípica' },
+    { degrau: 'Degrau 5', preferencial: 'Adicionar LAMA e referenciar para avaliação fenotípica' },
   ],
   2: [
     { degrau: 'Degrau 1', preferencial: 'ICS sempre que SABA for administrado' },
     { degrau: 'Degrau 2', preferencial: 'Dose baixa ICS de manutenção' },
     { degrau: 'Degrau 3', preferencial: 'Dose baixa ICS-LABA de manutenção' },
     { degrau: 'Degrau 4', preferencial: 'Dose média/alta ICS-LABA de manutenção' },
-    { degrau: 'Degrau 5', preferencial: 'Referenciar para avaliação fenotípica' },
+    { degrau: 'Degrau 5', preferencial: 'Adicionar LAMA e referenciar para avaliação fenotípica' },
   ],
 }
 
@@ -60,7 +68,7 @@ export default function Fase6Page() {
   }
 
   const ajusteTexto = resultado.ajuste === null
-    ? (resultado.degrauInicial ? 'Iniciar no degrau proposto e reavaliar a resposta em 2 a 3 meses' : '-')
+    ? (resultado.degrauInicial ? 'Iniciar no degrau proposto e reavaliar a resposta em 2 a 3 meses' : '—')
     : ajusteTextoPorTipo[resultado.ajuste]
   const ajusteResumo =
     resultado.ajuste === 'subir'
@@ -69,7 +77,7 @@ export default function Fase6Page() {
         ? 'Descer'
         : resultado.ajuste === 'manter'
           ? 'Manter'
-          : resultado.degrauInicial ? 'Iniciar' : '-'
+          : resultado.degrauInicial ? 'Iniciar' : '—'
 
   function handleProximo() {
     if (step < steps.length - 1) {
@@ -99,7 +107,7 @@ export default function Fase6Page() {
           <>
             <p style={{ fontSize: 12, color: '#888', marginBottom: 20 }}>
               {pediatrico
-                ? `Criança com ${idade} anos: esquema terapêutico dos 6 aos 11 anos (GRESP 2022, Imagem 8). Há um só percurso, com SABA como alívio; o ICS-formoterol só entra em manutenção e alívio nos Degraus 3 e 4. O degrau inicial segue a GINA 2025 (Box 4-11).`
+                ? `Criança com ${idade} anos: esquema terapêutico dos 6 aos 11 anos (GRESP 2022, Imagem 8). Há um só percurso, com SABA como alívio; o ICS-formoterol só entra em manutenção e alívio nos Degraus 3 e 4. O degrau inicial segue a GINA 2025 (Quadro 4-11).`
                 : 'Selecione o percurso terapêutico. O Percurso 1 é o preferencial segundo a GINA/GRESP.'}
             </p>
 
@@ -185,7 +193,7 @@ export default function Fase6Page() {
                   <p style={{ fontSize: 11, color: '#666', margin: 0 }}>
                     {percurso === 1
                       ? 'ICS-formoterol como medicação de alívio em todos os degraus.'
-                      : 'ICS com/sem LABA para tratamento de base, associado ou não a SABA.'}
+                      : 'SABA como medicação de alívio em todos os degraus; o ICS, com ou sem LABA, é associado conforme o degrau.'}
                   </p>
                 </div>
               ))}
@@ -209,7 +217,7 @@ export default function Fase6Page() {
                   label="Critério de referenciação"
                   valor={pediatrico
                     ? 'Criança sem controlo com dose média de ICS (Degrau 3 ou superior): o GRESP recomenda referenciar para especialista'
-                    : 'Se persistir sem controlo 3-6 meses com degrau ≥ 3, técnica correta e boa adesão, referenciar'}
+                    : 'Se persistir sem controlo 3–6 meses com degrau ≥ 3, técnica correta e boa adesão, referenciar'}
                   tipo="alerta"
                 />
               )}
@@ -223,7 +231,7 @@ export default function Fase6Page() {
               Detalhe do degrau selecionado
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-              <ResultBox label={`${degrauTexto} - medicação preferencial`} valor={resultado.medicacaoPreferencial} tipo="ok" />
+              <ResultBox label={`${degrauTexto} — medicação preferencial`} valor={resultado.medicacaoPreferencial} tipo="ok" />
               <ResultBox label="Alternativa disponível" valor={resultado.medicacaoAlternativa} tipo="neutro" />
               <ResultBox
                 label="Nota GRESP"
@@ -240,8 +248,9 @@ export default function Fase6Page() {
                   Antes de intensificar o tratamento, verificar:
                 </p>
                 {[
-                  'Técnica inalatória (presente em 80% dos doentes com fraco controlo)',
-                  'Adesão à terapêutica (presente em 75% dos doentes)',
+                  // GINA 2025: técnica incorreta em até 80% e adesão insuficiente em até 75% dos doentes.
+                  'Técnica inalatória — incorreta em até 80% dos doentes',
+                  'Adesão à terapêutica — insuficiente em até 75% dos doentes',
                   'Presença de fatores de risco modificáveis',
                 ].map((item) => (
                   <div key={item} style={{ display: 'flex', gap: 8, color: '#F7C1C1', fontSize: 12, marginTop: 4 }}>
@@ -253,7 +262,7 @@ export default function Fase6Page() {
             )}
 
             <p style={{ fontSize: 11, color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-              {pediatrico ? 'Esquema crianças dos 6 aos 11 anos (GRESP, Imagem 8)' : `Esquema adultos/adolescentes - Percurso ${resultado.percurso}`}
+              {pediatrico ? 'Esquema crianças dos 6 aos 11 anos (GRESP, Imagem 8)' : `Esquema adultos/adolescentes — Percurso ${resultado.percurso}`}
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8, marginBottom: 20 }}>
               {(pediatrico ? tabelaPediatrica : tabelaAdultos[resultado.percurso]).map((linha) => {
@@ -281,9 +290,9 @@ export default function Fase6Page() {
               Medidas não farmacológicas
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {medidasNaoFarmacologicas.map((medida) => (
+              {(pediatrico ? medidasNaoFarmacologicasPediatricas : medidasNaoFarmacologicas).map((medida) => (
                 <div key={medida} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: '#888' }}>
-                  <span style={{ color: '#1D9E75' }}>-</span>
+                  <span style={{ color: '#1D9E75' }}>•</span>
                   <span>{medida}</span>
                 </div>
               ))}

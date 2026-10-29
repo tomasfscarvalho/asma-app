@@ -4,7 +4,8 @@
 export interface Paciente {
   nome: string
   dataNascimento: string
-  sexo: 'masculino' | 'feminino' | 'outro'
+  /** Vazio quando não foi indicado: o campo é facultativo. */
+  sexo: '' | 'masculino' | 'feminino' | 'outro'
   numeroUtente: string
   cartaoCidadao: string
   contacto: string
@@ -118,6 +119,8 @@ export interface Fase4Dados {
   caratChestTightness: number | null
   caratActivityLimitation: number | null
   caratMedicationIncrease: number | null
+  /** Na pergunta 10, "Não estou a tomar medicamentos" e "Nunca" valem ambos 3. */
+  caratSemMedicacao?: boolean
 }
 
 // ============================================

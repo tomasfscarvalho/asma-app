@@ -87,12 +87,12 @@ const diferenciaisPorFaixa = {
       items: [
         { dd: 'Insuficiência cardíaca congestiva', sinais: 'Dispneia de esforço, sintomas noturnos, edema dos tornozelos' },
         { dd: 'Tromboembolia pulmonar', sinais: 'Início súbito de dispneia, dor torácica' },
-        { dd: 'Doença pulmonar parenquimatosa', sinais: 'Dispneia de esforço, tosse não produtiva, baqueteamento' },
       ],
     },
     {
       grupo: 'Outros',
       items: [
+        { dd: 'Doença pulmonar parenquimatosa', sinais: 'Dispneia de esforço, tosse não produtiva, baqueteamento' },
         { dd: 'Hiperventilação / respiração disfuncional', sinais: 'Tonturas, parestesias, suspiros' },
         { dd: 'Tosse por IECA', sinais: 'Tosse seca após início de IECA' },
         { dd: 'Refluxo gastroesofágico', sinais: 'Tosse associada a refluxo, pirose' },
@@ -183,7 +183,7 @@ export default function Fase2Page() {
       <div style={{ padding: 20, minHeight: 320 }}>
 
         <p style={{ fontSize: 12, color: '#888', marginBottom: 16, lineHeight: 1.6 }}>
-          Diagnósticos diferenciais filtrados para <strong style={{ color: '#ccc' }}>{faixaLabel}</strong> segundo a GINA 2025 (Box 1-3). Devem ser assinalados os que foram avaliados e excluídos clinicamente. A ferramenta não exclui diagnósticos automaticamente.
+          Diagnósticos diferenciais filtrados para <strong style={{ color: '#ccc' }}>{faixaLabel.charAt(0).toLowerCase() + faixaLabel.slice(1)}</strong> segundo a GINA 2025 (Quadro 1-3). Devem ser assinalados os que foram avaliados e excluídos clinicamente. A ferramenta não exclui diagnósticos automaticamente.
         </p>
 
         {idadeInferiorASeis && (
@@ -307,7 +307,9 @@ export default function Fase2Page() {
         {fase2.diferenciaisExcluidos.length > 0 && (
           <div style={{ background: '#0F6E5615', border: '1px solid #1D9E7530', borderRadius: 6, padding: '10px 12px' }}>
             <p style={{ color: '#5DCAA5', fontSize: 12, margin: 0 }}>
-              {fase2.diferenciaisExcluidos.length} diagnóstico(s) diferencial(ais) considerado(s) e excluído(s) pelo médico.
+              {fase2.diferenciaisExcluidos.length === 1
+                ? '1 diagnóstico diferencial considerado e excluído pelo médico.'
+                : `${fase2.diferenciaisExcluidos.length} diagnósticos diferenciais considerados e excluídos pelo médico.`}
             </p>
           </div>
         )}

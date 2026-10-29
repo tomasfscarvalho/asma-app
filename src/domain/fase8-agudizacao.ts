@@ -64,7 +64,9 @@ export function calcularFase8(dados: Fase8Dados, idade: number | null = null): R
       v => v > limiteFreqCardiaca(idade ?? (dados.idadeMenorCinco ? 5 : null))),
     criterio('Saturação de O₂', dados.spo2,
       v => v < (pediatrico ? 92 : 90)),
-    criterio('PEF', dados.pefPercentagem, v => v <= 50),
+    // O PEF só se mede acima dos 5 anos (GINA 2025, Box 9-4): abaixo disso não
+    // entra nem como critério nem como dado em falta.
+    ...(preEscolar ? [] : [criterio('PEF', dados.pefPercentagem, v => v <= 50)]),
     // Observações do exame: uma caixa por marcar é um sinal ausente, e não um
     // dado em falta. Só os valores numéricos é que podem ficar por medir.
     { nome: 'Utilização de músculos acessórios', grave: dados.musculosAcessorios },
@@ -107,10 +109,10 @@ export function calcularFase8(dados: Fase8Dados, idade: number | null = null): R
   } else if (gravidade === 'grave') {
     nivelCuidados = 'Transferir para urgência hospitalar'
   } else if (reavaliar) {
-    nivelCuidados = 'Sem boa resposta ao fim de 1 hora: ponderar referência hospitalar; se houver deterioração, tratar como agudização grave'
+    nivelCuidados = 'Sem boa resposta ao fim de 1 hora: ponderar referenciação hospitalar; se houver deterioração, tratar como agudização grave'
       + (fatoresMauPrognostico.length > 0 ? ' — fatores de mau prognóstico presentes' : '')
   } else if (fatoresMauPrognostico.length > 0) {
-    nivelCuidados = 'Tratar em Cuidados de Saúde Primários e ponderar referência hospitalar — fatores de mau prognóstico presentes'
+    nivelCuidados = 'Tratar em Cuidados de Saúde Primários e ponderar referenciação hospitalar — fatores de mau prognóstico presentes'
   } else {
     nivelCuidados = 'Tratar em Cuidados de Saúde Primários e avaliar a resposta ao fim de 1 hora'
   }
@@ -158,7 +160,8 @@ export function tratamentoAgudizacao(
     return [
       'Transferir para UCI. Enquanto aguarda transferência:',
       'SABA, considerar brometo de ipratrópio',
-      'Oxigénio suplementar — ' + oxigenacao.toLowerCase(),
+      // Só a primeira letra passa a minúscula: toLowerCase() fazia «spo₂».
+      'Oxigénio suplementar para ' + oxigenacao.charAt(0).toLowerCase() + oxigenacao.slice(1),
       'Corticosteroide sistémico, preferencialmente por via oral',
     ]
   }

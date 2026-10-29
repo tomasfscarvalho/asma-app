@@ -155,7 +155,8 @@ function selecionarDegrauInicial(
 
   // Sem a frequência, não há base para escolher o degrau mais baixo.
   if (fase4.frequenciaSintomas === null) {
-    avisos.push('Frequência dos sintomas por indicar: a sugestão assume o Degrau 2 até ser preenchida (Fase 4).')
+    // No Percurso 1 o Degrau 2 aparece como "Degrau 1-2": o aviso usa o mesmo nome.
+    avisos.push(`Frequência dos sintomas por indicar: a sugestão assume o ${percurso === 1 ? 'Degrau 1-2' : 'Degrau 2'} até ser preenchida (Fase 4).`)
     return 2
   }
 
@@ -236,15 +237,27 @@ export function calcularFase6(
   // Sem degrau atual não há nada para ajustar: o doente ainda não faz o que
   // se propõe. Subir, manter ou descer só fazem sentido face a um tratamento
   // em curso, e o mesmo vale para o critério de referenciação do degrau >= 3.
-  const ajuste = degrauInicial
+  const ajusteCalculado = degrauInicial
     ? null
     : calcularAjuste(controlo, fase6, fase5, temRiscoAgudizacoes(fase3, fase4, fase5), avisos)
-  const passo = ajuste === 'subir' ? 1 : ajuste === 'descer' ? -1 : 0
+  const passo = ajusteCalculado === 'subir' ? 1 : ajusteCalculado === 'descer' ? -1 : 0
   const degrau = degrauAtual === null
     ? (pediatrico
         ? selecionarDegrauInicialPediatrico(fase3, fase4, fase5, avisos)
         : selecionarDegrauInicial(fase3, fase4, fase5, percurso, avisos))
     : degrauAjustado(degrauAtual, passo, percurso, pediatrico)
+
+  // No último degrau não há para onde subir, e no primeiro não há para onde
+  // descer: dizer "subir" ou "descer" com o degrau igual seria contraditório.
+  const semDegrauSeguinte = degrauAtual !== null && passo !== 0 && degrau === degrauAtual
+  const ajuste = semDegrauSeguinte ? 'manter' : ajusteCalculado
+  if (semDegrauSeguinte) {
+    avisos.push(passo > 0
+      ? `O doente já está no Degrau ${degrauAtual}, o último: não há degrau acima. Rever a técnica inalatória, a adesão e os fatores modificáveis; a persistir sem controlo, referenciar para consulta de especialidade.`
+      : !pediatrico && percurso === 1
+        ? 'O doente já está nos Degraus 1-2, o nível mais baixo do Percurso 1: não há degrau abaixo.'
+        : 'O doente já está no Degrau 1: não há degrau abaixo.')
+  }
 
   // GRESP 2022, p. 24: "O aumento do degrau terapêutico depende sempre da
   // opção tomada para o degrau anterior". Se a proposta usa outro percurso,

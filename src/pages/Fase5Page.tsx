@@ -5,11 +5,14 @@ import Layout from '../components/Layout'
 import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
 import CheckItem from '../components/CheckItem'
+import CampoNumero from '../components/CampoNumero'
 import { avaliarFev1Baixo, divergenciaFev1 } from '../domain/fase5-risco'
 import { calcularControlo } from '../domain/fase4-controlo'
 import { calcularFase3 } from '../domain/fase3-provas'
 
 const steps = ['Medicação / Função', 'Exposição', 'Comorbilidades']
+
+const inteiro = (v: number) => Number.isInteger(v) ? null : 'Indique um número inteiro: não é considerado.'
 
 export default function Fase5Page() {
   const { fase3, fase4, fase5, setFase5, navegarPara } = useAsmaStore()
@@ -26,7 +29,7 @@ export default function Fase5Page() {
   const { aumentoFev1Percentagem: aumentoPct, aumentoFev1ml: aumentoMl } = fase3
   const provaFase3 = aumentoPct === null
     ? 'sem prova de broncodilatação registada'
-    : `aumento medido: ${aumentoPct}%${aumentoMl !== null ? ` / ${aumentoMl} ml` : ''}`
+    : `aumento medido: ${aumentoPct}%${aumentoMl !== null ? ` / ${aumentoMl} mL` : ''}`
       + (calcularFase3(fase3).reversibilidade === false ? ' (prova negativa)' : '')
 
   return (
@@ -35,8 +38,8 @@ export default function Fase5Page() {
       faseTitulo="Risco futuro"
       badge="Apresentação ao médico"
       resumo={[
-        { key: 'Fatores major', val: fatoresMajor ? '⚠ Presentes' : 'Nenhum' },
-        { key: 'Abuso de SABA', val: fase5.abusoDeSaba ? 'Sim' : 'Não' },
+        { key: 'Fatores de risco major', val: fatoresMajor ? '⚠ Presentes' : 'Nenhum' },
+        { key: 'Utilização excessiva de SABA', val: fase5.abusoDeSaba ? 'Sim' : 'Não' },
       ]}
     >
       <SubstepNav steps={steps} atual={step} onChange={setStep} />
@@ -58,7 +61,7 @@ export default function Fase5Page() {
               <CheckItem label="Não cumprimento de ICS" checked={fase5.naoCumprimentoIcs} onChange={v => setFase5({ naoCumprimentoIcs: v })} />
               <CheckItem label="Má adesão à terapêutica" checked={fase5.maAdesao} onChange={v => setFase5({ maAdesao: v })} />
               <CheckItem label="Técnica inalatória incorreta" checked={fase5.tecnicaInalatoriaIncorreta} onChange={v => setFase5({ tecnicaInalatoriaIncorreta: v })} />
-              <CheckItem label="Abuso de SABA (≥ 3 embalagens/ano)" checked={fase5.abusoDeSaba} onChange={v => setFase5({ abusoDeSaba: v })} alerta />
+              <CheckItem label="Utilização excessiva de SABA (≥ 3 embalagens/ano)" checked={fase5.abusoDeSaba} onChange={v => setFase5({ abusoDeSaba: v })} alerta />
               <CheckItem
                 label={fev1.origem === 'medido'
                   ? `FEV1 < 60% do previsto — medido: ${fev1.percentagem}%`
@@ -111,26 +114,22 @@ export default function Fase5Page() {
             )}
 
             <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div>
-                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>Agudizações no último ano</label>
-                <input
-                  type="number"
-                  value={fase5.agudizacoesUltimoAno ?? ''}
-                  onChange={e => setFase5({ agudizacoesUltimoAno: e.target.value ? Number(e.target.value) : null })}
-                  placeholder="Número de agudizações"
-                  style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>Internamentos no último ano</label>
-                <input
-                  type="number"
-                  value={fase5.internamentosUltimoAno ?? ''}
-                  onChange={e => setFase5({ internamentosUltimoAno: e.target.value ? Number(e.target.value) : null })}
-                  placeholder="Número de internamentos"
-                  style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
-                />
-              </div>
+              <CampoNumero
+                label="Agudizações no último ano"
+                valor={fase5.agudizacoesUltimoAno}
+                onChange={v => setFase5({ agudizacoesUltimoAno: v })}
+                min={0} max={50}
+                validar={inteiro}
+                placeholder="Número de agudizações"
+              />
+              <CampoNumero
+                label="Internamentos no último ano"
+                valor={fase5.internamentosUltimoAno}
+                onChange={v => setFase5({ internamentosUltimoAno: v })}
+                min={0} max={50}
+                validar={inteiro}
+                placeholder="Número de internamentos"
+              />
             </div>
           </>
         )}

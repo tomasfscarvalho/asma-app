@@ -8,6 +8,8 @@ import SubstepNav from '../components/SubstepNav'
 import NavFooter from '../components/NavFooter'
 import CheckItem from '../components/CheckItem'
 import ResultBox from '../components/ResultBox'
+import CampoNumero from '../components/CampoNumero'
+import { anos } from '../domain/formato'
 
 const steps = ['Parâmetros', 'Gravidade']
 
@@ -17,6 +19,8 @@ export default function Fase8Page() {
 
   const idade = calcularIdade(paciente.dataNascimento)
   const resultado = calcularFase8(fase8, idade)
+  // Limiares de gravidade próprios (Tabela 7) e sem PEF: crianças até aos 5 anos.
+  const preEscolar = idade !== null ? idade < 6 : fase8.idadeMenorCinco
 
   // "Anterior" volta ao ecrã de onde se abriu a agudização pelo atalho; no
   // percurso normal, à Fase 7. Abaixo dos 6 anos, ao ecrã inicial.
@@ -49,7 +53,7 @@ export default function Fase8Page() {
   return (
     <Layout
       faseNumero={8}
-      faseTitulo="Sinalização de agudização"
+      faseTitulo="Avaliação de agudização"
       badge="Cálculo automático"
       resumo={[
         { key: 'Gravidade', val: gravidadeTexto },
@@ -76,10 +80,10 @@ export default function Fase8Page() {
               ) : (
                 <p style={{ fontSize: 12, color: '#9FE1CB', margin: '0 0 10px' }}>
                   {idade <= 5
-                    ? `Doente com ${idade} anos: limiares de gravidade e tratamento pediátricos (≤ 5 anos).`
+                    ? `Doente com ${anos(idade)}: limiares de gravidade e tratamento pediátricos (≤ 5 anos).`
                     : idade <= 11
-                      ? `Doente com ${idade} anos: limiares de gravidade do adulto e tratamento pediátrico (6–11 anos).`
-                      : `Doente com ${idade} anos: limiares e tratamento do adulto.`}
+                      ? `Doente com ${anos(idade)}: limiares de gravidade do adulto e tratamento pediátrico (6–11 anos).`
+                      : `Doente com ${anos(idade)}: limiares e tratamento do adulto.`}
                 </p>
               )}
               <CheckItem
@@ -118,54 +122,37 @@ export default function Fase8Page() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-              <div>
-                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>
-                  Freq. respiratória (/min)
-                </label>
-                <input
-                  type="number"
-                  value={fase8.freqRespiratoria ?? ''}
-                  onChange={e => setFase8({ freqRespiratoria: e.target.value ? Number(e.target.value) : null })}
-                  placeholder={(idade !== null ? idade < 6 : fase8.idadeMenorCinco) ? 'Normal ≤ 40' : 'Normal ≤ 30'}
-                  style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
+              {/* Os textos de ajuda dão o limiar de gravidade da Tabela 7, e não um valor normal. */}
+              <CampoNumero
+                label="Freq. respiratória (/min)"
+                valor={fase8.freqRespiratoria}
+                onChange={v => setFase8({ freqRespiratoria: v })}
+                min={5} max={120} unidade="/min"
+                placeholder={preEscolar ? 'Grave > 40' : 'Grave > 30'}
+              />
+              <CampoNumero
+                label="Freq. cardíaca (bpm)"
+                valor={fase8.freqCardiaca}
+                onChange={v => setFase8({ freqCardiaca: v })}
+                min={30} max={250} unidade="bpm"
+                placeholder={idade === null ? (fase8.idadeMenorCinco ? 'Grave > 150' : 'Grave > 120') : idade <= 3 ? 'Grave > 180' : idade <= 5 ? 'Grave > 150' : 'Grave > 120'}
+              />
+              <CampoNumero
+                label="SpO₂ (%)"
+                valor={fase8.spo2}
+                onChange={v => setFase8({ spo2: v })}
+                min={40} max={100} unidade="%"
+                placeholder={preEscolar ? 'Grave < 92' : 'Grave < 90'}
+              />
+              {!preEscolar && (
+                <CampoNumero
+                  label="PEF (% do previsto ou do melhor valor anterior)"
+                  valor={fase8.pefPercentagem}
+                  onChange={v => setFase8({ pefPercentagem: v })}
+                  min={5} max={150} unidade="%"
+                  placeholder="Grave ≤ 50"
                 />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>
-                  Freq. cardíaca (bpm)
-                </label>
-                <input
-                  type="number"
-                  value={fase8.freqCardiaca ?? ''}
-                  onChange={e => setFase8({ freqCardiaca: e.target.value ? Number(e.target.value) : null })}
-                  placeholder={idade === null ? 'Normal ≤ 120' : idade <= 3 ? 'Grave > 180' : idade <= 5 ? 'Grave > 150' : 'Grave > 120'}
-                  style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>
-                  SpO2 (%)
-                </label>
-                <input
-                  type="number"
-                  value={fase8.spo2 ?? ''}
-                  onChange={e => setFase8({ spo2: e.target.value ? Number(e.target.value) : null })}
-                  placeholder={(idade !== null ? idade < 6 : fase8.idadeMenorCinco) ? 'Normal ≥ 92' : 'Normal 90-95'}
-                  style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, color: '#aaa', display: 'block', marginBottom: 4 }}>
-                  PEF (% do previsto ou do melhor valor anterior)
-                </label>
-                <input
-                  type="number"
-                  value={fase8.pefPercentagem ?? ''}
-                  onChange={e => setFase8({ pefPercentagem: e.target.value ? Number(e.target.value) : null })}
-                  placeholder="Normal > 50"
-                  style={{ width: '100%', padding: '8px 10px', background: '#111', border: '1px solid #444', borderRadius: 6, fontSize: 13, color: '#fff' }}
-                />
-              </div>
+              )}
             </div>
           </>
         )}
@@ -232,7 +219,7 @@ export default function Fase8Page() {
             {resultado.fatoresMauPrognostico.length > 0 && (
               <div style={{ marginBottom: 16, background: '#E24B4A15', border: '1px solid #E24B4A50', borderRadius: 6, padding: '10px 12px' }}>
                 <p style={{ color: '#F09595', fontSize: 12, fontWeight: 500, margin: '0 0 6px' }}>
-                  ⚠ {resultado.fatoresMauPrognostico.length} fator(es) de mau prognóstico
+                  ⚠ {resultado.fatoresMauPrognostico.length === 1 ? '1 fator de mau prognóstico' : `${resultado.fatoresMauPrognostico.length} fatores de mau prognóstico`}
                 </p>
                 {resultado.fatoresMauPrognostico.map(f => (
                   <p key={f} style={{ color: '#F09595', fontSize: 11, margin: '2px 0' }}>• {f}</p>
@@ -257,7 +244,7 @@ export default function Fase8Page() {
               <CheckItem label="Episódios prévios de ventilação mecânica" checked={fase8.ventilacaoMecanicaPrevia} onChange={v => setFase8({ ventilacaoMecanicaPrevia: v })} alerta />
               <CheckItem label="≥ 2 urgências ou hospitalizações no último ano" checked={fase8.duasOuMaisUrgencias} onChange={v => setFase8({ duasOuMaisUrgencias: v })} alerta />
               <CheckItem label="Corticosteroides sistémicos recentes" checked={fase8.corticosteroidesRecentes} onChange={v => setFase8({ corticosteroidesRecentes: v })} />
-              <CheckItem label="Abuso prolongado de SABA" checked={fase8.abusoDeSabaProlong} onChange={v => setFase8({ abusoDeSabaProlong: v })} />
+              <CheckItem label="Utilização excessiva e prolongada de SABA" checked={fase8.abusoDeSabaProlong} onChange={v => setFase8({ abusoDeSabaProlong: v })} />
               <CheckItem label="Comorbilidades graves descompensadas" checked={fase8.comorbilidadesGraves} onChange={v => setFase8({ comorbilidadesGraves: v })} alerta />
               <CheckItem label="Não adesão ao tratamento" checked={fase8.naoAdesaoTratamento} onChange={v => setFase8({ naoAdesaoTratamento: v })} />
               <CheckItem label="Presença de alergia alimentar" checked={fase8.alergiaAlimentar} onChange={v => setFase8({ alergiaAlimentar: v })} alerta />

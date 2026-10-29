@@ -136,12 +136,12 @@ for (let p = 0; p < 5; p++) {
   await opcoes.nth(p * 5 + 2).click().catch(() => {})
   await pagina.waitForTimeout(60)
 }
-await capturar('figura-3-7', 'Fase 4: score ACT calculado')
+await capturar('figura-3-7', 'Fase 4: pontuação do ACT calculada')
 await proximo()
 
 // ============================================================ Fase 5
 for (const r of [
-  'Abuso de SABA (≥ 3 embalagens/ano)',
+  'Utilização excessiva de SABA (≥ 3 embalagens/ano)',
   'Má adesão à terapêutica',
   'Intubação ou internamento prévio em UCI por asma',
   '≥ 1 agudização grave nos últimos 12 meses',

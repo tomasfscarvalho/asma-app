@@ -48,7 +48,7 @@ export default function DecisaoDiagnosticaPage() {
               <span>{'\u2022 A normalidade das provas funcionais n\u00e3o exclui o diagn\u00f3stico de asma'}</span>
               <span>{'\u2022 Sintomas t\u00edpicos com variabilidade + resposta ao ICS suportam o diagn\u00f3stico'}</span>
               {(fev1 === null || fev1 > 70) && (
-                <span>{'\u2022 Se as provas s\u00e3o negativas e o FEV1 > 70% do previsto: considerar reduzir gradualmente o ICS e repetir as provas 2 a 4 semanas depois (GINA 2025, Box 1-4 e 1-5)'}</span>
+                <span>{'\u2022 Se as provas s\u00e3o negativas e o FEV1 > 70% do previsto: considerar reduzir gradualmente o ICS e repetir as provas 2 a 4 semanas depois (GINA 2025, Quadros 1-4 e 1-5)'}</span>
               )}
               {(fev1 === null || fev1 < 70) && (
                 <span>{'\u2022 Se o FEV1 < 70% do previsto: considerar iniciar ou intensificar o ICS durante 3 meses e reavaliar os sintomas e a fun\u00e7\u00e3o respirat\u00f3ria'}</span>

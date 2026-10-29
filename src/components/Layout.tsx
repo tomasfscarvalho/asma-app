@@ -1,5 +1,6 @@
 import { useAsmaStore } from '../store/useAsmaStore'
 import { calcularIdade } from '../domain/idade'
+import { anos } from '../domain/formato'
 import ProgressBar from './ProgressBar'
 
 
@@ -18,7 +19,7 @@ export default function Layout({ children, faseNumero, faseTitulo, badge, resumo
 
   const resumoPadrao = [
     { key: 'Doente', val: paciente.nome || '\u2014' },
-    { key: 'Idade', val: idade !== null && !Number.isNaN(idade) ? `${idade} anos` : '\u2014' },
+    { key: 'Idade', val: idade !== null && !Number.isNaN(idade) ? anos(idade) : '\u2014' },
     { key: 'Fase atual', val: `${faseNumero} / 8` },
     ...resumo,
   ]
